@@ -2450,3 +2450,26 @@ backgroundMusic = new Audio('audio/playbackbattle.mp3');
 backgroundMusic.loop = true;
 backgroundMusic.pause();
 backgroundMusic.currentTime = 0;
+// ... (código anterior) ...
+
+window.addEventListener('keydown', (event) => {
+    if (event.code === 'Space' && gameActive && players.length > 0 && players[0].isSuperCharged) {
+        event.preventDefault(); // Evita que la página se desplace al presionar espacio
+        players[0].punch(); // Usa punch() para activar la lógica del superpoder
+    }
+});
+
+
+createCharacterSelectionUI();
+resetSelectionScreen();
+
+// =================================================================
+// ======> AÑADE ESTA LÍNEA AQUÍ <======
+// Forzamos al header a ocultarse para corregir el estado inicial.
+gameHeader.style.display = 'none';
+// =================================================================
+
+backgroundMusic = new Audio('audio/playbackbattle.mp3');
+backgroundMusic.loop = true;
+backgroundMusic.pause();
+backgroundMusic.currentTime = 0;
