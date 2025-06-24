@@ -1,27 +1,13 @@
-// ... (todo el código anterior de scripts.js permanece igual)
-
-// Llamadas de inicialización al final del archivo
-
-createCharacterSelectionUI();
-resetSelectionScreen();
-
-// SOLUCIÓN: Añadir esta línea para corregir el estado inicial
-gameHeader.style.display = 'none'; 
-
-// --- El resto del código de inicialización ---
-backgroundMusic = new Audio('audio/playbackbattle.mp3');
-backgroundMusic.loop = true;
-backgroundMusic.pause();
-backgroundMusic.currentTime = 0;
-
-// Obtención de elementos del DOM
+// =================================================================
+// 1. OBTENCIÓN DE ELEMENTOS DEL DOM
+// =================================================================
 const splashScreen = document.getElementById('splash-screen');
 const continueButton = document.getElementById('continue-button');
 const gameWrapper = document.getElementById('game-wrapper');
 const gameHeader = document.getElementById('game-header');
 
 const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d'); // Contexto 2D para dibujar en el canvas
+const ctx = canvas.getContext('2d');
 
 const player1HealthBar = document.getElementById('player1HealthBar');
 const player2HealthBar = document.getElementById('player2HealthBar');
@@ -29,6 +15,7 @@ const player1PowerBar = document.getElementById('player1PowerBar');
 const player2PowerBar = document.getElementById('player2PowerBar');
 const player1NameDisplay = document.getElementById('player1NameDisplay');
 const player2NameDisplay = document.getElementById('player2NameDisplay');
+const player1PowerBarContainer = document.getElementById('player1PowerBarContainer');
 
 const startButton = document.getElementById('startButton');
 const restartButton = document.getElementById('restartButton');
@@ -44,41 +31,44 @@ const p2SelectedCharImg = document.getElementById('p2-selected-char-img');
 const p2SelectedCharName = document.getElementById('p2-selected-char-name');
 const selectionPrompt = document.getElementById('selection-prompt');
 
-// Constantes del juego
+const startMessageOverlay = document.getElementById('start-message-overlay');
+const startMessageText = document.getElementById('start-message-text');
+
+// =================================================================
+// 2. CONSTANTES Y VARIABLES GLOBALES DEL JUEGO
+// =================================================================
 const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 400;
 canvas.width = CANVAS_WIDTH;
 canvas.height = CANVAS_HEIGHT;
 
-const GRAVITY = 0.7; // Gravedad que afecta a los jugadores
-const BASE_PLAYER_SPEED = 4; // Velocidad base de movimiento
-const BASE_JUMP_STRENGTH = 15; // Fuerza de salto
-const MAX_HEALTH = 150; // Salud máxima
-const PUNCH_DAMAGE = 10; // Daño del golpe
-const KICK_DAMAGE = 13; // Daño de la patada
-const PUNCH_RANGE = 50; // Rango del golpe
-const KICK_RANGE = 60; // Rango de la patada
-const ATTACK_ANIMATION_DURATION = 150; // Duración de la animación de ataque
-const ATTACK_LOGIC_DURATION = 200; // Duración de la lógica de detección de ataque
-const ATTACK_COOLDOWN = 550; // Original: 700. Reducido para un combate más rápido.
-const BASE_KNOCKBACK_STRENGTH = 12; // Original: 10. Aumentado para un mayor impacto.
-const HIT_EFFECT_LIFETIME = 30; // Duración de los efectos de golpe
-const POWER_GAIN_PER_CLICK = 0.5; // Original: 1. Reducido aún más para minimizar el impacto del clic.
+const GRAVITY = 0.7;
+const BASE_PLAYER_SPEED = 4;
+const BASE_JUMP_STRENGTH = 15;
+const MAX_HEALTH = 150;
+const PUNCH_DAMAGE = 10;
+const KICK_DAMAGE = 13;
+const PUNCH_RANGE = 50;
+const KICK_RANGE = 60;
+const ATTACK_ANIMATION_DURATION = 150;
+const ATTACK_LOGIC_DURATION = 200;
+const ATTACK_COOLDOWN = 550;
+const BASE_KNOCKBACK_STRENGTH = 12;
+const HIT_EFFECT_LIFETIME = 30;
+const POWER_GAIN_PER_CLICK = 0.5;
 
-// Constantes de la IA
-const AI_ACTION_INTERVAL = 250; // Intervalo para que la IA tome decisiones (más rápido)
-const AI_MOVE_CHANCE = 0.7; // Probabilidad de que la IA se mueva
-const AI_JUMP_CHANCE = 0.15; // Probabilidad de que la IA salte (ligeramente mayor)
-const AI_ATTACK_CHANCE_IN_RANGE = 0.75; // Probabilidad de que la IA ataque si está cerca (mayor)
-const AI_KICK_CHANCE = 0.4; // Probabilidad de que la IA use una patada en lugar de un puñetazo
+const AI_ACTION_INTERVAL = 250;
+const AI_MOVE_CHANCE = 0.7;
+const AI_JUMP_CHANCE = 0.15;
+const AI_ATTACK_CHANCE_IN_RANGE = 0.75;
+const AI_KICK_CHANCE = 0.4;
 
-// Constantes de poder y ataques especiales
-const MAX_POWER = 150; // Poder máximo
-const POWER_GAIN_PER_HIT = 25; // Poder ganado por cada golpe exitoso
-const SUPER_PUNCH_DAMAGE = 30; // Daño del super golpe
-const SUPER_KICK_DAMAGE = 35; // Daño de la super patada
+const MAX_POWER = 150;
+const POWER_GAIN_PER_HIT = 25;
+const SUPER_PUNCH_DAMAGE = 30;
+const SUPER_KICK_DAMAGE = 35;
 
-// Constantes específicas para el superpoder de Piraña
+// Constantes de superpoderes...
 const PIRANHA_PROJECTILE_SPEED = 8;
 const PIRANHA_PROJECTILE_LIFESPAN = 60;
 const PIRANHA_PROJECTILE_WIDTH = 30;
@@ -86,42 +76,36 @@ const PIRANHA_PROJECTILE_HEIGHT = 20;
 const PIRANHA_PROJECTILE_DAMAGE = 15;
 const PIRANHA_PROJECTILE_COUNT = 3;
 
-// Constantes específicas para el superpoder de La Ex (Lluvia de Billetes)
-const MONEY_RAIN_COUNT = 5; // Número de grupos de billetes
-const MONEY_RAIN_WAD_WIDTH = 30; // Ancho del fajo de billetes
-const MONEY_RAIN_WAD_HEIGHT = 20; // Alto del fajo de billetes
+const MONEY_RAIN_COUNT = 5;
+const MONEY_RAIN_WAD_WIDTH = 30;
+const MONEY_RAIN_WAD_HEIGHT = 20;
 const MONEY_RAIN_DAMAGE = 10;
 const MONEY_RAIN_INITIAL_Y = -MONEY_RAIN_WAD_HEIGHT;
 const COIN_RAIN_DAMAGE = 5;
 
-// Constantes específicas para el superpoder de Burric (Calculadoras)
-const CALCULATOR_PROJECTILE_LIFESPAN = 120; // Aumentar vida útil
+const CALCULATOR_PROJECTILE_LIFESPAN = 120;
 const CALCULATOR_PROJECTILE_WIDTH = 40;
 const CALCULATOR_PROJECTILE_HEIGHT = 50;
 const CALCULATOR_PROJECTILE_DAMAGE = 18;
-const CALCULATOR_PROJECTILE_COUNT = 5; // Más calculadoras
+const CALCULATOR_PROJECTILE_COUNT = 5;
 const CALCULATOR_INITIAL_Y = -CALCULATOR_PROJECTILE_HEIGHT;
 
-// Constantes específicas para el superpoder de Matthei Bolt
-const BOLT_DASH_SPEED = 22.5; // Reducido un 10% de 25
+const BOLT_DASH_SPEED = 22.5;
 const BOLT_DASH_COUNT = 5;
 const BOLT_DASH_DAMAGE = 8;
 
-// Constantes específicas para el superpoder de El Zanjas
 const ZANJAS_CRACK_DAMAGE = 40;
-const ZANJAS_SWALLOWED_DURATION = 90; // Duración en frames
+const ZANJAS_SWALLOWED_DURATION = 90;
 const ZANJAS_CRACK_WIDTH = 150;
 const ZANJAS_CRACK_MAX_HEIGHT = 80;
-const ZANJAS_CRACK_LIFESPAN = 180; // Total de frames para animación
+const ZANJAS_CRACK_LIFESPAN = 180;
 
-// Constantes específicas para el superpoder de Carolina Papelucho
-const PAPELUCHO_STUN_DURATION = 180; // 3 segundos a 60fps
+const PAPELUCHO_STUN_DURATION = 180;
 const PAPELUCHO_PAPER_COUNT = 20;
 const PAPELUCHO_PAPER_WIDTH = 25;
 const PAPELUCHO_PAPER_HEIGHT = 35;
 const PAPELUCHO_PAPER_DAMAGE = 1;
 
-// Constantes específicas para el superpoder de Orsini Love
 const ORSINI_KISS_SPEED = 7;
 const ORSINI_KISS_LIFESPAN = 90;
 const ORSINI_KISS_WIDTH = 30;
@@ -129,214 +113,15 @@ const ORSINI_KISS_HEIGHT = 25;
 const ORSINI_KISS_DAMAGE = 18;
 const ORSINI_KISS_COUNT = 2;
 
-// Constantes específicas para el superpoder de Escape Room Jackson
-const JACKSON_INVISIBILITY_DURATION = 120; // 2 segundos a 60fps
+const JACKSON_INVISIBILITY_DURATION = 120;
 const JACKSON_CONFUSION_DURATION = 120;
 const SMOKE_PARTICLE_COUNT = 30;
 
-// Constantes específicas para el superpoder de Tía Cote
 const TIA_COTE_TEDDY_COUNT = 1;
 const TIA_COTE_TEDDY_WIDTH = 120;
 const TIA_COTE_TEDDY_HEIGHT = 150;
 const TIA_COTE_TEDDY_DAMAGE = 30;
 const TIA_COTE_TEDDY_INITIAL_Y = -TIA_COTE_TEDDY_HEIGHT - 50;
-
-
-// Variables para el efecto de temblor de pantalla
-let screenShakeMagnitude = 0;
-let screenShakeTimeLeft = 0;
-
-let gameActive = false; // Estado del juego (activo o en pausa)
-let players = []; // Array para almacenar los objetos Player
-let activeHitEffects = []; // Array para los efectos visuales de golpe
-const hitWords = ["¡POW!", "¡BAM!", "¡CRASH!", "¡KAPOW!", "¡WHAM!", "¡SLAP!", "¡BOOM!", "¡BANG!", "¡PUFF!", "¡THWACK!"];
-const hitWordColors = ["#FFD700", "#FF4500", "#ADFF2F", "#00FFFF", "#FF69B4", "#FFFF00", "#FF1493"];
-
-let backgroundMusic; // Objeto de audio para la música de fondo
-
-const characterBackgrounds = {
-    "El Zanjas": ["img/lazanja.png"],
-    "Tía Cote": ["img/glitter.png"],
-    "Escape Room Jackson": ["img/happyhour.png"],
-    "Piraña": ["img/lamoneda.png"],
-    "La Ex": ["img/lamoneda.png"],
-    "Matthei Bolt": ["img/pasillomoneda.png"],
-    "Burric": ["img/pasillomoneda.png"],
-    "Orsini Love": ["img/pasillomoneda.png"],
-    "Carolina Papelucho": ["img/pasillomoneda.png"]
-};
-
-
-// Definición de los assets de los personajes (imágenes, colores, etc.)
-const characterAssets = [
-    {
-        name: "Piraña",
-        baseColor: '#e0e0e0',
-        previewImage: "img/personaje1-cabeza.png",
-        textures: {
-            head: "img/personaje1-cabeza.png",
-            torso: "img/personaje1-torso.png",
-            upperArm: "img/personaje1-brazos.png",
-            foreArm: "img/personaje1-antebrazos.png",
-            thigh: "img/personaje1-muslos.png",
-            lowerLeg: "img/personaje1-piernasbajas.png",
-            glove_r: "img/personaje1-guantes-d.png",
-            glove_l: "img/personaje1-guantes-i.png",
-            glove: null,
-            shoe: "img/personaje1-zapatos.png",
-            superEffectTexture: "img/personaje1-super-effect.png"
-        }
-    },
-    {
-        name: "La Ex",
-        baseColor: '#c0392b',
-        previewImage: "img/personaje2-cabeza.png",
-        textures: {
-            head: "img/personaje2-cabeza.png",
-            torso: "img/personaje2-torso.png",
-            upperArm: "img/personaje2-brazos.png",
-            foreArm: "img/personaje2-antebrazos.png",
-            thigh: "img/personaje2-muslos.png",
-            lowerLeg: "img/personaje2-piernasbajas.png",
-            glove_r: "img/personaje2-guantes-d.png",
-            glove_l: "img/personaje2-guantes-i.png",
-            glove: null,
-            shoe: "img/personaje2-zapatos.png",
-            superEffectTexture: "img/personaje2-super-effect.png"
-        }
-    },
-    {
-        name: "Burric",
-        baseColor: '#27ae60',
-        previewImage: "img/personaje3-cabeza.png",
-        textures: {
-            head: "img/personaje3-cabeza.png",
-            torso: "img/personaje3-torso.png",
-            upperArm: "img/personaje3-brazos.png",
-            foreArm: "img/personaje3-antebrazos.png",
-            thigh: "img/personaje3-muslos.png",
-            lowerLeg: "img/personaje3-piernasbajas.png",
-            glove_r: "img/personaje3-guantes-d.png",
-            glove_l: "img/personaje3-guantes-i.png",
-            glove: null,
-            shoe: "img/personaje3-zapatos.png",
-            superEffectTexture: "img/personaje3-super-effect.png"
-        }
-    },
-    {
-        name: "Matthei Bolt",
-        baseColor: '#f39c12',
-        previewImage: "img/personaje4-cabeza.png",
-        textures: {
-            head: "img/personaje4-cabeza.png",
-            torso: "img/personaje4-torso.png",
-            upperArm: "img/personaje4-brazos.png",
-            foreArm: "img/personaje4-antebrazos.png",
-            thigh: "img/personaje4-muslos.png",
-            lowerLeg: "img/personaje4-piernasbajas.png",
-            glove_r: "img/personaje4-guantes-d.png",
-            glove_l: "img/personaje4-guantes-i.png",
-            glove: null,
-            shoe: "img/personaje4-zapatos.png",
-            superEffectTexture: "img/personaje4-super-effect.png",
-            yellowVest: "img/matthei-chaleco.png" 
-        }
-    },
-    {
-        name: "Carolina Papelucho",
-        baseColor: '#d35400',
-        previewImage: "img/personaje5-cabeza.png",
-        textures: {
-            head: "img/personaje5-cabeza.png",
-            torso: "img/personaje5-torso.png",
-            upperArm: "img/personaje5-brazos.png",
-            foreArm: "img/personaje5-antebrazos.png",
-            thigh: "img/personaje5-muslos.png",
-            lowerLeg: "img/personaje5-piernasbajas.png",
-            glove_r: "img/personaje5-guantes-d.png",
-            glove_l: "img/personaje5-guantes-i.png",
-            glove: null,
-            shoe: "img/personaje5-zapatos.png",
-            superEffectTexture: "img/personaje5-super-effect.png"
-        }
-    },
-    {
-        name: "El Zanjas",
-        baseColor: '#7f8c8d',
-        previewImage: "img/personaje6-cabeza.png",
-        textures: {
-            head: "img/personaje6-cabeza.png",
-            torso: "img/personaje6-torso.png",
-            upperArm: "img/personaje6-brazos.png",
-            foreArm: "img/personaje6-antebrazos.png",
-            thigh: "img/personaje6-muslos.png",
-            lowerLeg: "img/personaje6-piernasbajas.png",
-            glove_r: "img/personaje6-guantes-d.png",
-            glove_l: "img/personaje6-guantes-i.png",
-            glove: null,
-            shoe: "img/personaje6-zapatos.png",
-            superEffectTexture: "img/personaje6-super-effect.png"
-        }
-    },
-    {
-        name: "Orsini Love",
-        baseColor: '#ff69b4', // HotPink
-        previewImage: "img/personaje7-cabeza.png",
-        textures: {
-            head: "img/personaje7-cabeza.png",
-            torso: "img/personaje7-torso.png",
-            upperArm: "img/personaje7-brazos.png",
-            foreArm: "img/personaje7-antebrazos.png",
-            thigh: "img/personaje7-muslos.png",
-            lowerLeg: "img/personaje7-piernasbajas.png",
-            glove_r: "img/personaje7-guantes-d.png",
-            glove_l: "img/personaje7-guantes-i.png",
-            glove: null,
-            shoe: "img/personaje7-zapatos.png",
-            superEffectTexture: "img/personaje7-super-effect.png"
-        }
-    },
-    {
-        name: "Escape Room Jackson",
-        baseColor: '#6c757d', // Gray
-        previewImage: "img/personaje8-cabeza.png",
-        textures: {
-            head: "img/personaje8-cabeza.png",
-            torso: "img/personaje8-torso.png",
-            upperArm: "img/personaje8-brazos.png",
-            foreArm: "img/personaje8-antebrazos.png",
-            thigh: "img/personaje8-muslos.png",
-            lowerLeg: "img/personaje8-piernasbajas.png",
-            glove_r: "img/personaje8-guantes-d.png",
-            glove_l: "img/personaje8-guantes-i.png",
-            glove: null,
-            shoe: "img/personaje8-zapatos.png",
-            superEffectTexture: "img/personaje8-super-effect.png"
-        }
-    },
-    {
-        name: "Tía Cote",
-        baseColor: '#9b59b6', // Amethyst
-        previewImage: "img/personaje9-cabeza.png",
-        textures: {
-            head: "img/personaje9-cabeza.png",
-            torso: "img/personaje9-torso.png",
-            upperArm: "img/personaje9-brazos.png",
-            foreArm: "img/personaje9-antebrazos.png",
-            thigh: "img/personaje9-muslos.png",
-            lowerLeg: "img/personaje9-piernasbajas.png",
-            glove_r: "img/personaje9-guantes-d.png",
-            glove_l: "img/personaje9-guantes-i.png",
-            glove: null,
-            shoe: "img/personaje9-zapatos.png",
-            superEffectTexture: "img/personaje9-super-effect.png"
-        }
-    }
-];
-
-const bodyTypeStats = {
-    normal: { width: 50, height: 100, speedMod: 1.0, damageMod: 1.0, rangeMod: 1.0, healthMod: 1.0 }
-};
 
 const ARM_GUARD_UPPER_ANGLE = Math.PI / 4.2;
 const ARM_GUARD_FOREARM_BEND = -Math.PI / 1.6;
@@ -351,9 +136,51 @@ const LEG_ANGLE_KICK_SUPPORT = Math.PI / 2 + Math.PI / 6;
 const BOXING_GLOVE_COLOR = '#c00000';
 const DEFAULT_SHOE_COLOR = '#4a5568';
 
+// Variables de estado
+let screenShakeMagnitude = 0;
+let screenShakeTimeLeft = 0;
+let gameActive = false;
+let players = [];
+let activeHitEffects = [];
+let smokeParticles = [];
 let playerSelectedCharIndex = -1;
 let pcSelectedCharIndex = -1;
-let smokeParticles = [];
+let backgroundMusic;
+
+const hitWords = ["¡POW!", "¡BAM!", "¡CRASH!", "¡KAPOW!", "¡WHAM!", "¡SLAP!", "¡BOOM!", "¡BANG!", "¡PUFF!", "¡THWACK!"];
+const hitWordColors = ["#FFD700", "#FF4500", "#ADFF2F", "#00FFFF", "#FF69B4", "#FFFF00", "#FF1493"];
+
+const characterBackgrounds = {
+    "El Zanjas": ["img/lazanja.png"],
+    "Tía Cote": ["img/glitter.png"],
+    "Escape Room Jackson": ["img/happyhour.png"],
+    "Piraña": ["img/lamoneda.png"],
+    "La Ex": ["img/lamoneda.png"],
+    "Matthei Bolt": ["img/pasillomoneda.png"],
+    "Burric": ["img/pasillomoneda.png"],
+    "Orsini Love": ["img/pasillomoneda.png"],
+    "Carolina Papelucho": ["img/pasillomoneda.png"]
+};
+
+const characterAssets = [
+    { name: "Piraña", baseColor: '#e0e0e0', previewImage: "img/personaje1-cabeza.png", textures: { head: "img/personaje1-cabeza.png", torso: "img/personaje1-torso.png", upperArm: "img/personaje1-brazos.png", foreArm: "img/personaje1-antebrazos.png", thigh: "img/personaje1-muslos.png", lowerLeg: "img/personaje1-piernasbajas.png", glove_r: "img/personaje1-guantes-d.png", glove_l: "img/personaje1-guantes-i.png", glove: null, shoe: "img/personaje1-zapatos.png", superEffectTexture: "img/personaje1-super-effect.png" } },
+    { name: "La Ex", baseColor: '#c0392b', previewImage: "img/personaje2-cabeza.png", textures: { head: "img/personaje2-cabeza.png", torso: "img/personaje2-torso.png", upperArm: "img/personaje2-brazos.png", foreArm: "img/personaje2-antebrazos.png", thigh: "img/personaje2-muslos.png", lowerLeg: "img/personaje2-piernasbajas.png", glove_r: "img/personaje2-guantes-d.png", glove_l: "img/personaje2-guantes-i.png", glove: null, shoe: "img/personaje2-zapatos.png", superEffectTexture: "img/personaje2-super-effect.png" } },
+    { name: "Burric", baseColor: '#27ae60', previewImage: "img/personaje3-cabeza.png", textures: { head: "img/personaje3-cabeza.png", torso: "img/personaje3-torso.png", upperArm: "img/personaje3-brazos.png", foreArm: "img/personaje3-antebrazos.png", thigh: "img/personaje3-muslos.png", lowerLeg: "img/personaje3-piernasbajas.png", glove_r: "img/personaje3-guantes-d.png", glove_l: "img/personaje3-guantes-i.png", glove: null, shoe: "img/personaje3-zapatos.png", superEffectTexture: "img/personaje3-super-effect.png" } },
+    { name: "Matthei Bolt", baseColor: '#f39c12', previewImage: "img/personaje4-cabeza.png", textures: { head: "img/personaje4-cabeza.png", torso: "img/personaje4-torso.png", upperArm: "img/personaje4-brazos.png", foreArm: "img/personaje4-antebrazos.png", thigh: "img/personaje4-muslos.png", lowerLeg: "img/personaje4-piernasbajas.png", glove_r: "img/personaje4-guantes-d.png", glove_l: "img/personaje4-guantes-i.png", glove: null, shoe: "img/personaje4-zapatos.png", superEffectTexture: "img/personaje4-super-effect.png", yellowVest: "img/matthei-chaleco.png" } },
+    { name: "Carolina Papelucho", baseColor: '#d35400', previewImage: "img/personaje5-cabeza.png", textures: { head: "img/personaje5-cabeza.png", torso: "img/personaje5-torso.png", upperArm: "img/personaje5-brazos.png", foreArm: "img/personaje5-antebrazos.png", thigh: "img/personaje5-muslos.png", lowerLeg: "img/personaje5-piernasbajas.png", glove_r: "img/personaje5-guantes-d.png", glove_l: "img/personaje5-guantes-i.png", glove: null, shoe: "img/personaje5-zapatos.png", superEffectTexture: "img/personaje5-super-effect.png" } },
+    { name: "El Zanjas", baseColor: '#7f8c8d', previewImage: "img/personaje6-cabeza.png", textures: { head: "img/personaje6-cabeza.png", torso: "img/personaje6-torso.png", upperArm: "img/personaje6-brazos.png", foreArm: "img/personaje6-antebrazos.png", thigh: "img/personaje6-muslos.png", lowerLeg: "img/personaje6-piernasbajas.png", glove_r: "img/personaje6-guantes-d.png", glove_l: "img/personaje6-guantes-i.png", glove: null, shoe: "img/personaje6-zapatos.png", superEffectTexture: "img/personaje6-super-effect.png" } },
+    { name: "Orsini Love", baseColor: '#ff69b4', previewImage: "img/personaje7-cabeza.png", textures: { head: "img/personaje7-cabeza.png", torso: "img/personaje7-torso.png", upperArm: "img/personaje7-brazos.png", foreArm: "img/personaje7-antebrazos.png", thigh: "img/personaje7-muslos.png", lowerLeg: "img/personaje7-piernasbajas.png", glove_r: "img/personaje7-guantes-d.png", glove_l: "img/personaje7-guantes-i.png", glove: null, shoe: "img/personaje7-zapatos.png", superEffectTexture: "img/personaje7-super-effect.png" } },
+    { name: "Escape Room Jackson", baseColor: '#6c757d', previewImage: "img/personaje8-cabeza.png", textures: { head: "img/personaje8-cabeza.png", torso: "img/personaje8-torso.png", upperArm: "img/personaje8-brazos.png", foreArm: "img/personaje8-antebrazos.png", thigh: "img/personaje8-muslos.png", lowerLeg: "img/personaje8-piernasbajas.png", glove_r: "img/personaje8-guantes-d.png", glove_l: "img/personaje8-guantes-i.png", glove: null, shoe: "img/personaje8-zapatos.png", superEffectTexture: "img/personaje8-super-effect.png" } },
+    { name: "Tía Cote", baseColor: '#9b59b6', previewImage: "img/personaje9-cabeza.png", textures: { head: "img/personaje9-cabeza.png", torso: "img/personaje9-torso.png", upperArm: "img/personaje9-brazos.png", foreArm: "img/personaje9-antebrazos.png", thigh: "img/personaje9-muslos.png", lowerLeg: "img/personaje9-piernasbajas.png", glove_r: "img/personaje9-guantes-d.png", glove_l: "img/personaje9-guantes-i.png", glove: null, shoe: "img/personaje9-zapatos.png", superEffectTexture: "img/personaje9-super-effect.png" } }
+];
+
+const bodyTypeStats = {
+    normal: { width: 50, height: 100, speedMod: 1.0, damageMod: 1.0, rangeMod: 1.0, healthMod: 1.0 }
+};
+
+// =================================================================
+// 3. DEFINICIÓN DE CLASES Y FUNCIONES
+// =================================================================
 
 class Player {
     constructor(x, initialY, characterAsset, isPlayer1 = true, facingRight = true) {
@@ -367,10 +194,8 @@ class Player {
         this.bodyTextureImage = this.loadTexture(characterAsset.textures.torso);
         this.upperArmTextureImage = this.loadTexture(characterAsset.textures.upperArm);
         this.foreArmTextureImage = this.loadTexture(characterAsset.textures.foreArm);
-
         this.thighTextureImage = this.loadTexture(characterAsset.textures.thigh);
         this.lowerLegTextureImage = this.loadTexture(characterAsset.textures.lowerLeg);
-
         this.gloveTextureImage_r = this.loadTexture(characterAsset.textures.glove_r);
         this.gloveTextureImage_l = this.loadTexture(characterAsset.textures.glove_l);
         this.gloveTextureImage = this.loadTexture(characterAsset.textures.glove);
@@ -383,7 +208,6 @@ class Player {
         this.yellowVestTextureImage = this.loadTexture(characterAsset.textures.yellowVest);
 
         this.limbColorFallback = this.baseColor;
-
         this.setStats();
         this.y = initialY - this.height;
         this.initialX = x;
@@ -393,7 +217,6 @@ class Player {
         this.isJumping = false;
         this.health = MAX_HEALTH * this.healthMod;
         this.maxHealth = MAX_HEALTH * this.healthMod;
-
         this.power = 0;
         this.maxPower = MAX_POWER;
         this.isSuperCharged = false;
@@ -405,14 +228,11 @@ class Player {
         this.activePapers = [];
         this.activeKisses = [];
         this.activeTeddies = [];
-
-        // Estado del superpoder de Bolt
         this.isDashing = false;
         this.dashCount = 0;
         this.dashTargetX = 0;
         this.dashDamageApplied = false;
         this.trail = [];
-
         this.isPunching = false;
         this.isKicking = false;
         this.attackVisualActive = false;
@@ -421,20 +241,14 @@ class Player {
         this.currentAction = null;
         this.attackArm = null;
         this.nextPunchArm = 'right';
-
-        // Estado de "El Zanjas"
         this.isCastingCrack = false;
         this.crackTimer = 0;
         this.crackOpponentHit = false;
         this.crackCenterX = 0;
-
-        // Estado de ser tragado o aturdido
         this.isSwallowed = false;
         this.swallowedTimer = 0;
         this.isStunned = false;
         this.stunTimer = 0;
-
-        // Estado de Escape Room Jackson
         this.isInvisible = false;
         this.invisibilityTimer = 0;
         this.isConfused = false;
@@ -447,31 +261,12 @@ class Player {
         if (!src) return null;
         const img = new Image();
         img.src = src;
-        img.onload = () => { /* console.log('Texture loaded:', src); */ };
-        img.onerror = () => {
-            console.warn('Error loading texture:', src, '- Will use base color or shape for this part.');
-            if (this.headTextureImage && this.headTextureImage.src && this.headTextureImage.src.endsWith(src)) this.headTextureImage = null;
-            else if (this.bodyTextureImage && this.bodyTextureImage.src && this.bodyTextureImage.src.endsWith(src)) this.bodyTextureImage = null;
-            else if (this.upperArmTextureImage && this.upperArmTextureImage.src && this.upperArmTextureImage.src.endsWith(src)) this.upperArmTextureImage = null;
-            else if (this.foreArmTextureImage && this.foreArmTextureImage.src && this.foreArmTextureImage.src.endsWith(src)) this.foreArmTextureImage = null;
-            else if (this.thighTextureImage && this.thighTextureImage.src && this.thighTextureImage.src.endsWith(src)) this.thighTextureImage = null;
-            else if (this.lowerLegTextureImage && this.lowerLegTextureImage.src && this.lowerLegTextureImage.src.endsWith(src)) this.lowerLegTextureImage = null;
-            else if (this.gloveTextureImage_r && this.gloveTextureImage_r.src && this.gloveTextureImage_r.src.endsWith(src)) this.gloveTextureImage_r = null;
-            else if (this.gloveTextureImage_l && this.gloveTextureImage_l.src && this.gloveTextureImage_l.src.endsWith(src)) this.gloveTextureImage_l = null;
-            else if (this.gloveTextureImage && this.gloveTextureImage.src && this.gloveTextureImage.src.endsWith(src)) this.gloveTextureImage = null;
-            else if (this.shoeTextureImage && this.shoeTextureImage.src && this.shoeTextureImage.src.endsWith(src)) this.shoeTextureImage = null;
-            else if (this.superEffectTextureImage && this.superEffectTextureImage.src && this.superEffectTextureImage.src.endsWith(src)) this.superEffectTextureImage = null;
-            else if (this.piranhaProjectileTextureImage && this.piranhaProjectileTextureImage.src && this.piranhaProjectileTextureImage.src.endsWith(src)) this.piranhaProjectileTextureImage = null;
-            else if (this.moneyWadTextureImage && this.moneyWadTextureImage.src && this.moneyWadTextureImage.src.endsWith(src)) this.moneyWadTextureImage = null;
-            else if (this.calculatorProjectileTextureImage && this.calculatorProjectileTextureImage.src && this.calculatorProjectileTextureImage.src.endsWith(src)) this.calculatorProjectileTextureImage = null;
-            else if (this.yellowVestTextureImage && this.yellowVestTextureImage.src && this.yellowVestTextureImage.src.endsWith(src)) this.yellowVestTextureImage = null;
-        };
+        img.onerror = () => { console.warn('Error loading texture:', src); };
         return img;
     }
 
     setStats() {
         const stats = bodyTypeStats.normal;
-
         this.width = stats.width;
         this.height = stats.height;
         this.speed = BASE_PLAYER_SPEED * stats.speedMod;
@@ -483,7 +278,6 @@ class Player {
         this.jumpStrength = BASE_JUMP_STRENGTH;
         this.knockbackStrength = BASE_KNOCKBACK_STRENGTH;
         this.healthMod = stats.healthMod;
-
         let headSizeRatioFactor = 1.5;
         let torsoHeightRatio = 0.5;
         let torsoWidthRatio = 0.8;
@@ -494,7 +288,6 @@ class Player {
         let shoeWidthFactor = 1.6;
         let legWidthRatio = 0.22;
         let gloveSizeFactor = 3.0;
-
         this.headSize = (this.width * 0.5) * headSizeRatioFactor;
         this.torsoHeight = this.height * torsoHeightRatio;
         this.torsoWidth = this.width * torsoWidthRatio;
@@ -502,12 +295,10 @@ class Player {
         const totalArmLength = this.torsoHeight * armLengthTotalRatio;
         this.upperArmLength = totalArmLength * 0.5;
         this.foreArmLength = totalArmLength * 0.5;
-
         const totalLegSegmentsCombinedH = this.height * legSegmentsTotalHeightRatio;
         this.thighHeight = totalLegSegmentsCombinedH * 0.5;
         this.lowerLegHeight = totalLegSegmentsCombinedH * 0.5;
         this.legWidth = this.torsoWidth * legWidthRatio;
-
         this.gloveSize = this.armWidth * gloveSizeFactor;
         this.shoeHeight = this.height * shoeHeightRatio;
         this.shoeWidth = this.legWidth * shoeWidthFactor;
@@ -515,7 +306,6 @@ class Player {
 
     drawPartWithTexture(partName, destX, destY, destWidth, destHeight, shouldFlipHorizontally = false) {
         let currentTexture = null;
-        let fillColor = this.baseColor;
         if (partName === 'head') currentTexture = this.headTextureImage;
         else if (partName === 'torso') currentTexture = this.bodyTextureImage;
         else if (partName === 'arm_upper') currentTexture = this.upperArmTextureImage;
@@ -537,11 +327,6 @@ class Player {
             if (partName !== 'shoe') {
                 ctx.fillStyle = 'magenta';
                 ctx.fillRect(destX, destY, destWidth, destHeight);
-                ctx.fillStyle = 'white';
-                ctx.font = '8px Arial';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(partName.toUpperCase(), destX + destWidth / 2, destY + destHeight / 2);
             }
         }
     }
@@ -562,7 +347,7 @@ class Player {
         ctx.translate(shoulderX, shoulderY);
         let finalUpperArmAngle, finalForeArmAngle;
         const isPunchingThisArm = this.isPunching && this.attackVisualActive &&
-                                 ((isPlayerRightArmActual && this.attackArm === 'right') || (!isPlayerRightArmActual && this.attackArm === 'left'));
+            ((isPlayerRightArmActual && this.attackArm === 'right') || (!isPlayerRightArmActual && this.attackArm === 'left'));
         if (isPunchingThisArm) {
             finalUpperArmAngle = this.facingRight ? ARM_PUNCH_UPPER_EXTEND_ANGLE : Math.PI - ARM_PUNCH_UPPER_EXTEND_ANGLE;
             finalForeArmAngle = this.facingRight ? ARM_PUNCH_FOREARM_EXTEND_ANGLE : -ARM_PUNCH_FOREARM_EXTEND_ANGLE;
@@ -600,33 +385,11 @@ class Player {
             const gloveDrawX = this.foreArmLength - (this.armWidth * 0.8);
             const gloveDrawY = -this.gloveSize / 2;
             ctx.drawImage(directionalGloveTextureToUse, gloveDrawX, gloveDrawY, this.gloveSize, this.gloveSize);
-        } else if (this.gloveTextureImage && this.gloveTextureImage.complete && this.gloveTextureImage.width > 0) {
-            ctx.save();
-            ctx.translate(this.foreArmLength - gloveWristWidth * 0.3 + gloveWristWidth / 2, 0);
-            ctx.beginPath();
-            ctx.rect(-gloveWristWidth / 2, -gloveWristHeight / 2, gloveWristWidth, gloveWristHeight);
-            ctx.save();
-            ctx.clip();
-            ctx.drawImage(this.gloveTextureImage, 0, 0, this.gloveTextureImage.width, this.gloveTextureImage.height, -gloveWristWidth / 2, -gloveWristHeight / 2, gloveWristWidth, gloveWristHeight);
-            ctx.restore();
-            ctx.restore();
-            ctx.beginPath();
-            ctx.ellipse(mainGloveCenterX, 0, gloveMainRadiusX, gloveMainRadiusY, 0, 0, Math.PI * 2);
-            ctx.save();
-            ctx.clip();
-            ctx.drawImage(this.gloveTextureImage, 0, 0, this.gloveTextureImage.width, this.gloveTextureImage.height, mainGloveCenterX - gloveMainRadiusX, -gloveMainRadiusY, gloveMainRadiusX * 2, gloveMainRadiusY * 2);
-            ctx.restore();
         } else {
             ctx.fillStyle = BOXING_GLOVE_COLOR;
             ctx.fillRect(this.foreArmLength - gloveWristWidth * 0.3, -gloveWristHeight / 2, gloveWristWidth, gloveWristHeight);
             ctx.beginPath();
             ctx.ellipse(mainGloveCenterX, 0, gloveMainRadiusX, gloveMainRadiusY, 0, 0, Math.PI * 2);
-            ctx.fill();
-            const thumbRadius = gloveMainRadiusX * 0.5;
-            const thumbLocalX = mainGloveCenterX - gloveMainRadiusX * 0.4;
-            const thumbLocalY = -gloveMainRadiusY * 0.7;
-            ctx.beginPath();
-            ctx.ellipse(thumbLocalX, thumbLocalY, thumbRadius, thumbRadius * 0.85, -Math.PI / 8, 0, Math.PI * 2);
             ctx.fill();
         }
         ctx.restore();
@@ -645,77 +408,48 @@ class Player {
 
         let angle;
         if (this.isKicking && this.attackVisualActive) {
-            if (isFrontLeg) {
-                angle = this.facingRight ? LEG_ANGLE_KICK_STRIKE : Math.PI - LEG_ANGLE_KICK_STRIKE;
-            } else {
-                angle = this.facingRight ? LEG_ANGLE_KICK_SUPPORT : Math.PI - LEG_ANGLE_KICK_SUPPORT;
-            }
+            angle = isFrontLeg ? (this.facingRight ? LEG_ANGLE_KICK_STRIKE : Math.PI - LEG_ANGLE_KICK_STRIKE) : (this.facingRight ? LEG_ANGLE_KICK_SUPPORT : Math.PI - LEG_ANGLE_KICK_SUPPORT);
         } else {
-            if (isFrontLeg) {
-                angle = this.facingRight ? LEG_ANGLE_RESTING_FRONT : Math.PI - LEG_ANGLE_RESTING_FRONT;
-            } else {
-                angle = this.facingRight ? LEG_ANGLE_RESTING_BACK : Math.PI - LEG_ANGLE_RESTING_BACK;
-            }
+            angle = isFrontLeg ? (this.facingRight ? LEG_ANGLE_RESTING_FRONT : Math.PI - LEG_ANGLE_RESTING_FRONT) : (this.facingRight ? LEG_ANGLE_RESTING_BACK : Math.PI - LEG_ANGLE_RESTING_BACK);
         }
         ctx.rotate(angle);
         this.drawPartWithTexture('thigh', 0, -this.legWidth / 2, this.thighHeight, this.legWidth, false);
-
         ctx.translate(this.thighHeight, 0);
         this.drawPartWithTexture('lower_leg', 0, -this.legWidth / 2, this.lowerLegHeight, this.legWidth, false);
-
         ctx.translate(this.lowerLegHeight - this.shoeHeight * 0.05, 0);
 
         if (this.shoeTextureImage && this.shoeTextureImage.complete && this.shoeTextureImage.width > 0) {
-            const tex = this.shoeTextureImage;
-            const sWidth = tex.width / 2;
-            const sHeight = tex.height;
-            const sx = 0;
-            const sy = 0;
-
-            ctx.drawImage(tex,
-                          sx, sy, sWidth, sHeight,
-                          -this.shoeWidth / 2, -this.shoeHeight / 2, this.shoeWidth, this.shoeHeight);
+            ctx.drawImage(this.shoeTextureImage, -this.shoeWidth / 2, -this.shoeHeight / 2, this.shoeWidth, this.shoeHeight);
         } else {
             ctx.fillStyle = DEFAULT_SHOE_COLOR;
             ctx.fillRect(-this.shoeWidth / 2, -this.shoeHeight / 2, this.shoeWidth, this.shoeHeight);
         }
         ctx.restore();
     }
-
+	
     drawPiranhaProjectiles() {
         this.activePiranhaProjectiles.forEach(p => {
             ctx.save();
-            // Mover a la posición del proyectil para facilitar el dibujo
             ctx.translate(p.x, p.y);
-
-            // Si mira a la izquierda, voltear todo el dibujo horizontalmente
             if (!p.direction) {
                 ctx.translate(p.width, 0);
                 ctx.scale(-1, 1);
             }
-
-            // Cuerpo
-            ctx.fillStyle = '#95a5a6'; // Color gris para el cuerpo
+            ctx.fillStyle = '#95a5a6';
             ctx.beginPath();
             ctx.ellipse(p.width / 2, p.height / 2, p.width / 2, p.height / 2.5, 0, 0, Math.PI * 2);
             ctx.fill();
-
-            // Cola
-            ctx.fillStyle = '#7f8c8d'; // Gris más oscuro para la cola
+            ctx.fillStyle = '#7f8c8d';
             ctx.beginPath();
             ctx.moveTo(0, p.height / 2);
             ctx.lineTo(-p.width * 0.2, 0);
             ctx.lineTo(-p.width * 0.2, p.height);
             ctx.closePath();
             ctx.fill();
-
-            // Ojo
             ctx.fillStyle = 'red';
             ctx.beginPath();
             ctx.arc(p.width * 0.75, p.height * 0.4, 2, 0, Math.PI * 2);
             ctx.fill();
-
-            // Boca con dientes
             ctx.fillStyle = 'white';
             ctx.beginPath();
             ctx.moveTo(p.width, p.height / 2);
@@ -723,7 +457,6 @@ class Player {
             ctx.lineTo(p.width, p.height * 0.9);
             ctx.closePath();
             ctx.fill();
-
             ctx.restore();
         });
     }
@@ -733,38 +466,27 @@ class Player {
             ctx.save();
             ctx.translate(wad.x + wad.width / 2, wad.y + wad.height / 2);
             ctx.rotate(wad.rotation);
-
             if (this.moneyWadTextureImage && this.moneyWadTextureImage.complete) {
                 ctx.drawImage(this.moneyWadTextureImage, -wad.width / 2, -wad.height / 2, wad.width, wad.height);
             } else {
                 ctx.fillStyle = '#22c55e';
                 ctx.fillRect(-wad.width / 2, -wad.height / 2, wad.width, wad.height);
-                ctx.fillStyle = '#facc15';
-                ctx.font = `bold ${wad.height * 0.8}px Arial`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText('$', 0, 0);
             }
             ctx.restore();
         });
     }
-    
+
     drawCoins() {
         this.activeCoins.forEach(coin => {
             ctx.save();
             ctx.translate(coin.x, coin.y);
-            
-            // Cuerpo de la moneda
-            ctx.fillStyle = '#facc15'; // Amarillo
+            ctx.fillStyle = '#facc15';
             ctx.beginPath();
             ctx.arc(0, 0, coin.radius, 0, Math.PI * 2);
             ctx.fill();
-
-            // Borde para dar efecto 3D
-            ctx.strokeStyle = '#eab308'; // Amarillo más oscuro
+            ctx.strokeStyle = '#eab308';
             ctx.lineWidth = 2;
             ctx.stroke();
-            
             ctx.restore();
         });
     }
@@ -774,72 +496,11 @@ class Player {
             ctx.save();
             ctx.translate(calc.x + calc.width / 2, calc.y + calc.height / 2);
             ctx.rotate(calc.rotation);
-
             if (this.calculatorProjectileTextureImage && this.calculatorProjectileTextureImage.complete) {
                 ctx.drawImage(this.calculatorProjectileTextureImage, -calc.width / 2, -calc.height / 2, calc.width, calc.height);
             } else {
-                // --- DIBUJO ESTILO ROBLOX / BLOQUE ---
-                const w = calc.width;
-                const h = calc.height;
-                const depth = 8; // Profundidad para el efecto 3D
-
-                ctx.lineWidth = 2;
-                ctx.strokeStyle = '#2c3e50'; // Outline color
-
-                // Cara lateral (sombra para dar profundidad)
-                ctx.fillStyle = '#7f8c8d'; // Gris más oscuro
-                ctx.beginPath();
-                ctx.moveTo(-w / 2, -h / 2);
-                ctx.lineTo(-w / 2 + depth, -h / 2 - depth);
-                ctx.lineTo(w / 2 + depth, -h / 2 - depth);
-                ctx.lineTo(w / 2, -h / 2);
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
-
-                // Cara superior (sombra)
-                ctx.beginPath();
-                ctx.moveTo(w / 2, -h / 2);
-                ctx.lineTo(w / 2 + depth, -h / 2 - depth);
-                ctx.lineTo(w / 2 + depth, h / 2 - depth);
-                ctx.lineTo(w / 2, h / 2);
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
-
-                // Cuerpo principal frontal
-                ctx.fillStyle = '#bdc3c7'; // Gris claro
-                ctx.fillRect(-w / 2, -h / 2, w, h);
-                ctx.strokeRect(-w / 2, -h / 2, w, h);
-
-                // Pantalla
-                ctx.fillStyle = '#2ecc71'; // Verde esmeralda
-                const screenMarginX = w * 0.1;
-                const screenMarginY = h * 0.1;
-                const screenHeight = h * 0.25;
-                ctx.fillRect(-w / 2 + screenMarginX, -h / 2 + screenMarginY, w - screenMarginX * 2, screenHeight);
-                ctx.strokeRect(-w / 2 + screenMarginX, -h / 2 + screenMarginY, w - screenMarginX * 2, screenHeight);
-                
-                // Texto en pantalla (opcional, para más detalle)
-                ctx.fillStyle = 'black';
-                ctx.font = `bold ${screenHeight * 0.6}px monospace`;
-                ctx.textAlign = 'right';
-                ctx.textBaseline = 'middle';
-                ctx.fillText('80085', w/2 - screenMarginX - 4, -h/2 + screenMarginY + screenHeight/2);
-
-
-                // Botones
-                ctx.fillStyle = '#7f8c8d'; // Mismo gris oscuro que la sombra
-                const buttonSize = w * 0.18;
-                const buttonStartY = -h/2 + screenMarginY + screenHeight + h * 0.1;
-                for (let row = 0; row < 2; row++) {
-                    for (let col = 0; col < 3; col++) {
-                        const x = -w/2 + w*0.2 + col * (buttonSize + w*0.1);
-                        const y = buttonStartY + row * (buttonSize + h*0.08);
-                        ctx.fillRect(x, y, buttonSize, buttonSize);
-                        ctx.strokeRect(x, y, buttonSize, buttonSize);
-                    }
-                }
+                ctx.fillStyle = '#bdc3c7';
+                ctx.fillRect(-calc.width / 2, -calc.height / 2, calc.width, calc.height);
             }
             ctx.restore();
         });
@@ -850,40 +511,12 @@ class Player {
             ctx.save();
             ctx.translate(paper.x + paper.width / 2, paper.y + paper.height / 2);
             ctx.rotate(paper.rotation);
-
             if (paper.isPowerPoint) {
-                // Dibuja el logo de PowerPoint
-                const w = paper.width * 1.5; // Hacerlo un poco más grande
-                const h = paper.height * 1.5;
-                ctx.fillStyle = '#D04423'; // Color naranja-rojizo de PowerPoint
-                ctx.fillRect(-w / 2, -h / 2, w, h);
-                
-                // Círculo interior
-                ctx.fillStyle = 'white';
-                ctx.beginPath();
-                ctx.arc(0, 0, w * 0.35, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Letra 'P'
                 ctx.fillStyle = '#D04423';
-                ctx.font = `bold ${h * 0.5}px Arial`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText('P', 0, h * 0.05);
-
+                ctx.fillRect(-paper.width * 0.75, -paper.height * 0.75, paper.width * 1.5, paper.height * 1.5);
             } else {
-                // Dibuja un papel normal
                 ctx.fillStyle = 'white';
                 ctx.fillRect(-paper.width / 2, -paper.height / 2, paper.width, paper.height);
-                ctx.strokeStyle = '#cccccc';
-                ctx.lineWidth = 1;
-                for (let i = 1; i < 5; i++) {
-                    const lineY = -paper.height / 2 + (paper.height / 5) * i;
-                    ctx.beginPath();
-                    ctx.moveTo(-paper.width / 2, lineY);
-                    ctx.lineTo(paper.width / 2, lineY);
-                    ctx.stroke();
-                }
             }
             ctx.restore();
         });
@@ -893,51 +526,19 @@ class Player {
         this.activeKisses.forEach(kiss => {
             ctx.save();
             ctx.translate(kiss.x, kiss.y);
-            
-            const w = kiss.width;
-            const h = kiss.height;
-            const pixelSize = w / 11; // 11 "pixels" across based on image
-
-            // Main color
-            ctx.fillStyle = '#d90429'; // Strong red
-            
-            // Manually draw the pixelated lips based on the reference
-            const lipMap = [
-                "   xxx   ",
-                "  xxxxx  ",
-                " xxxxxxx ",
-                "xxxxxxxxx",
-                "xxxxxxxxx",
-                " xxxxxxx ",
-                "  xxxxx  ",
-                "   xxx   "
-            ];
-            
-            const lipMapWithSeparator = [
-                "   xxx   ",
-                "  xxxxx  ",
-                " xxxxxxx ",
-                "xxxxxxxxx",
-                "---------", // Separator line
-                "xxxxxxxxx",
-                " xxxxxxx ",
-                "  xxxxx  "
-            ];
-
-            ctx.fillStyle = '#ef233c'; // Brighter red for main part
-            for(let r = 0; r < lipMap.length; r++) {
-                for (let c = 0; c < lipMap[r].length; c++) {
-                    if(lipMap[r][c] === 'x') {
+            ctx.fillStyle = '#d90429';
+            const pixelSize = kiss.width / 11;
+            const lipMap = ["   xxx   ", "  xxxxx  ", " xxxxxxx ", "xxxxxxxxx", "xxxxxxxxx", " xxxxxxx ", "  xxxxx  ", "   xxx   "];
+            ctx.fillStyle = '#ef233c';
+            lipMap.forEach((row, r) => {
+                [...row].forEach((char, c) => {
+                    if (char === 'x') {
                         ctx.fillRect(c * pixelSize, r * pixelSize, pixelSize, pixelSize);
                     }
-                }
-            }
-            
-            // Darker line for separation
-            ctx.fillStyle = '#8d0801'; // Darker red
-            const lineY = 4 * pixelSize;
-            ctx.fillRect(0, lineY, w, pixelSize);
-
+                });
+            });
+            ctx.fillStyle = '#8d0801';
+            ctx.fillRect(0, 4 * pixelSize, kiss.width, pixelSize);
             ctx.restore();
         });
     }
@@ -949,87 +550,40 @@ class Player {
             ctx.rotate(teddy.rotation);
             const w = teddy.width;
             const h = teddy.height;
-            
-            // Main color
-            ctx.fillStyle = '#ffc0cb'; // Pink
-            ctx.strokeStyle = '#e75480'; // Darker Pink
+            ctx.fillStyle = '#ffc0cb';
+            ctx.strokeStyle = '#e75480';
             ctx.lineWidth = 3;
-
-            // Body
             ctx.beginPath();
             ctx.ellipse(0, h * 0.1, w * 0.35, h * 0.4, 0, 0, Math.PI * 2);
             ctx.fill();
             ctx.stroke();
-
-            // Head
             ctx.beginPath();
             ctx.arc(0, -h * 0.25, w * 0.25, 0, Math.PI * 2);
             ctx.fill();
             ctx.stroke();
-
-            // Ears (long ovals for a bunny)
             const earWidth = w * 0.12;
             const earHeight = h * 0.35;
             ctx.beginPath();
             ctx.ellipse(-w * 0.2, -h * 0.5, earWidth, earHeight, -0.2, 0, Math.PI * 2);
             ctx.fill();
             ctx.stroke();
-
             ctx.beginPath();
             ctx.ellipse(w * 0.2, -h * 0.5, earWidth, earHeight, 0.2, 0, Math.PI * 2);
             ctx.fill();
             ctx.stroke();
-            
-            // Snout
-            ctx.fillStyle = '#ffdae0'; // Lighter pink
-            ctx.beginPath();
-            ctx.ellipse(0, -h * 0.2, w * 0.12, w * 0.1, 0, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.stroke();
-
-            // Eyes and nose
-            ctx.fillStyle = 'black';
-            ctx.beginPath();
-            ctx.arc(-w * 0.08, -h * 0.25, w * 0.04, 0, Math.PI * 2); // Left eye
-            ctx.fill();
-
-            ctx.beginPath();
-            ctx.arc(w * 0.08, -h * 0.25, w * 0.04, 0, Math.PI * 2); // Right eye
-            ctx.fill();
-
-            // Nose
-            ctx.beginPath();
-            ctx.moveTo(0, -h * 0.22);
-            ctx.lineTo(-w * 0.04, -h * 0.18);
-            ctx.lineTo(w * 0.04, -h * 0.18);
-            ctx.closePath(); 
-            ctx.fill();
-            
             ctx.restore();
         });
     }
 
     drawZanjasCrack() {
         if (!this.isCastingCrack) return;
-
         const groundY = CANVAS_HEIGHT - 10;
         const halfLife = ZANJAS_CRACK_LIFESPAN / 2;
-
-        // Progreso triangular simple: 0 -> 1 -> 0
-        let progress = 0;
-        if (this.crackTimer > halfLife) {
-            progress = (ZANJAS_CRACK_LIFESPAN - this.crackTimer) / halfLife;
-        } else {
-            progress = this.crackTimer / halfLife;
-        }
-
+        let progress = (this.crackTimer > halfLife) ? (ZANJAS_CRACK_LIFESPAN - this.crackTimer) / halfLife : this.crackTimer / halfLife;
         const currentCrackWidth = ZANJAS_CRACK_WIDTH * progress;
         const currentCrackDepth = ZANJAS_CRACK_MAX_HEIGHT * progress;
-
         if (currentCrackWidth <= 2) return;
-
         ctx.save();
-        // Abismo negro
         ctx.fillStyle = 'black';
         ctx.beginPath();
         ctx.moveTo(this.crackCenterX - currentCrackWidth / 2, groundY);
@@ -1037,37 +591,30 @@ class Player {
         ctx.lineTo(this.crackCenterX, groundY + currentCrackDepth);
         ctx.closePath();
         ctx.fill();
-
-        // Bordes irregulares
         ctx.strokeStyle = '#4a2a0a';
         ctx.lineWidth = 3;
-        for (let s = -1; s <= 1; s += 2) {
+        [-1, 1].forEach(s => {
             ctx.beginPath();
             ctx.moveTo(this.crackCenterX + (s * currentCrackWidth / 2), groundY);
             for (let i = 0; i <= 10; i++) {
-                const p = i / 10;
-                const x = this.crackCenterX + (s * (currentCrackWidth / 2) * (1 - p));
-                const y = groundY + (Math.random() - 0.5) * 8 * progress;
-                ctx.lineTo(x, y);
+                ctx.lineTo(this.crackCenterX + (s * (currentCrackWidth / 2) * (1 - i / 10)), groundY + (Math.random() - 0.5) * 8 * progress);
             }
             ctx.stroke();
-        }
+        });
         ctx.restore();
     }
 
     draw() {
-        if(this.isInvisible) return; // No dibujar si es invisible
+        if (this.isInvisible) return;
         ctx.save();
-
-         if (this.isDashing) {
+        if (this.isDashing) {
             this.trail.forEach((pos, index) => {
                 ctx.globalAlpha = (index / this.trail.length) * 0.5;
-                 this.drawPlayerModel(pos.x, pos.y);
+                this.drawPlayerModel(pos.x, pos.y);
             });
             ctx.globalAlpha = 1;
         }
         this.drawPlayerModel(this.x, this.y);
-
         this.drawPiranhaProjectiles();
         this.drawMoneyWads();
         this.drawCoins();
@@ -1075,160 +622,103 @@ class Player {
         this.drawPapers();
         this.drawKisses();
         this.drawTeddies();
-        
         if (this.isCastingCrack) {
             this.drawZanjasCrack();
         }
-        
-        if (this.isConfused) {
+        if (this.isConfused || this.isStunned) {
             ctx.font = `bold 24px 'Comic Sans MS'`;
-            ctx.fillStyle = 'yellow';
+            ctx.fillStyle = this.isConfused ? 'yellow' : 'white';
             ctx.textAlign = 'center';
-            ctx.fillText('???', this.x + this.width / 2, this.y - 20);
-        } else if (this.isStunned) {
-            ctx.font = `bold 24px 'Comic Sans MS'`;
-            ctx.fillStyle = 'white';
-            ctx.textAlign = 'center';
-            ctx.fillText('!!!', this.x + this.width / 2, this.y - 20);
-        }
-
-        if (this.isPerformingSuperAttackAnimation && this.attackVisualActive && this.superEffectTextureImage && this.superEffectTextureImage.complete && this.name !== "Piraña") {
-            const effectWidth = this.width * 1.5;
-            const effectHeight = this.height * 1.5;
-            const effectX = this.x + (this.width - effectWidth) / 2;
-            const effectY = this.y + (this.height - effectHeight) / 2;
-            ctx.globalAlpha = 0.7;
-            ctx.drawImage(this.superEffectTextureImage, effectX, effectY, effectWidth, effectHeight);
-            ctx.globalAlpha = 1.0;
+            ctx.fillText(this.isConfused ? '???' : '!!!', this.x + this.width / 2, this.y - 20);
         }
         ctx.restore();
     }
 
-     drawPlayerModel(x, y) {
-        if (this.isSwallowed) {
-            return; // No dibujar si está tragado
-        }
-        const originalX = this.x;
-        const originalY = this.y;
-        this.x = x;
-        this.y = y;
-
-        if (this.showBlurred) {
-            ctx.filter = 'blur(4px)';
-        } else if (this.isPerformingSuperAttackAnimation && this.attackVisualActive) {
-            ctx.filter = 'brightness(1.75) saturate(2.5)';
-        }
-
+    drawPlayerModel(x, y) {
+        if (this.isSwallowed) return;
+        const originalX = this.x, originalY = this.y;
+        this.x = x; this.y = y;
+        ctx.filter = this.showBlurred ? 'blur(4px)' : (this.isPerformingSuperAttackAnimation && this.attackVisualActive ? 'brightness(1.75) saturate(2.5)' : 'none');
         const totalLegSegmentsHeight = this.thighHeight + this.lowerLegHeight;
         const torsoGlobalY = this.y + (this.height - this.torsoHeight - totalLegSegmentsHeight - this.shoeHeight);
         const torsoGlobalX = this.x + (this.width - this.torsoWidth) / 2;
         const headGlobalX = this.x + (this.width - this.headSize) / 2;
         const headGlobalY = torsoGlobalY - this.headSize;
-        const visuallyBackArmIsRight = !this.facingRight;
-        const visuallyBackLegIsFront = !this.facingRight;
-        this.drawLeg(visuallyBackLegIsFront);
-        this.drawLeg(!visuallyBackLegIsFront);
+        this.drawLeg(!this.facingRight);
+        this.drawLeg(this.facingRight);
         if (this.facingRight) {
             this.drawArm(false);
             this.drawPartWithTexture('torso', torsoGlobalX, torsoGlobalY, this.torsoWidth, this.torsoHeight, !this.facingRight);
-            if (this.name === 'Matthei Bolt' && this.isDashing) {
-                this.drawVest(torsoGlobalX, torsoGlobalY);
-            }
+            if (this.name === 'Matthei Bolt' && this.isDashing) this.drawVest(torsoGlobalX, torsoGlobalY);
             this.drawPartWithTexture('head', headGlobalX, headGlobalY, this.headSize, this.headSize, !this.facingRight);
             this.drawArm(true);
         } else {
             this.drawArm(true);
             this.drawPartWithTexture('torso', torsoGlobalX, torsoGlobalY, this.torsoWidth, this.torsoHeight, !this.facingRight);
-            if (this.name === 'Matthei Bolt' && this.isDashing) {
-                this.drawVest(torsoGlobalX, torsoGlobalY);
-            }
+            if (this.name === 'Matthei Bolt' && this.isDashing) this.drawVest(torsoGlobalX, torsoGlobalY);
             this.drawPartWithTexture('head', headGlobalX, headGlobalY, this.headSize, this.headSize, !this.facingRight);
             this.drawArm(false);
         }
-
         ctx.filter = 'none';
-        this.x = originalX;
-        this.y = originalY;
+        this.x = originalX; this.y = originalY;
     }
 
     drawVest(torsoX, torsoY) {
         ctx.save();
         if (!this.facingRight) {
-             ctx.translate(this.x + this.width/2, 0);
-             ctx.scale(-1,1);
-             ctx.translate(-(this.x + this.width/2), 0);
+            ctx.translate(this.x + this.width / 2, 0);
+            ctx.scale(-1, 1);
+            ctx.translate(-(this.x + this.width / 2), 0);
         }
-
-        if (this.yellowVestTextureImage && this.yellowVestTextureImage.complete && this.yellowVestTextureImage.width > 0) {
-                ctx.drawImage(this.yellowVestTextureImage, torsoX, torsoY, this.torsoWidth, this.torsoHeight);
+        if (this.yellowVestTextureImage && this.yellowVestTextureImage.complete) {
+            ctx.drawImage(this.yellowVestTextureImage, torsoX, torsoY, this.torsoWidth, this.torsoHeight);
         } else {
-            // Fallback si la textura no carga
-            ctx.fillStyle = '#eab308'; // Amarillo-600 de Tailwind
+            ctx.fillStyle = '#eab308';
             ctx.fillRect(torsoX, torsoY, this.torsoWidth, this.torsoHeight);
-
-            // Bandas grises reflectantes
-            const stripeHeight = this.torsoHeight / 6;
-            ctx.fillStyle = '#a1a1aa'; // Zinc-400
-            
-            const stripe1Y = torsoY + this.torsoHeight * 0.4 - stripeHeight / 2;
-            ctx.fillRect(torsoX, stripe1Y, this.torsoWidth, stripeHeight);
-            
-            const stripe2Y = torsoY + this.torsoHeight * 0.65 - stripeHeight / 2;
-            ctx.fillRect(torsoX, stripe2Y, this.torsoWidth, stripeHeight);
         }
         ctx.restore();
     }
-
-
+	
     updateAI() {
         if (this.isConfused) {
             this.confusionTimer--;
+            if (this.confusionTimer <= 0) this.isConfused = this.showBlurred = false;
             this.confusionBlinkTimer--;
-            if(this.confusionTimer <= 0) {
-                this.isConfused = false;
-                this.showBlurred = false;
-            }
-            if(this.confusionBlinkTimer <= 0) {
+            if (this.confusionBlinkTimer <= 0) {
                 this.showBlurred = !this.showBlurred;
-                this.confusionBlinkTimer = 15; // Blink every 15 frames
-                new Audio('audio/pouf-bomb.wav').play().catch(e => console.error("Error playing sound:", e));
+                this.confusionBlinkTimer = 15;
             }
-            return; // AI is confused, skip normal logic
-         }
-
-         if (this.isDashing || this.isSwallowed || this.isCastingCrack || this.isStunned) {
             return;
-         }
+        }
+        if (this.isDashing || this.isSwallowed || this.isCastingCrack || this.isStunned) return;
+
         if (Date.now() - this.lastAIDecisionTime > AI_ACTION_INTERVAL) {
             this.lastAIDecisionTime = Date.now();
             const opponent = players.find(p => p !== this);
-            if (!opponent || opponent.isInvisible) { // No hacer nada si el oponente es invisible
+            if (!opponent || opponent.isInvisible) {
                 this.currentAction = 'stand';
                 return;
             }
-            const distanceToOpponent = Math.abs((this.x + this.width / 2) - (opponent.x + opponent.width / 2)) - (this.width/2 + opponent.width/2);
+            const distanceToOpponent = Math.abs((this.x + this.width / 2) - (opponent.x + opponent.width / 2)) - (this.width / 2 + opponent.width / 2);
             const opponentIsToTheRight = (opponent.x + opponent.width / 2) > (this.x + this.width / 2);
             if (distanceToOpponent < Math.max(this.punchRange, this.kickRange) * 1.5) {
                 this.facingRight = opponentIsToTheRight;
             }
+
             const canAttack = !(this.isPunching || this.isKicking) && (Date.now() - this.lastAttackTime > this.attackCooldown);
             let decidedToAttack = false;
             let attackType = 'punch';
+
             if (this.facingRight === opponentIsToTheRight) {
                 if (distanceToOpponent < this.kickRange && Math.random() < AI_ATTACK_CHANCE_IN_RANGE) {
                     decidedToAttack = true;
-                    if (Math.random() < AI_KICK_CHANCE) {
-                        attackType = 'kick';
-                    } else if (distanceToOpponent >= this.punchRange) {
-                        attackType = 'kick';
-                    } else {
-                        attackType = 'punch';
-                    }
+                    attackType = (Math.random() < AI_KICK_CHANCE || distanceToOpponent >= this.punchRange) ? 'kick' : 'punch';
                 } else if (distanceToOpponent < this.punchRange && Math.random() < AI_ATTACK_CHANCE_IN_RANGE) {
                     decidedToAttack = true;
                     attackType = 'punch';
                 }
             }
+
             if (canAttack && decidedToAttack) {
                 if (this.isSuperCharged && Math.random() < 0.8) {
                     if (attackType === 'kick') this.kick(); else this.punch();
@@ -1239,261 +729,61 @@ class Player {
                 }
                 this.currentAction = 'attack';
             } else {
-                if (Math.random() < AI_MOVE_CHANCE) {
-                    const randomMove = Math.random();
-                    if (distanceToOpponent > this.punchRange * 0.5) {
-                        this.currentAction = opponentIsToTheRight ? 'moveRight' : 'moveLeft';
-                        this.facingRight = opponentIsToTheRight;
-                    } else if (randomMove < 0.3) {
-                        this.currentAction = opponentIsToTheRight ? 'moveLeft' : 'moveRight';
-                    } else {
-                        this.currentAction = 'stand';
-                    }
-                    if (Math.random() < AI_JUMP_CHANCE && !this.isJumping) this.jump();
-                } else {
-                    this.currentAction = 'stand';
-                }
+                this.currentAction = (Math.random() < AI_MOVE_CHANCE) ? (distanceToOpponent > this.punchRange * 0.5 ? (opponentIsToTheRight ? 'moveRight' : 'moveLeft') : (Math.random() < 0.3 ? (opponentIsToTheRight ? 'moveLeft' : 'moveRight') : 'stand')) : 'stand';
+                if (this.currentAction.startsWith('move')) this.facingRight = opponentIsToTheRight;
+                if (Math.random() < AI_JUMP_CHANCE && !this.isJumping) this.jump();
             }
         }
         this.velocityX = 0;
         if (this.currentAction === 'moveLeft') this.velocityX = -this.speed;
         else if (this.currentAction === 'moveRight') this.velocityX = this.speed;
     }
+	
+    updateProjectiles(opponent, projectiles, effect) {
+        for (let i = projectiles.length - 1; i >= 0; i--) {
+            const p = projectiles[i];
+            p.x += (p.velocityX || 0) * (p.direction ? 1 : -1);
+            p.y += p.velocityY || 0;
+            if (p.hasOwnProperty('lifespan')) p.lifespan--;
+            if (p.hasOwnProperty('velocityY')) p.velocityY += GRAVITY * (p.gravityFactor || 0.5);
+            if (p.hasOwnProperty('rotation')) p.rotation += p.rotationSpeed || 0;
 
-    updatePiranhaProjectiles(opponent) {
-        for (let i = this.activePiranhaProjectiles.length - 1; i >= 0; i--) {
-            const p = this.activePiranhaProjectiles[i];
-            p.x += p.velocityX * (p.direction ? 1 : -1);
-            p.lifespan--;
-
-            if (p.lifespan <= 0 || p.x > CANVAS_WIDTH || p.x + p.width < 0) {
-                this.activePiranhaProjectiles.splice(i, 1);
+            if (p.lifespan <= 0 || p.x > CANVAS_WIDTH || p.x + p.width < 0 || p.y > CANVAS_HEIGHT) {
+                projectiles.splice(i, 1);
                 continue;
             }
 
-            const opponentBox = { x: opponent.x, y: opponent.y, width: opponent.width, height: opponent.height };
-            const projectileBox = { x: p.x, y: p.y, width: p.width, height: p.height };
-
-            if (
-                !opponent.isSwallowed && !opponent.isStunned &&
-                projectileBox.x < opponentBox.x + opponentBox.width &&
-                projectileBox.x + projectileBox.width > opponentBox.x &&
-                projectileBox.y < opponentBox.y + opponentBox.height &&
-                projectileBox.y + projectileBox.height > opponentBox.y
+            if (!opponent.isSwallowed && !opponent.isStunned &&
+                p.x < opponent.x + opponent.width && p.x + p.width > opponent.x &&
+                p.y < opponent.y + opponent.height && p.y + p.height > opponent.y
             ) {
                 opponent.takeDamage(p.damage, p.direction);
-                activeHitEffects.push({ text: "¡ÑAM!", x: p.x, y: p.y, color: "#ff6347", alpha: 1.0, size: 20, rotation: 0, lifetime: HIT_EFFECT_LIFETIME / 2 });
-                this.activePiranhaProjectiles.splice(i, 1);
+                if (effect) activeHitEffects.push({ ...effect, x: p.x, y: p.y });
+                projectiles.splice(i, 1);
             }
         }
     }
 
-    updateMoneyWads(opponent) {
-        for (let i = this.activeMoneyWads.length - 1; i >= 0; i--) {
-            const wad = this.activeMoneyWads[i];
-            wad.velocityY += GRAVITY * 0.5;
-            wad.y += wad.velocityY;
-            wad.x += wad.velocityX;
-            wad.rotation += wad.rotationSpeed;
-
-            if (wad.y > CANVAS_HEIGHT) {
-                this.activeMoneyWads.splice(i, 1);
-                continue;
-            }
-
-            const opponentBox = { x: opponent.x, y: opponent.y, width: opponent.width, height: opponent.height };
-            const wadBox = { x: wad.x, y: wad.y, width: wad.width, height: wad.height };
-
-            if (
-                !opponent.isSwallowed && !opponent.isStunned &&
-                wadBox.x < opponentBox.x + opponentBox.width &&
-                wadBox.x + wadBox.width > opponentBox.x &&
-                wadBox.y < opponentBox.y + opponentBox.height &&
-                wadBox.y + wadBox.height > opponentBox.y
-            ) {
-                opponent.takeDamage(wad.damage, wad.x > opponent.x + opponent.width / 2);
-                activeHitEffects.push({ text: "$$$", x: wad.x, y: wad.y, color: "#22c55e", alpha: 1.0, size: 30, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
-                this.activeMoneyWads.splice(i, 1);
-            }
-        }
-    }
-    
-    updateCoins(opponent) {
-        for (let i = this.activeCoins.length - 1; i >= 0; i--) {
-            const coin = this.activeCoins[i];
-            coin.velocityY += GRAVITY * 0.6; // Coins are a bit heavier
-            coin.y += coin.velocityY;
-            
-            if (coin.y > CANVAS_HEIGHT) {
-                this.activeCoins.splice(i, 1);
-                continue;
-            }
-
-            const opponentBox = { x: opponent.x, y: opponent.y, width: opponent.width, height: opponent.height };
-            const coinBox = { x: coin.x - coin.radius, y: coin.y - coin.radius, width: coin.radius * 2, height: coin.radius * 2 };
-            
-            if (
-                !opponent.isSwallowed && !opponent.isStunned &&
-                coinBox.x < opponentBox.x + opponentBox.width &&
-                coinBox.x + coinBox.width > opponentBox.x &&
-                coinBox.y < opponentBox.y + opponentBox.height &&
-                coinBox.y + coinBox.height > opponentBox.y
-            ) {
-                opponent.takeDamage(coin.damage, coin.x > opponent.x + opponent.width / 2);
-                activeHitEffects.push({ text: "$", x: coin.x, y: coin.y, color: "#facc15", alpha: 1.0, size: 20, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
-                this.activeCoins.splice(i, 1);
-            }
-        }
-    }
-
-    updateCalculatorProjectiles(opponent) {
-        for (let i = this.activeCalculators.length - 1; i >= 0; i--) {
-            const calc = this.activeCalculators[i];
-            calc.x += calc.velocityX;
-            calc.y += calc.velocityY;
-            calc.velocityY += GRAVITY * 0.4; // Las calculadoras son pesadas
-            calc.rotation += calc.rotationSpeed;
-            calc.lifespan--;
-
-            if (calc.lifespan <= 0 || calc.y > CANVAS_HEIGHT) {
-                this.activeCalculators.splice(i, 1);
-                continue;
-            }
-
-            const opponentBox = { x: opponent.x, y: opponent.y, width: opponent.width, height: opponent.height };
-            const calcBox = { x: calc.x, y: calc.y, width: calc.width, height: calc.height };
-
-            if (
-                !opponent.isSwallowed && !opponent.isStunned &&
-                calcBox.x < opponentBox.x + opponentBox.width &&
-                calcBox.x + calcBox.width > opponentBox.x &&
-                calcBox.y < opponentBox.y + opponentBox.height &&
-                calcBox.y + calcBox.height > opponentBox.y
-            ) {
-                opponent.takeDamage(calc.damage, calc.velocityX > 0);
-                activeHitEffects.push({ text: "ERROR", x: calc.x, y: calc.y, color: "#e53e3e", alpha: 1.0, size: 25, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
-                this.activeCalculators.splice(i, 1);
-            }
-        }
-    }
-
-    updatePapers(opponent) {
-        for (let i = this.activePapers.length - 1; i >= 0; i--) {
-            const paper = this.activePapers[i];
-            paper.velocityY += GRAVITY * 0.3;
-            paper.y += paper.velocityY;
-            paper.x += paper.velocityX;
-            paper.rotation += paper.rotationSpeed;
-
-            if (paper.y > CANVAS_HEIGHT) {
-                this.activePapers.splice(i, 1);
-                continue;
-            }
-
-            const opponentBox = { x: opponent.x, y: opponent.y, width: opponent.width, height: opponent.height };
-            const paperBox = { x: paper.x, y: paper.y, width: paper.width, height: paper.height };
-            
-            if (
-                !opponent.isSwallowed && !opponent.isStunned &&
-                paperBox.x < opponentBox.x + opponentBox.width &&
-                paperBox.x + paperBox.width > opponentBox.x &&
-                paperBox.y < opponentBox.y + opponentBox.height &&
-                paperBox.y + paperBox.height > opponentBox.y
-            ) {
-                opponent.takeDamage(PAPELUCHO_PAPER_DAMAGE, this.facingRight);
-                opponent.isStunned = true;
-                opponent.stunTimer = PAPELUCHO_STUN_DURATION;
-                this.activePapers.splice(i, 1);
-            }
-        }
-    }
-
-    updateKisses(opponent) {
-        for (let i = this.activeKisses.length - 1; i >= 0; i--) {
-            const kiss = this.activeKisses[i];
-            kiss.x += kiss.velocityX * (kiss.direction ? 1 : -1);
-            kiss.lifespan--;
-
-            if (kiss.lifespan <= 0 || kiss.x > CANVAS_WIDTH || kiss.x + kiss.width < 0) {
-                this.activeKisses.splice(i, 1);
-                continue;
-            }
-
-            const opponentBox = { x: opponent.x, y: opponent.y, width: opponent.width, height: opponent.height };
-            const kissBox = { x: kiss.x, y: kiss.y, width: kiss.width, height: kiss.height };
-
-            if (
-                !opponent.isSwallowed && !opponent.isStunned &&
-                kissBox.x < opponentBox.x + opponentBox.width &&
-                kissBox.x + kissBox.width > opponentBox.x &&
-                kissBox.y < opponentBox.y + opponentBox.height &&
-                kissBox.y + kissBox.height > opponentBox.y
-            ) {
-                opponent.takeDamage(kiss.damage, kiss.direction);
-                activeHitEffects.push({ text: "♥", x: kiss.x, y: kiss.y, color: "#ff69b4", alpha: 1.0, size: 30, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
-                this.activeKisses.splice(i, 1);
-            }
-        }
-    }
-
-     updateTeddies(opponent) {
-        for (let i = this.activeTeddies.length - 1; i >= 0; i--) {
-            const teddy = this.activeTeddies[i];
-            teddy.velocityY += GRAVITY;
-            teddy.y += teddy.velocityY;
-            teddy.rotation += teddy.rotationSpeed;
-
-            if (teddy.y > CANVAS_HEIGHT) {
-                this.activeTeddies.splice(i, 1);
-                continue;
-            }
-
-            const opponentBox = { x: opponent.x, y: opponent.y, width: opponent.width, height: opponent.height };
-            const teddyBox = { x: teddy.x, y: teddy.y, width: teddy.width, height: teddy.height };
-
-            if (
-                !opponent.isSwallowed && !opponent.isStunned &&
-                teddyBox.x < opponentBox.x + opponentBox.width &&
-                teddyBox.x + teddyBox.width > opponentBox.x &&
-                teddyBox.y < opponentBox.y + opponentBox.height &&
-                teddyBox.y + teddyBox.height > opponentBox.y
-            ) {
-                opponent.takeDamage(teddy.damage, this.facingRight);
-                activeHitEffects.push({ text: "¡AWW!", x: teddy.x, y: teddy.y, color: "#9b59b6", alpha: 1.0, size: 40, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
-                this.activeTeddies.splice(i, 1);
-            }
-        }
-    }
-
-
-     updateBoltDash(opponent) {
+    updateBoltDash(opponent) {
         if (!this.isDashing) return;
-
         const moveDirection = Math.sign(this.dashTargetX - this.x);
         this.x += moveDirection * BOLT_DASH_SPEED;
         this.facingRight = moveDirection > 0;
 
-        // Collision check
-        const opponentBox = { x: opponent.x, y: opponent.y, width: opponent.width, height: opponent.height };
-        const selfBox = { x: this.x, y: this.y, width: this.width, height: this.height };
-        if (
-            !this.dashDamageApplied && !opponent.isSwallowed && !opponent.isStunned &&
-            selfBox.x < opponentBox.x + opponentBox.width &&
-            selfBox.x + selfBox.width > opponentBox.x &&
-            selfBox.y < opponentBox.y + opponentBox.height &&
-            selfBox.y + selfBox.height > opponentBox.y
+        if (!this.dashDamageApplied && !opponent.isSwallowed && !opponent.isStunned &&
+            this.x < opponent.x + opponent.width && this.x + this.width > opponent.x &&
+            this.y < opponent.y + opponent.height && this.y + this.height > opponent.y
         ) {
             opponent.takeDamage(BOLT_DASH_DAMAGE, moveDirection > 0);
             this.dashDamageApplied = true;
             screenShakeMagnitude = 5;
             screenShakeTimeLeft = 5;
-            activeHitEffects.push({ text: "¡ZAS!", x: opponent.x + opponent.width/2, y: opponent.y + opponent.height/2, color: "#f39c12", alpha: 1.0, size: 25, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
+            activeHitEffects.push({ text: "¡ZAS!", x: opponent.x + opponent.width / 2, y: opponent.y + opponent.height / 2, color: "#f39c12", alpha: 1.0, size: 25, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
         }
 
         if (Math.abs(this.x - this.dashTargetX) < BOLT_DASH_SPEED) {
             this.x = this.dashTargetX;
             this.dashCount--;
-
             if (this.dashCount <= 0) {
                 this.isDashing = false;
                 this.trail = [];
@@ -1506,40 +796,21 @@ class Player {
 
     updateZanjasCrack() {
         if (!this.isCastingCrack) return;
-
         this.crackTimer--;
         if (this.crackTimer <= 0) {
             this.isCastingCrack = false;
             return;
         }
-
         const opponent = players.find(p => p !== this);
-        if (!opponent || this.crackOpponentHit || opponent.isSwallowed) {
-            return;
-        }
+        if (!opponent || this.crackOpponentHit || opponent.isSwallowed) return;
 
-        const crackActiveStart = ZANJAS_CRACK_LIFESPAN * 0.7;
-        const crackActiveEnd = ZANJAS_CRACK_LIFESPAN * 0.2;
-
-        if (this.crackTimer < crackActiveStart && this.crackTimer > crackActiveEnd) {
-            const opponentCenterX = opponent.x + opponent.width / 2;
-            
-            if (Math.abs(opponentCenterX - this.crackCenterX) < ZANJAS_CRACK_WIDTH / 2 && (opponent.y + opponent.height) >= (CANVAS_HEIGHT - 10)) {
+        if (this.crackTimer < ZANJAS_CRACK_LIFESPAN * 0.7 && this.crackTimer > ZANJAS_CRACK_LIFESPAN * 0.2) {
+            if (Math.abs(opponent.x + opponent.width / 2 - this.crackCenterX) < ZANJAS_CRACK_WIDTH / 2 && (opponent.y + opponent.height) >= (CANVAS_HEIGHT - 10)) {
                 opponent.takeDamage(ZANJAS_CRACK_DAMAGE, this.facingRight);
                 opponent.isSwallowed = true;
                 opponent.swallowedTimer = ZANJAS_SWALLOWED_DURATION;
                 this.crackOpponentHit = true;
-
-                activeHitEffects.push({
-                    text: "¡TRAGADO!",
-                    x: opponent.x + opponent.width / 2,
-                    y: opponent.y + opponent.height / 2,
-                    color: "#8B4513",
-                    alpha: 1.0,
-                    size: 40,
-                    rotation: (Math.random() - 0.5) * 0.3,
-                    lifetime: HIT_EFFECT_LIFETIME * 2
-                });
+                activeHitEffects.push({ text: "¡TRAGADO!", x: opponent.x + opponent.width / 2, y: opponent.y + opponent.height / 2, color: "#8B4513", alpha: 1.0, size: 40, rotation: (Math.random() - 0.5) * 0.3, lifetime: HIT_EFFECT_LIFETIME * 2 });
                 screenShakeMagnitude = 20;
                 screenShakeTimeLeft = 30;
             }
@@ -1552,23 +823,19 @@ class Player {
             if (this.swallowedTimer <= 0) {
                 this.isSwallowed = false;
                 this.x = Math.random() * (CANVAS_WIDTH - this.width);
-                this.y = -this.height; // Respawn en la parte superior
+                this.y = -this.height;
                 this.velocityY = 0;
             }
-            return; // Saltar actualización normal
+            return;
         }
-        
         if (this.isStunned) {
             this.stunTimer--;
-            if (this.stunTimer <= 0) {
-                this.isStunned = false;
-            }
-            return; // Saltar actualización normal
+            if (this.stunTimer <= 0) this.isStunned = false;
+            return;
         }
 
-        // AI logic for both players
-        this.updateAI();
-        
+        if(!this.isPlayer1) this.updateAI();
+
         if (this.isInvisible) {
             this.invisibilityTimer--;
             if (this.invisibilityTimer <= 0) {
@@ -1577,47 +844,47 @@ class Player {
                 if (opponent) {
                     this.x = opponent.x + (opponent.facingRight ? opponent.width + 20 : -this.width - 20);
                     this.y = opponent.y;
-                    if (this.x < 0) this.x = 10;
-                    if (this.x + this.width > CANVAS_WIDTH) this.x = CANVAS_WIDTH - this.width - 10;
                 }
             }
             return;
         }
 
-
         if (this.isDashing) {
-            const opponent = players.find(p => p !== this);
-            this.updateBoltDash(opponent);
-             this.trail.push({ x: this.x, y: this.y });
-            if (this.trail.length > 5) {
-                this.trail.shift();
-            }
+            this.updateBoltDash(players.find(p => p !== this));
+            this.trail.push({ x: this.x, y: this.y });
+            if (this.trail.length > 5) this.trail.shift();
             return;
         }
 
-        
         this.x += this.velocityX;
         this.velocityY += GRAVITY;
         this.y += this.velocityY;
 
         const opponent = players.find(p => p !== this);
         if (opponent) {
-            this.updatePiranhaProjectiles(opponent);
-            this.updateMoneyWads(opponent);
-            this.updateCoins(opponent);
-            this.updateCalculatorProjectiles(opponent);
-            this.updatePapers(opponent);
-            this.updateKisses(opponent);
-            this.updateTeddies(opponent);
-        }
-        
-        if (this.isCastingCrack) {
-            this.updateZanjasCrack();
+            this.updateProjectiles(opponent, this.activePiranhaProjectiles, { text: "¡ÑAM!", color: "#ff6347", alpha: 1.0, size: 20, rotation: 0, lifetime: HIT_EFFECT_LIFETIME / 2 });
+            this.updateProjectiles(opponent, this.activeMoneyWads, { text: "$$$", color: "#22c55e", alpha: 1.0, size: 30, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
+            this.updateProjectiles(opponent, this.activeCoins, { text: "$", color: "#facc15", alpha: 1.0, size: 20, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
+            this.updateProjectiles(opponent, this.activeCalculators, { text: "ERROR", color: "#e53e3e", alpha: 1.0, size: 25, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
+            this.updateProjectiles(opponent, this.activeKisses, { text: "♥", color: "#ff69b4", alpha: 1.0, size: 30, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
+            this.updateProjectiles(opponent, this.activeTeddies, { text: "¡AWW!", color: "#9b59b6", alpha: 1.0, size: 40, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
+            this.activePapers.forEach((paper, i) => {
+                 paper.y += paper.velocityY; paper.velocityY += GRAVITY * 0.3; paper.rotation += paper.rotationSpeed;
+                 if (paper.y > CANVAS_HEIGHT) this.activePapers.splice(i, 1);
+                 else if (!opponent.isSwallowed && !opponent.isStunned && paper.x < opponent.x + opponent.width && paper.x + paper.width > opponent.x && paper.y < opponent.y + opponent.height && paper.y + paper.height > opponent.y) {
+                    opponent.takeDamage(PAPELUCHO_PAPER_DAMAGE, this.facingRight);
+                    opponent.isStunned = true;
+                    opponent.stunTimer = PAPELUCHO_STUN_DURATION;
+                    this.activePapers.splice(i, 1);
+                 }
+            });
         }
 
-        const actualGroundSurfaceY = CANVAS_HEIGHT - 10;
-        if (this.y + this.height > actualGroundSurfaceY) {
-            this.y = actualGroundSurfaceY - this.height;
+        if (this.isCastingCrack) this.updateZanjasCrack();
+
+        const groundY = CANVAS_HEIGHT - 10;
+        if (this.y + this.height > groundY) {
+            this.y = groundY - this.height;
             this.velocityY = 0;
             this.isJumping = false;
         }
@@ -1627,27 +894,13 @@ class Player {
 
     chargePowerOnClick() {
         if (this.isSuperCharged || !gameActive) return;
-        
-        if (window.navigator && window.navigator.vibrate) {
-            window.navigator.vibrate(15);
-        }
-
-        const powerBarContainer = document.getElementById('player1PowerBarContainer');
-        powerBarContainer.classList.remove('power-bar-container-flash'); // Remove to re-trigger animation
-        void powerBarContainer.offsetWidth; // Trigger reflow
-        powerBarContainer.classList.add('power-bar-container-flash');
-        setTimeout(() => {
-            powerBarContainer.classList.remove('power-bar-container-flash');
-        }, 150);
-
-        this.power += POWER_GAIN_PER_CLICK;
-        if (this.power >= this.maxPower) {
-            this.power = this.maxPower;
-            this.isSuperCharged = true;
-        }
+        if (navigator.vibrate) navigator.vibrate(15);
+        player1PowerBarContainer.classList.add('power-bar-container-flash');
+        setTimeout(() => player1PowerBarContainer.classList.remove('power-bar-container-flash'), 150);
+        this.power = Math.min(this.maxPower, this.power + POWER_GAIN_PER_CLICK);
+        if (this.power >= this.maxPower) this.isSuperCharged = true;
         updatePowerBars();
     }
-
 
     jump() {
         if (!this.isJumping) {
@@ -1658,423 +911,89 @@ class Player {
 
     gainPower(amount) {
         if (this.isSuperCharged) return;
-        this.power += amount;
-        if (this.power >= this.maxPower) {
-            this.power = this.maxPower;
-            this.isSuperCharged = true;
-            console.log((this.isPlayer1 ? "Player 1" : "Player 2") + " SUPER CARGADO!");
-        }
+        this.power = Math.min(this.maxPower, this.power + amount);
+        if (this.power >= this.maxPower) this.isSuperCharged = true;
         updatePowerBars();
     }
-
-    launchPiranhaProjectiles() {
-        const numPiranhas = PIRANHA_PROJECTILE_COUNT;
-        const piranhaDamage = PIRANHA_PROJECTILE_DAMAGE;
-        let handX, handY;
-
-        const totalLegSegmentsHeight = this.thighHeight + this.lowerLegHeight;
-        const shoulderX = this.x + (this.width - this.torsoWidth) / 2 + (this.facingRight ? this.torsoWidth * 0.70 : this.torsoWidth * 0.30);
-        const shoulderY = this.y + (this.height - this.torsoHeight - totalLegSegmentsHeight - this.shoeHeight) + this.torsoHeight * 0.20;
-        const armAngle = this.facingRight ? ARM_PUNCH_UPPER_EXTEND_ANGLE : Math.PI - ARM_PUNCH_UPPER_EXTEND_ANGLE;
-        const forearmAngle = this.facingRight ? ARM_PUNCH_FOREARM_EXTEND_ANGLE : -ARM_PUNCH_FOREARM_EXTEND_ANGLE;
-        const elbowX = shoulderX + Math.cos(armAngle) * this.upperArmLength;
-        const elbowY = shoulderY + Math.sin(armAngle) * this.upperArmLength;
-        handX = elbowX + Math.cos(armAngle + forearmAngle) * (this.foreArmLength + this.gloveSize * 0.25);
-        handY = elbowY + Math.sin(armAngle + forearmAngle) * (this.foreArmLength + this.gloveSize * 0.25);
-
-
-        for (let i = 0; i < numPiranhas; i++) {
-            this.activePiranhaProjectiles.push({
-                x: handX + (this.facingRight ? this.gloveSize / 2 : -this.gloveSize/2 - PIRANHA_PROJECTILE_WIDTH),
-                y: handY - PIRANHA_PROJECTILE_HEIGHT / 2 + (i * (PIRANHA_PROJECTILE_HEIGHT / 1.5)) - (PIRANHA_PROJECTILE_HEIGHT/3 * (numPiranhas-1)/2) ,
-                width: PIRANHA_PROJECTILE_WIDTH,
-                height: PIRANHA_PROJECTILE_HEIGHT,
-                velocityX: PIRANHA_PROJECTILE_SPEED,
-                direction: this.facingRight,
-                lifespan: PIRANHA_PROJECTILE_LIFESPAN,
-                damage: piranhaDamage
-            });
+	
+    _launchSuperAttack() {
+        const superAttackMap = {
+            "Piraña": () => this.launchPiranhaProjectiles(),
+            "La Ex": () => this.launchMoneyWadAttack(),
+            "Burric": () => this.launchCalculatorAttack(),
+            "Matthei Bolt": () => this.launchBoltDashAttack(),
+            "El Zanjas": () => this.launchZanjasAttack(),
+            "Carolina Papelucho": () => this.launchPapeluchoAttack(),
+            "Orsini Love": () => this.launchOrsiniLoveAttack(),
+            "Escape Room Jackson": () => this.launchEscapeRoomJacksonAttack(),
+            "Tía Cote": () => this.launchTiaCoteAttack(),
+        };
+        const attackFn = superAttackMap[this.name];
+        if (attackFn) {
+            attackFn();
+            return true;
         }
-    }
-
-    launchMoneyWadAttack() {
-        const opponent = players.find(p => p !== this);
-        if (!opponent) return;
-
-        // MONEY_RAIN_COUNT es el número de grupos de billetes que caerán.
-        for (let i = 0; i < MONEY_RAIN_COUNT; i++) {
-            const clusterCenterX = opponent.x + opponent.width / 2 + (Math.random() - 0.5) * opponent.width;
-            const clusterStartY = MONEY_RAIN_INITIAL_Y - (Math.random() * CANVAS_HEIGHT / 2);
-            
-            // Crea un grupo de 3 fajos de billetes
-            for (let j = 0; j < 3; j++) {
-                this.activeMoneyWads.push({
-                    x: clusterCenterX + (Math.random() - 0.5) * 40,
-                    y: clusterStartY + (Math.random() - 0.5) * 40,
-                    width: MONEY_RAIN_WAD_WIDTH,
-                    height: MONEY_RAIN_WAD_HEIGHT,
-                    velocityX: (Math.random() - 0.5) * 2,
-                    velocityY: Math.random() * 4 + 3,
-                    rotation: (Math.random() - 0.5) * Math.PI,
-                    rotationSpeed: (Math.random() - 0.5) * 0.1,
-                    damage: MONEY_RAIN_DAMAGE,
-                });
-            }
-
-            // Crea un grupo de 5 monedas por cada grupo de billetes
-            for (let k = 0; k < 5; k++) {
-                this.activeCoins.push({
-                    x: clusterCenterX + (Math.random() - 0.5) * 60,
-                    y: clusterStartY + (Math.random() - 0.5) * 60,
-                    radius: Math.random() * 5 + 5, // radio entre 5 y 10
-                    velocityY: Math.random() * 5 + 4,
-                    damage: COIN_RAIN_DAMAGE
-                });
-            }
-        }
-    }
-
-    launchCalculatorAttack() {
-        const opponent = players.find(p => p !== this);
-        if (!opponent) return;
-
-        for (let i = 0; i < CALCULATOR_PROJECTILE_COUNT; i++) {
-            this.activeCalculators.push({
-                x: opponent.x + (Math.random() - 0.5) * opponent.width, // Centrado en el oponente con dispersión
-                y: CALCULATOR_INITIAL_Y - (Math.random() * 100), // Comienza arriba de la pantalla
-                width: CALCULATOR_PROJECTILE_WIDTH,
-                height: CALCULATOR_PROJECTILE_HEIGHT,
-                velocityX: (Math.random() - 0.5) * 2, // Ligero desvío horizontal
-                velocityY: (Math.random() * 2) + 2,    // Velocidad inicial hacia abajo
-                rotation: (Math.random() - 0.5) * 2,
-                rotationSpeed: (Math.random() - 0.5) * 0.2,
-                lifespan: CALCULATOR_PROJECTILE_LIFESPAN,
-                damage: CALCULATOR_PROJECTILE_DAMAGE
-            });
-        }
-    }
-
-    launchPapeluchoAttack() {
-        const opponent = players.find(p => p !== this);
-        if (!opponent) return;
-        
-        for (let i = 0; i < PAPELUCHO_PAPER_COUNT; i++) {
-            // Centra la lluvia de papeles sobre el oponente con algo de dispersión
-            const spawnX = opponent.x + (opponent.width / 2) + (Math.random() - 0.5) * (opponent.width * 2.5);
-
-            this.activePapers.push({
-                x: spawnX,
-                y: -PAPELUCHO_PAPER_HEIGHT - Math.random() * 300, // Empiezan a caer desde arriba
-                width: PAPELUCHO_PAPER_HEIGHT,
-                height: PAPELUCHO_PAPER_HEIGHT,
-                velocityX: (Math.random() - 0.5) * 4, // Se mueven un poco a los lados
-                velocityY: (Math.random() * 2) + 2, // Velocidad de caída inicial
-                rotation: (Math.random() - 0.5) * 2,
-                rotationSpeed: (Math.random() - 0.5) * 0.2,
-                lifespan: 250,
-                isPowerPoint: i === 0 // El primer papel será el especial
-            });
-        }
-    }
-
-    launchOrsiniLoveAttack() {
-        let handX, handY;
-        const totalLegSegmentsHeight = this.thighHeight + this.lowerLegHeight;
-        const shoulderX = this.x + (this.width - this.torsoWidth) / 2 + (this.facingRight ? this.torsoWidth * 0.70 : this.torsoWidth * 0.30);
-        const shoulderY = this.y + (this.height - this.torsoHeight - totalLegSegmentsHeight - this.shoeHeight) + this.torsoHeight * 0.20;
-        const armAngle = this.facingRight ? ARM_PUNCH_UPPER_EXTEND_ANGLE : Math.PI - ARM_PUNCH_UPPER_EXTEND_ANGLE;
-        const forearmAngle = this.facingRight ? ARM_PUNCH_FOREARM_EXTEND_ANGLE : -ARM_PUNCH_FOREARM_EXTEND_ANGLE;
-        const elbowX = shoulderX + Math.cos(armAngle) * this.upperArmLength;
-        const elbowY = shoulderY + Math.sin(armAngle) * this.upperArmLength;
-        handX = elbowX + Math.cos(armAngle + forearmAngle) * (this.foreArmLength + this.gloveSize * 0.25);
-        handY = elbowY + Math.sin(armAngle + forearmAngle) * (this.foreArmLength + this.gloveSize * 0.25);
-
-        for (let i = 0; i < ORSINI_KISS_COUNT; i++) {
-            this.activeKisses.push({
-                x: handX,
-                y: handY,
-                width: ORSINI_KISS_WIDTH,
-                height: ORSINI_KISS_HEIGHT,
-                velocityX: ORSINI_KISS_SPEED + (i * 2), // El segundo beso es un poco más rápido
-                direction: this.facingRight,
-                lifespan: ORSINI_KISS_LIFESPAN,
-                damage: ORSINI_KISS_DAMAGE
-            });
-        }
-    }
-
-    launchEscapeRoomJacksonAttack() {
-        const opponent = players.find(p => p !== this);
-        if (!opponent) return;
-
-        this.isInvisible = true;
-        this.invisibilityTimer = JACKSON_INVISIBILITY_DURATION;
-        opponent.isConfused = true;
-        opponent.confusionTimer = JACKSON_CONFUSION_DURATION;
-
-        new Audio('audio/smoke-bomb.wav').play().catch(e => console.error("Error playing sound:", e));
-
-        // Crear efecto de bomba de humo
-        for (let i = 0; i < SMOKE_PARTICLE_COUNT; i++) {
-            smokeParticles.push({
-                x: this.x + this.width / 2,
-                y: this.y + this.height / 2,
-                radius: Math.random() * 20 + 10,
-                alpha: 1,
-                velocityX: (Math.random() - 0.5) * 4,
-                velocityY: (Math.random() - 0.5) * 4
-            });
-        }
-        
-        this.x = -1000; // Mover fuera de la pantalla
+        return false;
     }
     
-    launchTiaCoteAttack() {
-        const opponent = players.find(p => p !== this);
-        if (!opponent) return;
+    _performAttack(isKick) {
+        if ((this.isPunching || this.isKicking) || (Date.now() - this.lastAttackTime < this.attackCooldown)) return;
 
-        for (let i = 0; i < TIA_COTE_TEDDY_COUNT; i++) {
-            this.activeTeddies.push({
-                x: opponent.x + (opponent.width / 2) - (TIA_COTE_TEDDY_WIDTH / 2),
-                y: TIA_COTE_TEDDY_INITIAL_Y - (Math.random() * 50),
-                width: TIA_COTE_TEDDY_WIDTH,
-                height: TIA_COTE_TEDDY_HEIGHT,
-                velocityY: 1.5,
-                rotation: (Math.random() - 0.5) * 0.1,
-                rotationSpeed: (Math.random() - 0.5) * 0.02,
-                damage: TIA_COTE_TEDDY_DAMAGE
-            });
-        }
-    }
-
-    launchBoltDashAttack() {
-        this.isDashing = true;
-        this.dashCount = BOLT_DASH_COUNT;
-        this.dashTargetX = this.x > CANVAS_WIDTH / 2 ? 0 : CANVAS_WIDTH - this.width;
-        this.dashDamageApplied = false;
-        this.velocityY = 0; // Ignore gravity during dash
-        this.trail = [];
-    }
-    
-    launchZanjasAttack() {
-        const opponent = players.find(p => p !== this);
-        if (!opponent) return;
-        this.isCastingCrack = true;
-        this.crackTimer = ZANJAS_CRACK_LIFESPAN;
-        this.crackOpponentHit = false;
-        this.crackCenterX = opponent.x + opponent.width / 2;
-    }
-
-
-    _performAttack(isKickMove) {
-        if (this.isPunching || this.isKicking || (Date.now() - this.lastAttackTime < this.attackCooldown)) return;
-
-        let currentDamage;
-        let currentRange = isKickMove ? this.kickRange : this.punchRange;
-        this.isPerformingSuperAttackAnimation = false;
-
+        let damage = isKick ? this.kickDamage : this.punchDamage;
+        const range = isKick ? this.kickRange : this.punchRange;
         let isSuperMove = this.isSuperCharged;
 
         if (isSuperMove) {
-            
-            currentDamage = isKickMove ? SUPER_KICK_DAMAGE : SUPER_PUNCH_DAMAGE;
-            this.isPerformingSuperAttackAnimation = true;
-            console.log((this.isPlayer1 ? "Player 1" : "Player 2") + " USES SUPER!");
-
-            if (this.name === "Piraña") {
-                new Audio('audio/hadouken.wav').play().catch(e => console.error("Error al reproducir sonido:", e));
-                this.launchPiranhaProjectiles();
-                currentDamage = 0;
-            } else if (this.name === "La Ex") {
-                this.launchMoneyWadAttack();
-                currentDamage = 0;
-            } else if (this.name === "Burric") {
-                this.launchCalculatorAttack();
-                currentDamage = 0;
-            } else if (this.name === "Matthei Bolt") {
-                this.launchBoltDashAttack();
-                currentDamage = 0;
-            } else if (this.name === "El Zanjas") {
-                this.launchZanjasAttack();
-                currentDamage = 0;
-            } else if (this.name === "Carolina Papelucho") {
-                this.launchPapeluchoAttack();
-                currentDamage = 0;
-            } else if (this.name === "Orsini Love") {
-                this.launchOrsiniLoveAttack();
-                currentDamage = 0;
-            } else if (this.name === "Escape Room Jackson") {
-                this.launchEscapeRoomJacksonAttack();
-                currentDamage = 0;
-            } else if (this.name === "Tía Cote") {
-                this.launchTiaCoteAttack();
-                currentDamage = 0;
+            if (this._launchSuperAttack()) {
+                damage = 0; // Damage is handled by projectiles/special logic
             } else {
-                // Sonido genérico para otros superataques
-                new Audio('audio/38H.wav').play().catch(e => console.error("Error playing sound:", e));
+                damage = isKick ? SUPER_KICK_DAMAGE : SUPER_PUNCH_DAMAGE;
             }
-        } else {
-            currentDamage = isKickMove ? this.kickDamage : this.punchDamage;
         }
 
-        if (isKickMove) {
-            this.isKicking = true;
-        } else {
-            this.isPunching = true;
-            this.attackArm = this.nextPunchArm;
-            this.nextPunchArm = (this.nextPunchArm === 'right' ? 'left' : 'right');
-        }
+        this.isKicking = isKick;
+        this.isPunching = !isKick;
+        this.isPerformingSuperAttackAnimation = isSuperMove;
+        if (!isKick) this.attackArm = this.nextPunchArm = (this.nextPunchArm === 'right' ? 'left' : 'right');
+        
         this.attackVisualActive = true;
         this.lastAttackTime = Date.now();
-        setTimeout(() => {
-            if (isKickMove) this.isKicking = false;
-            else this.isPunching = false;
-            this.attackArm = null;
-            if (isSuperMove) this.isPerformingSuperAttackAnimation = false;
-        }, ATTACK_LOGIC_DURATION);
-        setTimeout(() => {
-            this.attackVisualActive = false;
-        }, ATTACK_ANIMATION_DURATION);
+        setTimeout(() => { this.isKicking = this.isPunching = this.attackArm = null; if (isSuperMove) this.isPerformingSuperAttackAnimation = false; }, ATTACK_LOGIC_DURATION);
+        setTimeout(() => { this.attackVisualActive = false; }, ATTACK_ANIMATION_DURATION);
 
         const opponent = players.find(p => p !== this);
-        if (!opponent || opponent.isSwallowed) return;
-
-        let attackHitbox;
-        const totalLegSegmentsHeight = this.thighHeight + this.lowerLegHeight;
-
-        if (isKickMove) {
-            const angleOfAttack = this.facingRight ? LEG_ANGLE_KICK_STRIKE : Math.PI - LEG_ANGLE_KICK_STRIKE;
-            const limbLength = totalLegSegmentsHeight + this.shoeHeight / 2;
-            const hipY = this.y + (this.height - this.torsoHeight - totalLegSegmentsHeight - this.shoeHeight) + this.torsoHeight;
-            const kickingLegDrawArg = this.facingRight;
-            const hipXOffsetFactorForKickingLeg = kickingLegDrawArg ? 0.65 : 0.35;
-            const hipX = this.x + (this.width - this.torsoWidth) / 2 +
-                         (this.facingRight ? this.torsoWidth * hipXOffsetFactorForKickingLeg
-                                           : this.torsoWidth * (1 - hipXOffsetFactorForKickingLeg));
-            const attackEndX = hipX + Math.cos(angleOfAttack) * limbLength * 0.9;
-            const attackEndY = hipY + Math.sin(angleOfAttack) * limbLength * 0.9;
-            attackHitbox = { x: attackEndX - currentRange / 2, y: attackEndY - currentRange / 2, width: currentRange, height: currentRange };
-        } else {
-            let shoulderXOffsetFactor;
-            if (this.facingRight) {
-                shoulderXOffsetFactor = (this.attackArm === 'right') ? 0.30 : 0.70;
-            } else {
-                shoulderXOffsetFactor = (this.attackArm === 'left') ? 0.30 : 0.70;
-            }
-            const shoulderX = this.x + (this.width - this.torsoWidth) / 2 + this.torsoWidth * shoulderXOffsetFactor;
-            const shoulderY = this.y + (this.height - this.torsoHeight - totalLegSegmentsHeight - this.shoeHeight) + this.torsoHeight * 0.20;
-            let upperArmHitboxAngle = this.facingRight ? ARM_PUNCH_UPPER_EXTEND_ANGLE : Math.PI - ARM_PUNCH_UPPER_EXTEND_ANGLE;
-            let foreArmHitboxAngle = this.facingRight ? ARM_PUNCH_FOREARM_EXTEND_ANGLE : -ARM_PUNCH_FOREARM_EXTEND_ANGLE;
-            const elbowX = shoulderX + Math.cos(upperArmHitboxAngle) * this.upperArmLength;
-            const elbowY = shoulderY + Math.sin(upperArmHitboxAngle) * this.upperArmLength;
-            const attackEndX = elbowX + Math.cos(upperArmHitboxAngle + foreArmHitboxAngle) * (this.foreArmLength + this.gloveSize * 0.5);
-            const attackEndY = elbowY + Math.sin(upperArmHitboxAngle + foreArmHitboxAngle) * (this.foreArmLength + this.gloveSize * 0.5);
-            attackHitbox = { x: attackEndX - currentRange / 2, y: attackEndY - currentRange / 2, width: currentRange, height: currentRange };
+        if (!opponent || opponent.isSwallowed || damage === 0) {
+            if (isSuperMove) { this.power = 0; this.isSuperCharged = false; updatePowerBars(); }
+            return;
         }
-        const opponentBox = { x: opponent.x, y: opponent.y, width: opponent.width, height: opponent.height };
 
-        if (!isSuperMove || (isSuperMove && this.name !== "Piraña" && this.name !== "La Ex" && this.name !== "Burric" && this.name !== "Matthei Bolt" && this.name !== "El Zanjas" && this.name !== "Carolina Papelucho" && this.name !== "Orsini Love" && this.name !== "Escape Room Jackson" && this.name !== "Tía Cote")) {
-             if (
-                attackHitbox.x < opponentBox.x + opponentBox.width &&
-                attackHitbox.x + attackHitbox.width > opponentBox.x &&
-                attackHitbox.y < opponentBox.y + opponentBox.height &&
-                attackHitbox.y + attackHitbox.height > opponentBox.y
-            ) {
-                opponent.takeDamage(currentDamage, this.facingRight);
-                if (!isSuperMove) {
-                   this.gainPower(POWER_GAIN_PER_HIT);
-                } else {
-                    this.power = 0;
-                    this.isSuperCharged = false;
-                    updatePowerBars();
-                    activeHitEffects.push({
-                        text: "¡SÚPER!",
-                        x: opponent.x + opponent.width / 2 + (Math.random() - 0.5) * 30,
-                        y: opponent.y + opponent.height / 2 + (Math.random() - 0.5) * 30,
-                        color: "#FF00FF",
-                        alpha: 1.0,
-                        size: 50 + Math.random() * 20,
-                        rotation: (Math.random() - 0.5) * 0.8,
-                        lifetime: HIT_EFFECT_LIFETIME * 3
-                    });
-                    screenShakeMagnitude = 15;
-                    screenShakeTimeLeft = 20;
-                }
-            } else {
-                if (isSuperMove) {
-                    this.power = 0;
-                    this.isSuperCharged = false;
-                    updatePowerBars();
-                    console.log((this.isPlayer1 ? "Player 1" : "Player 2") + " SUPER MISSED! Power reset.");
-                }
-            }
-        } else if (isSuperMove) {
-            this.power = 0;
-            this.isSuperCharged = false;
-            updatePowerBars();
-            let hitEffectText = "";
-            let hitEffectColor = "";
-            if (this.name === "Piraña") {
-               hitEffectText = "¡PIRAÑAS!";
-               hitEffectColor = "#00ced1";
-            } else if (this.name === "La Ex") {
-               hitEffectText = "¡Estoy forrada!";
-               hitEffectColor = "#22c55e";
-            } else if (this.name === "Burric") {
-               hitEffectText = "¡No tengo la cifra exacta!";
-               hitEffectColor = "#8d99ae";
-            } else if (this.name === "Matthei Bolt") {
-                hitEffectText = "¡A CORRER!";
-                hitEffectColor = "#f39c12";
-            } else if (this.name === "El Zanjas") {
-                hitEffectText = "¡SuperZanja!";
-                hitEffectColor = "#8B4513";
-            } else if (this.name === "Carolina Papelucho") {
-                hitEffectText = "Te lo explico en una presentación!";
-                hitEffectColor = "#ff8c00";
-            } else if (this.name === "Orsini Love") {
-                hitEffectText = "Uno pa' Jackson, uno pa' ti";
-                hitEffectColor = "#ff69b4";
-            } else if (this.name === "Escape Room Jackson") {
-                hitEffectText = "¡Salida de Emergencia!";
-                hitEffectColor = "#adb5bd";
-            } else if (this.name === "Tía Cote") {
-                hitEffectText = "¡Cuidado con la ternura!";
-                hitEffectColor = "#9b59b6";
-            }
-            activeHitEffects.push({ text: hitEffectText, x: this.x + this.width/2, y: this.y, color: hitEffectColor, size: 30, lifetime: HIT_EFFECT_LIFETIME * 1.5, rotation: (Math.random() - 0.5) * 0.2, alpha: 1});
-            screenShakeMagnitude = 10;
-            screenShakeTimeLeft = 15;
+        // Simplified hitbox logic for standard attacks
+        const attackHitbox = { x: this.x + (this.facingRight ? this.width : -range), y: this.y, width: range, height: this.height };
+
+        if (attackHitbox.x < opponent.x + opponent.width && attackHitbox.x + attackHitbox.width > opponent.x &&
+            attackHitbox.y < opponent.y + opponent.height && attackHitbox.y + attackHitbox.height > opponent.y) {
+            opponent.takeDamage(damage, this.facingRight);
+            if (!isSuperMove) this.gainPower(POWER_GAIN_PER_HIT);
+        }
+        
+        if (isSuperMove) {
+            this.power = 0; this.isSuperCharged = false; updatePowerBars();
         }
     }
 
     punch() { this._performAttack(false); }
     kick() { this._performAttack(true); }
-
+	
     takeDamage(damage, attackerFacingRight) {
-        if(this.isDashing || this.isSwallowed) return; // Invulnerable durante el dash o tragado
+        if (this.isDashing || this.isSwallowed) return;
         this.health -= damage;
         if (this.health < 0) this.health = 0;
-        
-        new Audio('audio/2BH.wav').play().catch(e => console.error("Error playing sound:", e));
-
+        new Audio('audio/2BH.wav').play().catch(e => {});
         if (!this.isSwallowed) {
             this.x += attackerFacingRight ? this.knockbackStrength : -this.knockbackStrength;
-            if (this.x < 0) this.x = 0;
-            if (this.x + this.width > CANVAS_WIDTH) this.x = CANVAS_WIDTH - this.width;
             this.velocityY = -this.knockbackStrength / 2;
         }
-
-        const randomWord = hitWords[Math.floor(Math.random() * hitWords.length)];
-        const randomColor = hitWordColors[Math.floor(Math.random() * hitWordColors.length)];
-        activeHitEffects.push({
-            text: randomWord,
-            x: this.x + this.width / 2 + (Math.random() - 0.5) * 20,
-            y: this.y + this.height / 3 + (Math.random() - 0.5) * 20,
-            color: randomColor, alpha: 1.0, size: 24 + Math.random() * 16,
-            rotation: (Math.random() - 0.5) * 0.5,
-            lifetime: HIT_EFFECT_LIFETIME
-        });
+        activeHitEffects.push({ text: hitWords[Math.floor(Math.random() * hitWords.length)], x: this.x + this.width / 2, y: this.y + this.height / 3, color: hitWordColors[Math.floor(Math.random() * hitWordColors.length)], alpha: 1.0, size: 24 + Math.random() * 16, rotation: (Math.random() - 0.5) * 0.5, lifetime: HIT_EFFECT_LIFETIME });
         updateHealthBars();
         checkGameOver();
     }
@@ -2084,20 +1003,17 @@ function createCharacterSelectionUI() {
     characterGrid.innerHTML = '';
     characterAssets.forEach((charAsset, index) => {
         const portraitWrapper = document.createElement('div');
-        portraitWrapper.classList.add('character-portrait', 'rounded-lg', 'overflow-hidden', 'p-1');
+        portraitWrapper.className = 'character-portrait rounded-lg overflow-hidden p-1';
         portraitWrapper.dataset.charIndex = index;
-
         const imgEl = document.createElement('img');
         imgEl.src = charAsset.previewImage;
         imgEl.alt = charAsset.name;
         imgEl.onerror = () => { imgEl.src = `https://placehold.co/100x100/2d3748/e0e0e0?text=${charAsset.name.substring(0,3)}`; };
         portraitWrapper.appendChild(imgEl);
-
         const namePlate = document.createElement('div');
-        namePlate.classList.add('character-name-plate');
+        namePlate.className = 'character-name-plate';
         namePlate.textContent = charAsset.name;
         portraitWrapper.appendChild(namePlate);
-
         portraitWrapper.addEventListener('click', () => handleCharacterSelect(index));
         characterGrid.appendChild(portraitWrapper);
     });
@@ -2105,111 +1021,65 @@ function createCharacterSelectionUI() {
 }
 
 function handleCharacterSelect(index) {
-    if (playerSelectedCharIndex !== -1) return; // Player already selected
+    if (playerSelectedCharIndex !== -1) return;
+    new Audio('audio/20H.wav').play().catch(e => {});
 
-    new Audio('audio/20H.wav').play().catch(e => console.error("Error playing sound:", e));
-
-    // Player's selection
     playerSelectedCharIndex = index;
     const playerAsset = characterAssets[index];
     p1SelectedCharImg.src = playerAsset.previewImage;
     p1SelectedCharName.textContent = playerAsset.name;
     document.querySelector(`[data-char-index='${index}']`).classList.add('selected-p1');
-    
     selectionPrompt.textContent = "El PC está eligiendo...";
-    
-    // PC's random selection after a delay
+
     setTimeout(() => {
         let randomPcIndex;
-        do {
-            randomPcIndex = Math.floor(Math.random() * characterAssets.length);
-        } while (randomPcIndex === index); // Ensure PC is not the same as player
+        do { randomPcIndex = Math.floor(Math.random() * characterAssets.length); } while (randomPcIndex === index);
         pcSelectedCharIndex = randomPcIndex;
-        
         const pcAsset = characterAssets[pcSelectedCharIndex];
         p2SelectedCharImg.src = pcAsset.previewImage;
         p2SelectedCharName.textContent = pcAsset.name;
         document.querySelector(`[data-char-index='${pcSelectedCharIndex}']`).classList.add('selected-p2');
-
         selectionPrompt.textContent = "¡Listo para luchar!";
         selectionPrompt.classList.remove('text-yellow-200');
         selectionPrompt.classList.add('text-green-400');
         startButton.disabled = false;
-    }, 1000); // 1-second delay
+    }, 1000);
 }
 
 function initGame() {
-    if (playerSelectedCharIndex === -1 || pcSelectedCharIndex === -1) {
-        console.warn("Un personaje debe ser seleccionado.");
-        return;
-    }
-    const playerAsset = characterAssets[playerSelectedCharIndex];
-    const pcAsset = characterAssets[pcSelectedCharIndex];
+    if (playerSelectedCharIndex === -1 || pcSelectedCharIndex === -1) return;
 
     activeHitEffects = [];
     players = [
-        new Player(100, CANVAS_HEIGHT, playerAsset, true, true), // Player 1 (Human)
-        new Player(CANVAS_WIDTH - 150, CANVAS_HEIGHT, pcAsset, false, false) // Player 2 (PC)
+        new Player(100, CANVAS_HEIGHT, characterAssets[playerSelectedCharIndex], true, true),
+        new Player(CANVAS_WIDTH - 150, CANVAS_HEIGHT, characterAssets[pcSelectedCharIndex], false, false)
     ];
-    
-    players.forEach(p => {
-        p.power = 0;
-        p.isSuperCharged = false;
-        p.isPerformingSuperAttackAnimation = false;
-        p.activePiranhaProjectiles = [];
-        p.activeMoneyWads = [];
-        p.activeCoins = [];
-        p.activeCalculators = [];
-        p.activePapers = [];
-        p.activeKisses = [];
-        p.activeTeddies = [];
-        p.isDashing = false;
-        p.trail = [];
-        p.isCastingCrack = false;
-        p.crackTimer = 0;
-        p.crackOpponentHit = false;
-        p.isSwallowed = false;
-        p.swallowedTimer = 0;
-        p.isStunned = false;
-        p.stunTimer = 0;
-    });
 
+    players.forEach(p => { p.health = p.maxHealth; p.power = 0; });
     player1NameDisplay.textContent = players[0].name;
     player2NameDisplay.textContent = players[1].name;
     updateHealthBars();
     updatePowerBars();
+
     gameActive = true;
     gameOverModal.classList.add('hidden');
     controlsPanel.style.display = 'none';
 
-    // Set canvas background for the fight
-    const possibleBgs = [
-        ...(characterBackgrounds[playerAsset.name] || []),
-        ...(characterBackgrounds[pcAsset.name] || [])
-    ];
-    
+    const possibleBgs = [...(characterBackgrounds[players[0].name] || []), ...(characterBackgrounds[players[1].name] || [])];
     if (possibleBgs.length > 0) {
-        const selectedBg = possibleBgs[Math.floor(Math.random() * possibleBgs.length)];
-        canvas.style.backgroundImage = `url('${selectedBg}')`;
+        canvas.style.backgroundImage = `url('${possibleBgs[Math.floor(Math.random() * possibleBgs.length)]}')`;
         canvas.style.backgroundSize = 'cover';
         canvas.style.backgroundPosition = 'center';
     }
-    
-    const startMessageOverlay = document.getElementById('start-message-overlay');
-    const startMessageText = document.getElementById('start-message-text');
+
     startMessageText.textContent = "¡Haz tus clicks para recargar Superpoder!";
     startMessageOverlay.classList.remove('hidden');
+    setTimeout(() => startMessageOverlay.classList.add('hidden'), 3000);
 
-    setTimeout(() => {
-        startMessageOverlay.classList.add('hidden');
-    }, 3000); 
-
-    if (!backgroundMusic) {
-        backgroundMusic = new Audio('audio/playbackbattle.mp3');
-        backgroundMusic.loop = true;
+    if (backgroundMusic) {
+        backgroundMusic.currentTime = 0;
+        backgroundMusic.play().catch(e => {});
     }
-    backgroundMusic.play().catch(error => console.warn("Error al reproducir música:", error));
-
     gameHeader.style.display = 'none';
     gameLoop();
 }
@@ -2217,46 +1087,28 @@ function initGame() {
 function resetSelectionScreen() {
     gameOverModal.classList.add('hidden');
     controlsPanel.style.display = 'block';
-    
     playerSelectedCharIndex = -1;
     pcSelectedCharIndex = -1;
 
     p1SelectedCharImg.src = "https://placehold.co/120x120/455a64/e0e0e0?text=P1";
-    p1SelectedCharImg.alt = "P1 Seleccionado";
     p1SelectedCharName.textContent = "- Vacío -";
     player1NameDisplay.textContent = "JUGADOR";
 
     p2SelectedCharImg.src = "https://placehold.co/120x120/455a64/e0e0e0?text=PC";
-    p2SelectedCharImg.alt = "PC Seleccionado";
     p2SelectedCharName.textContent = "- Al Azar -";
     player2NameDisplay.textContent = "PC";
 
-    document.querySelectorAll('.character-portrait').forEach(el => {
-        el.classList.remove('selected-p1', 'selected-p2');
-    });
-    
+    document.querySelectorAll('.character-portrait').forEach(el => el.classList.remove('selected-p1', 'selected-p2'));
     selectionPrompt.textContent = "Elige tu luchador para empezar";
-    selectionPrompt.classList.add('text-yellow-200');
-    selectionPrompt.classList.remove('text-green-400');
+    selectionPrompt.className = 'text-center text-xl text-yellow-200 mb-4';
     startButton.disabled = true;
 
-    if (backgroundMusic) {
-        backgroundMusic.pause();
-        backgroundMusic.currentTime = 0;
-    }
-    if (player1PowerBar) player1PowerBar.style.width = '0%';
-    if (player2PowerBar) player2PowerBar.style.width = '0%';
-    if (player1PowerBar) player1PowerBar.classList.remove('super-charged');
-    if (player2PowerBar) player2PowerBar.classList.remove('super-charged');
-
-    // Clear canvas background and redraw default
+    if (backgroundMusic) backgroundMusic.pause();
+    updatePowerBars(); // Resets bars to 0
     canvas.style.backgroundImage = 'none';
     ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-    ctx.fillStyle = 'rgba(45, 55, 72, 0.5)';
-    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     ctx.fillStyle = '#4a5568';
     ctx.fillRect(0, CANVAS_HEIGHT - 10, CANVAS_WIDTH, 10);
-    
     gameHeader.style.display = 'block';
 }
 
@@ -2267,77 +1119,44 @@ function updateHealthBars() {
 }
 
 function updatePowerBars() {
-    if (players.length < 2) return;
+    if (players.length < 2) {
+        player1PowerBar.style.width = '0%';
+        player2PowerBar.style.width = '0%';
+        return;
+    };
     player1PowerBar.style.width = `${(players[0].power / players[0].maxPower) * 100}%`;
     player2PowerBar.style.width = `${(players[1].power / players[1].maxPower) * 100}%`;
-
-    if (players[0].isSuperCharged) {
-        player1PowerBar.classList.add('super-charged');
-    } else {
-        player1PowerBar.classList.remove('super-charged');
-    }
-    if (players[1].isSuperCharged) {
-        player2PowerBar.classList.add('super-charged');
-    } else {
-        player2PowerBar.classList.remove('super-charged');
-    }
+    player1PowerBar.classList.toggle('super-charged', players[0].isSuperCharged);
+    player2PowerBar.classList.toggle('super-charged', players[1].isSuperCharged);
 }
 
 function isAnySuperPowerActive() {
-    for (const player of players) {
-        if (player.isDashing || player.isCastingCrack || player.isSwallowed || player.isStunned ||
-            player.activePiranhaProjectiles.length > 0 ||
-            player.activeMoneyWads.length > 0 ||
-            player.activeCalculators.length > 0 ||
-            player.activeKisses.length > 0 ||
-            player.activeTeddies.length > 0 ||
-            player.activePapers.length > 0) {
-            return true; // Se encontró un superpoder activo
-        }
-    }
-    return false; // No hay superpoderes activos
+    return players.some(p => p.isDashing || p.isCastingCrack || p.isSwallowed || p.isStunned || p.activePiranhaProjectiles.length > 0 || p.activeMoneyWads.length > 0 || p.activeCalculators.length > 0 || p.activeKisses.length > 0 || p.activeTeddies.length > 0 || p.activePapers.length > 0);
 }
 
 function checkGameOver() {
-    if (players.length < 2) return;
-    
-    // Si la vida de un jugador llega a cero, pero un superpoder está activo, no termines el juego todavía.
-    if ((players[0].health <= 0 || players[1].health <= 0) && isAnySuperPowerActive()) {
-        return;
-    }
+    if (players.length < 2 || ((players[0].health <= 0 || players[1].health <= 0) && isAnySuperPowerActive())) return;
 
     let winner = null;
-    let winnerAsset = null;
-
     if (players[0].health <= 0 && players[1].health <= 0) {
-         winnerMessage.innerHTML = `<span class="text-4xl font-bold text-yellow-400">¡EMPATE!</span>`;
+        winnerMessage.innerHTML = `<span class="text-4xl font-bold text-yellow-400">¡EMPATE!</span>`;
     } else if (players[1].health <= 0) {
         winner = players[0];
-        winnerAsset = characterAssets[playerSelectedCharIndex];
     } else if (players[0].health <= 0) {
         winner = players[1];
-         winnerAsset = characterAssets[pcSelectedCharIndex];
     }
 
     if (winner || (players[0].health <= 0 && players[1].health <= 0)) {
         gameActive = false;
-        new Audio('audio/9BH.wav').play().catch(e => console.error("Error playing sound:", e));
+        new Audio('audio/9BH.wav').play().catch(e => {});
         gameOverModal.classList.remove('hidden');
-        document.getElementById('start-message-overlay').classList.add('hidden');
+        startMessageOverlay.classList.add('hidden');
         gameOverMessage.textContent = "¡Fin del Combate!";
-
-        if (winner && winnerAsset) {
-            winnerMessage.innerHTML = `
-                <p class="text-2xl mb-4">El ganador es</p>
-                <img src="${winnerAsset.previewImage}" onerror="this.src='https.placehold.co/120x120/455a64/e0e0e0?text=WIN'" class="w-32 h-32 mx-auto rounded-full border-4 border-yellow-400 mb-4 object-contain" style="image-rendering: pixelated;"/>
-                <p class="text-4xl font-bold text-yellow-400">${winner.name.toUpperCase()}</p>
-            `;
+        if (winner) {
+            const winnerAsset = characterAssets.find(c => c.name === winner.name);
+            winnerMessage.innerHTML = `<p class="text-2xl mb-4">El ganador es</p><img src="${winnerAsset.previewImage}" class="w-32 h-32 mx-auto rounded-full border-4 border-yellow-400 mb-4 object-contain" style="image-rendering: pixelated;"/><p class="text-4xl font-bold text-yellow-400">${winner.name.toUpperCase()}</p>`;
         }
-
-        if (backgroundMusic) {
-            backgroundMusic.pause();
-            backgroundMusic.currentTime = 0;
-        }
+        if (backgroundMusic) backgroundMusic.pause();
     }
 }
 
@@ -2356,10 +1175,7 @@ function drawHitEffects() {
         effect.lifetime--;
         effect.alpha -= (1.0 / (effect.lifetime + 1));
         effect.y -= 0.5;
-        effect.size *= 0.99;
-        if (effect.lifetime <= 0) {
-            activeHitEffects.splice(i, 1);
-        }
+        if (effect.lifetime <= 0) activeHitEffects.splice(i, 1);
     }
 }
 
@@ -2374,52 +1190,45 @@ function drawSmoke() {
         p.y += p.velocityY;
         p.alpha -= 0.02;
         p.radius += 0.5;
-        if (p.alpha <= 0) {
-            smokeParticles.splice(i, 1);
-        }
+        if (p.alpha <= 0) smokeParticles.splice(i, 1);
     }
 }
 
-
 function gameLoop() {
-    let offsetX = 0;
-    let offsetY = 0;
-
+    if (!gameActive) return;
+    
+    ctx.save();
     if (screenShakeTimeLeft > 0) {
-        offsetX = (Math.random() - 0.5) * 2 * screenShakeMagnitude;
-        offsetY = (Math.random() - 0.5) * 2 * screenShakeMagnitude;
+        const offsetX = (Math.random() - 0.5) * 2 * screenShakeMagnitude;
+        const offsetY = (Math.random() - 0.5) * 2 * screenShakeMagnitude;
         ctx.translate(offsetX, offsetY);
         screenShakeTimeLeft--;
-        if(screenShakeTimeLeft <= 0) {
-            screenShakeMagnitude = 0;
-        }
+        if (screenShakeTimeLeft <= 0) screenShakeMagnitude = 0;
+    }
+    
+    ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT); // Clear considering potential shake
+    if(!canvas.style.backgroundImage || canvas.style.backgroundImage === 'none') {
+        ctx.fillStyle = '#4a5568';
+        ctx.fillRect(0, CANVAS_HEIGHT - 10, CANVAS_WIDTH, 10);
     }
 
-    if (!gameActive) {
-        if (offsetX !== 0 || offsetY !== 0) {
-            ctx.translate(-offsetX, -offsetY);
-        }
-        return;
-    }
-    ctx.clearRect(-CANVAS_WIDTH, -CANVAS_HEIGHT, CANVAS_WIDTH*2, CANVAS_HEIGHT*2);
-    ctx.fillStyle = '#4a5568';
-    ctx.fillRect(0, CANVAS_HEIGHT - 10, CANVAS_WIDTH, 10);
     players.forEach(player => { player.update(); player.draw(); });
     drawHitEffects();
     drawSmoke();
 
-    if (offsetX !== 0 || offsetY !== 0) {
-        ctx.translate(-offsetX, -offsetY);
-    }
+    ctx.restore(); // Restore from shake
     requestAnimationFrame(gameLoop);
 }
 
-// --- Lógica del Splash Screen ---
+
+// =================================================================
+// 4. EJECUCIÓN INICIAL Y EVENT LISTENERS
+// =================================================================
 continueButton.addEventListener('click', () => {
     splashScreen.style.display = 'none';
     gameWrapper.style.display = 'block';
     gameHeader.style.display = 'block';
-    document.body.style.overflow = 'auto'; // Restaura el scroll si es necesario
+    document.body.style.overflow = 'auto';
 });
 
 restartButton.addEventListener('click', () => {
@@ -2429,47 +1238,22 @@ restartButton.addEventListener('click', () => {
 startButton.addEventListener('click', initGame);
 
 canvas.addEventListener('click', () => {
-    if (gameActive && players.length > 0) {
+    if (gameActive && players.length > 0 && players[0].isPlayer1) {
         players[0].chargePowerOnClick();
     }
 });
 
-
 window.addEventListener('keydown', (event) => {
-    if (event.code === 'Space' && gameActive && players.length > 0 && players[0].isSuperCharged) {
-        event.preventDefault(); // Evita que la página se desplace al presionar espacio
-        players[0].punch(); // Usa punch() para activar la lógica del superpoder
+    if (event.code === 'Space' && gameActive && players.length > 0 && players[0].isPlayer1 && players[0].isSuperCharged) {
+        event.preventDefault();
+        players[0].punch(); // Super is triggered via punch/kick logic
     }
 });
 
-
+// Inicialización de la aplicación
 createCharacterSelectionUI();
 resetSelectionScreen();
+gameHeader.style.display = 'none'; // Corrección para el estado inicial
 
 backgroundMusic = new Audio('audio/playbackbattle.mp3');
 backgroundMusic.loop = true;
-backgroundMusic.pause();
-backgroundMusic.currentTime = 0;
-// ... (código anterior) ...
-
-window.addEventListener('keydown', (event) => {
-    if (event.code === 'Space' && gameActive && players.length > 0 && players[0].isSuperCharged) {
-        event.preventDefault(); // Evita que la página se desplace al presionar espacio
-        players[0].punch(); // Usa punch() para activar la lógica del superpoder
-    }
-});
-
-
-createCharacterSelectionUI();
-resetSelectionScreen();
-
-// =================================================================
-// ======> AÑADE ESTA LÍNEA AQUÍ <======
-// Forzamos al header a ocultarse para corregir el estado inicial.
-gameHeader.style.display = 'none';
-// =================================================================
-
-backgroundMusic = new Audio('audio/playbackbattle.mp3');
-backgroundMusic.loop = true;
-backgroundMusic.pause();
-backgroundMusic.currentTime = 0;
