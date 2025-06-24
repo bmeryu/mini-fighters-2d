@@ -119,9 +119,17 @@ body {
     top: 25%;
 }
 
+/* ESTILOS CORREGIDOS */
 #start-message-text {
-    font-size: 2.1rem; /* Aproximadamente 15% más pequeño que 2.5rem */
+    font-size: 2.1rem;
+    font-family: 'Arial Black', Gadget, sans-serif; 
+    text-shadow: 3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 }
+
+#character-select-screen h2 {
+    font-family: 'Arial Black', Gadget, sans-serif;
+}
+/* FIN DE ESTILOS CORREGIDOS */
 
 /* Estilos para los retratos de selección de personajes */
 .character-portrait {
@@ -174,4 +182,9 @@ body {
 #game-header sup {
     font-size: 0.7rem;
     vertical-align: super;
+}
+
+/* Estilos para la imagen del personaje seleccionado para mantener el pixel-art */
+#p1-selected-char-img, #p2-selected-char-img, #winnerMessage img {
+    image-rendering: pixelated;
 }
