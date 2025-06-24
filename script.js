@@ -828,7 +828,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         updateAI() {
             // Ganancia de poder pasiva para la IA
-            if (!this.isSuperCharged) {
+            if (!this.isPlayer1 && !this.isSuperCharged) {
                 this.gainPower(0.25); 
             }
 
@@ -998,7 +998,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            if (!this.isPlayer1) this.updateAI();
+            // Llamada a la IA solo si no es el jugador 1
+            if (!this.isPlayer1) {
+                this.updateAI();
+            }
             
             if (this.isDashing) {
                 this.updateBoltDash(players.find(p => p !== this));
@@ -1454,4 +1457,3 @@ document.addEventListener('DOMContentLoaded', () => {
     createCharacterSelectionUI();
     resetSelectionScreen();
 });
- 
