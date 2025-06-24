@@ -1454,4 +1454,3 @@ document.addEventListener('DOMContentLoaded', () => {
     createCharacterSelectionUI();
     resetSelectionScreen();
 });
-
