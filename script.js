@@ -55,8 +55,7 @@ const ATTACK_LOGIC_DURATION = 200;
 const ATTACK_COOLDOWN = 550;
 const BASE_KNOCKBACK_STRENGTH = 12;
 const HIT_EFFECT_LIFETIME = 30;
-// SOLUCIÓN 2: Aumentar la ganancia de poder para que sea más dinámico
-const POWER_GAIN_PER_CLICK = 4; // Era 0.5, ahora 30-40 clics llenan la barra.
+const POWER_GAIN_PER_CLICK = 4; // Ajustado para un juego más dinámico
 
 const AI_ACTION_INTERVAL = 250;
 const AI_MOVE_CHANCE = 0.7;
@@ -76,45 +75,54 @@ const PIRANHA_PROJECTILE_WIDTH = 30;
 const PIRANHA_PROJECTILE_HEIGHT = 20;
 const PIRANHA_PROJECTILE_DAMAGE = 15;
 const PIRANHA_PROJECTILE_COUNT = 3;
+
 const MONEY_RAIN_COUNT = 5;
 const MONEY_RAIN_WAD_WIDTH = 30;
 const MONEY_RAIN_WAD_HEIGHT = 20;
 const MONEY_RAIN_DAMAGE = 10;
 const MONEY_RAIN_INITIAL_Y = -MONEY_RAIN_WAD_HEIGHT;
 const COIN_RAIN_DAMAGE = 5;
+
 const CALCULATOR_PROJECTILE_LIFESPAN = 120;
 const CALCULATOR_PROJECTILE_WIDTH = 40;
 const CALCULATOR_PROJECTILE_HEIGHT = 50;
 const CALCULATOR_PROJECTILE_DAMAGE = 18;
 const CALCULATOR_PROJECTILE_COUNT = 5;
 const CALCULATOR_INITIAL_Y = -CALCULATOR_PROJECTILE_HEIGHT;
+
 const BOLT_DASH_SPEED = 22.5;
 const BOLT_DASH_COUNT = 5;
 const BOLT_DASH_DAMAGE = 8;
+
 const ZANJAS_CRACK_DAMAGE = 40;
 const ZANJAS_SWALLOWED_DURATION = 90;
 const ZANJAS_CRACK_WIDTH = 150;
 const ZANJAS_CRACK_MAX_HEIGHT = 80;
 const ZANJAS_CRACK_LIFESPAN = 180;
+
 const PAPELUCHO_STUN_DURATION = 180;
 const PAPELUCHO_PAPER_COUNT = 20;
 const PAPELUCHO_PAPER_WIDTH = 25;
 const PAPELUCHO_PAPER_HEIGHT = 35;
 const PAPELUCHO_PAPER_DAMAGE = 1;
+
 const ORSINI_KISS_SPEED = 7;
 const ORSINI_KISS_LIFESPAN = 90;
 const ORSINI_KISS_WIDTH = 30;
 const ORSINI_KISS_HEIGHT = 25;
 const ORSINI_KISS_DAMAGE = 18;
 const ORSINI_KISS_COUNT = 2;
+
 const JACKSON_INVISIBILITY_DURATION = 120;
 const JACKSON_CONFUSION_DURATION = 120;
 const SMOKE_PARTICLE_COUNT = 30;
+
 const TIA_COTE_TEDDY_COUNT = 1;
 const TIA_COTE_TEDDY_WIDTH = 120;
 const TIA_COTE_TEDDY_HEIGHT = 150;
 const TIA_COTE_TEDDY_DAMAGE = 30;
 const TIA_COTE_TEDDY_INITIAL_Y = -TIA_COTE_TEDDY_HEIGHT - 50;
+
 const ARM_GUARD_UPPER_ANGLE = Math.PI / 4.2;
 const ARM_GUARD_FOREARM_BEND = -Math.PI / 1.6;
 const ARM_PUNCH_UPPER_EXTEND_ANGLE = -Math.PI / 18;
@@ -156,8 +164,8 @@ const characterBackgrounds = {
 
 const characterAssets = [
     { name: "Piraña", baseColor: '#e0e0e0', previewImage: "img/personaje1-cabeza.png", textures: { head: "img/personaje1-cabeza.png", torso: "img/personaje1-torso.png", upperArm: "img/personaje1-brazos.png", foreArm: "img/personaje1-antebrazos.png", thigh: "img/personaje1-muslos.png", lowerLeg: "img/personaje1-piernasbajas.png", glove_r: "img/personaje1-guantes-d.png", glove_l: "img/personaje1-guantes-i.png", glove: null, shoe: "img/personaje1-zapatos.png", superEffectTexture: "img/personaje1-super-effect.png" } },
-    { name: "La Ex", baseColor: '#c0392b', previewImage: "img/personaje2-cabeza.png", textures: { head: "img/personaje2-cabeza.png", torso: "img/personaje2-torso.png", upperArm: "img/personaje2-brazos.png", foreArm: "img/personaje2-antebrazos.png", thigh: "img/personaje2-muslos.png", lowerLeg: "img/personaje2-piernasbajas.png", glove_r: "img/personaje2-guantes-d.png", glove_l: "img/personaje2-guantes-i.png", glove: null, shoe: "img/personaje2-zapatos.png", superEffectTexture: "img/personaje2-super-effect.png" } },
-    { name: "Burric", baseColor: '#27ae60', previewImage: "img/personaje3-cabeza.png", textures: { head: "img/personaje3-cabeza.png", torso: "img/personaje3-torso.png", upperArm: "img/personaje3-brazos.png", foreArm: "img/personaje3-antebrazos.png", thigh: "img/personaje3-muslos.png", lowerLeg: "img/personaje3-piernasbajas.png", glove_r: "img/personaje3-guantes-d.png", glove_l: "img/personaje3-guantes-i.png", glove: null, shoe: "img/personaje3-zapatos.png", superEffectTexture: "img/personaje3-super-effect.png" } },
+    { name: "La Ex", baseColor: '#c0392b', previewImage: "img/personaje2-cabeza.png", textures: { head: "img/personaje2-cabeza.png", torso: "img/personaje2-torso.png", upperArm: "img/personaje2-brazos.png", foreArm: "img/personaje2-antebrazos.png", thigh: "img/personaje2-muslos.png", lowerLeg: "img/personaje2-piernasbajas.png", glove_r: "img/personaje2-guantes-d.png", glove_l: "img/personaje2-guantes-i.png", glove: null, shoe: "img/personaje2-zapatos.png", superEffectTexture: "img/personaje2-super-effect.png", moneyWadTexture: "img/money-wad.png" } },
+    { name: "Burric", baseColor: '#27ae60', previewImage: "img/personaje3-cabeza.png", textures: { head: "img/personaje3-cabeza.png", torso: "img/personaje3-torso.png", upperArm: "img/personaje3-brazos.png", foreArm: "img/personaje3-antebrazos.png", thigh: "img/personaje3-muslos.png", lowerLeg: "img/personaje3-piernasbajas.png", glove_r: "img/personaje3-guantes-d.png", glove_l: "img/personaje3-guantes-i.png", glove: null, shoe: "img/personaje3-zapatos.png", superEffectTexture: "img/personaje3-super-effect.png", calculatorProjectileTexture: "img/calculator.png" } },
     { name: "Matthei Bolt", baseColor: '#f39c12', previewImage: "img/personaje4-cabeza.png", textures: { head: "img/personaje4-cabeza.png", torso: "img/personaje4-torso.png", upperArm: "img/personaje4-brazos.png", foreArm: "img/personaje4-antebrazos.png", thigh: "img/personaje4-muslos.png", lowerLeg: "img/personaje4-piernasbajas.png", glove_r: "img/personaje4-guantes-d.png", glove_l: "img/personaje4-guantes-i.png", glove: null, shoe: "img/personaje4-zapatos.png", superEffectTexture: "img/personaje4-super-effect.png", yellowVest: "img/matthei-chaleco.png" } },
     { name: "Carolina Papelucho", baseColor: '#d35400', previewImage: "img/personaje5-cabeza.png", textures: { head: "img/personaje5-cabeza.png", torso: "img/personaje5-torso.png", upperArm: "img/personaje5-brazos.png", foreArm: "img/personaje5-antebrazos.png", thigh: "img/personaje5-muslos.png", lowerLeg: "img/personaje5-piernasbajas.png", glove_r: "img/personaje5-guantes-d.png", glove_l: "img/personaje5-guantes-i.png", glove: null, shoe: "img/personaje5-zapatos.png", superEffectTexture: "img/personaje5-super-effect.png" } },
     { name: "El Zanjas", baseColor: '#7f8c8d', previewImage: "img/personaje6-cabeza.png", textures: { head: "img/personaje6-cabeza.png", torso: "img/personaje6-torso.png", upperArm: "img/personaje6-brazos.png", foreArm: "img/personaje6-antebrazos.png", thigh: "img/personaje6-muslos.png", lowerLeg: "img/personaje6-piernasbajas.png", glove_r: "img/personaje6-guantes-d.png", glove_l: "img/personaje6-guantes-i.png", glove: null, shoe: "img/personaje6-zapatos.png", superEffectTexture: "img/personaje6-super-effect.png" } },
@@ -182,7 +190,6 @@ class Player {
         this.isPlayer1 = isPlayer1;
         this.facingRight = facingRight;
 
-        // Las texturas ya están precargadas, así que solo las asignamos
         this.headTextureImage = assetCache[characterAsset.textures.head];
         this.bodyTextureImage = assetCache[characterAsset.textures.torso];
         this.upperArmTextureImage = assetCache[characterAsset.textures.upperArm];
@@ -292,7 +299,7 @@ class Player {
         else if (partName === 'thigh') currentTexture = this.thighTextureImage;
         else if (partName === 'lower_leg') currentTexture = this.lowerLegTextureImage;
 
-        if (currentTexture && currentTexture.complete && currentTexture.width > 0) {
+        if (currentTexture) {
             ctx.save();
             if (shouldFlipHorizontally) {
                 ctx.translate(destX + destWidth, destY);
@@ -303,7 +310,6 @@ class Player {
             }
             ctx.restore();
         } else {
-            // Este fallback ya no debería ser necesario con el preloader, pero es bueno tenerlo.
             if (partName !== 'shoe') {
                 ctx.fillStyle = 'magenta';
                 ctx.fillRect(destX, destY, destWidth, destHeight);
@@ -400,7 +406,181 @@ class Player {
         ctx.restore();
     }
 	
-    // ... (El resto de las funciones de dibujo de proyectiles como drawPiranhaProjectiles, drawMoneyWads, etc., permanecen iguales)...
+    drawPiranhaProjectiles() {
+        this.activePiranhaProjectiles.forEach(p => {
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            if (!p.direction) {
+                ctx.translate(p.width, 0);
+                ctx.scale(-1, 1);
+            }
+            ctx.fillStyle = '#95a5a6';
+            ctx.beginPath();
+            ctx.ellipse(p.width / 2, p.height / 2, p.width / 2, p.height / 2.5, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#7f8c8d';
+            ctx.beginPath();
+            ctx.moveTo(0, p.height / 2);
+            ctx.lineTo(-p.width * 0.2, 0);
+            ctx.lineTo(-p.width * 0.2, p.height);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = 'red';
+            ctx.beginPath();
+            ctx.arc(p.width * 0.75, p.height * 0.4, 2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.moveTo(p.width, p.height / 2);
+            ctx.lineTo(p.width * 0.8, p.height * 0.7);
+            ctx.lineTo(p.width, p.height * 0.9);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+        });
+    }
+
+    drawMoneyWads() {
+        this.activeMoneyWads.forEach(wad => {
+            ctx.save();
+            ctx.translate(wad.x + wad.width / 2, wad.y + wad.height / 2);
+            ctx.rotate(wad.rotation);
+            if (this.moneyWadTextureImage) {
+                ctx.drawImage(this.moneyWadTextureImage, -wad.width / 2, -wad.height / 2, wad.width, wad.height);
+            } else {
+                ctx.fillStyle = '#22c55e';
+                ctx.fillRect(-wad.width / 2, -wad.height / 2, wad.width, wad.height);
+            }
+            ctx.restore();
+        });
+    }
+
+    drawCoins() {
+        this.activeCoins.forEach(coin => {
+            ctx.save();
+            ctx.translate(coin.x, coin.y);
+            ctx.fillStyle = '#facc15';
+            ctx.beginPath();
+            ctx.arc(0, 0, coin.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#eab308';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.restore();
+        });
+    }
+
+    drawCalculatorProjectiles() {
+        this.activeCalculators.forEach(calc => {
+            ctx.save();
+            ctx.translate(calc.x + calc.width / 2, calc.y + calc.height / 2);
+            ctx.rotate(calc.rotation);
+            if (this.calculatorProjectileTextureImage) {
+                ctx.drawImage(this.calculatorProjectileTextureImage, -calc.width / 2, -calc.height / 2, calc.width, calc.height);
+            } else {
+                ctx.fillStyle = '#bdc3c7';
+                ctx.fillRect(-calc.width / 2, -calc.height / 2, calc.width, calc.height);
+            }
+            ctx.restore();
+        });
+    }
+
+    drawPapers() {
+        this.activePapers.forEach(paper => {
+            ctx.save();
+            ctx.translate(paper.x + paper.width / 2, paper.y + paper.height / 2);
+            ctx.rotate(paper.rotation);
+            if (paper.isPowerPoint) {
+                ctx.fillStyle = '#D04423';
+                ctx.fillRect(-paper.width * 0.75, -paper.height * 0.75, paper.width * 1.5, paper.height * 1.5);
+            } else {
+                ctx.fillStyle = 'white';
+                ctx.fillRect(-paper.width / 2, -paper.height / 2, paper.width, paper.height);
+            }
+            ctx.restore();
+        });
+    }
+
+    drawKisses() {
+        this.activeKisses.forEach(kiss => {
+            ctx.save();
+            ctx.translate(kiss.x, kiss.y);
+            const pixelSize = kiss.width / 11;
+            const lipMap = ["   xxx   ", "  xxxxx  ", " xxxxxxx ", "xxxxxxxxx", "xxxxxxxxx", " xxxxxxx ", "  xxxxx  ", "   xxx   "];
+            ctx.fillStyle = '#ef233c';
+            lipMap.forEach((row, r) => {
+                [...row].forEach((char, c) => {
+                    if (char === 'x') {
+                        ctx.fillRect(c * pixelSize, r * pixelSize, pixelSize, pixelSize);
+                    }
+                });
+            });
+            ctx.fillStyle = '#8d0801';
+            ctx.fillRect(0, 4 * pixelSize, kiss.width, pixelSize);
+            ctx.restore();
+        });
+    }
+
+    drawTeddies() {
+        this.activeTeddies.forEach(teddy => {
+            ctx.save();
+            ctx.translate(teddy.x + teddy.width / 2, teddy.y + teddy.height / 2);
+            ctx.rotate(teddy.rotation);
+            const w = teddy.width;
+            const h = teddy.height;
+            ctx.fillStyle = '#ffc0cb';
+            ctx.strokeStyle = '#e75480';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.ellipse(0, h * 0.1, w * 0.35, h * 0.4, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(0, -h * 0.25, w * 0.25, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            const earWidth = w * 0.12;
+            const earHeight = h * 0.35;
+            ctx.beginPath();
+            ctx.ellipse(-w * 0.2, -h * 0.5, earWidth, earHeight, -0.2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.ellipse(w * 0.2, -h * 0.5, earWidth, earHeight, 0.2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
+        });
+    }
+
+    drawZanjasCrack() {
+        if (!this.isCastingCrack) return;
+        const groundY = CANVAS_HEIGHT - 10;
+        const halfLife = ZANJAS_CRACK_LIFESPAN / 2;
+        let progress = (this.crackTimer > halfLife) ? (ZANJAS_CRACK_LIFESPAN - this.crackTimer) / halfLife : this.crackTimer / halfLife;
+        const currentCrackWidth = ZANJAS_CRACK_WIDTH * progress;
+        const currentCrackDepth = ZANJAS_CRACK_MAX_HEIGHT * progress;
+        if (currentCrackWidth <= 2) return;
+        ctx.save();
+        ctx.fillStyle = 'black';
+        ctx.beginPath();
+        ctx.moveTo(this.crackCenterX - currentCrackWidth / 2, groundY);
+        ctx.lineTo(this.crackCenterX + currentCrackWidth / 2, groundY);
+        ctx.lineTo(this.crackCenterX, groundY + currentCrackDepth);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = '#4a2a0a';
+        ctx.lineWidth = 3;
+        [-1, 1].forEach(s => {
+            ctx.beginPath();
+            ctx.moveTo(this.crackCenterX + (s * currentCrackWidth / 2), groundY);
+            for (let i = 0; i <= 10; i++) {
+                ctx.lineTo(this.crackCenterX + (s * (currentCrackWidth / 2) * (1 - i / 10)), groundY + (Math.random() - 0.5) * 8 * progress);
+            }
+            ctx.stroke();
+        });
+        ctx.restore();
+    }
 
     draw() {
         if (this.isInvisible) return;
@@ -412,10 +592,20 @@ class Player {
             });
             ctx.globalAlpha = 1;
         }
+
         this.drawPlayerModel(this.x, this.y);
-        
-        // Aquí irían las llamadas a las funciones de dibujo de proyectiles
-        // this.drawPiranhaProjectiles(); etc.
+
+        // AÑADIDO: Llamadas para dibujar todos los superpoderes
+        this.drawPiranhaProjectiles();
+        this.drawMoneyWads();
+        this.drawCoins();
+        this.drawCalculatorProjectiles();
+        this.drawPapers();
+        this.drawKisses();
+        this.drawTeddies();
+        if (this.isCastingCrack) {
+            this.drawZanjasCrack();
+        }
         
         if (this.isConfused || this.isStunned) {
             ctx.font = `bold 24px 'Comic Sans MS'`;
@@ -513,7 +703,7 @@ class Player {
 
             if (canAttack && decidedToAttack) {
                 if (this.isSuperCharged && Math.random() < 0.8) {
-                     this.kick(); // La IA usará superpoder con patada
+                    if (attackType === 'kick') this.kick(); else this.punch();
                 } else if (attackType === 'kick') {
                     this.kick();
                 } else {
@@ -531,14 +721,92 @@ class Player {
         else if (this.currentAction === 'moveRight') this.velocityX = this.speed;
     }
 	
-    // ... (El resto de las funciones de `update` de proyectiles, etc., permanecen iguales) ...
+    updateProjectiles(opponent, projectiles, effect) {
+        for (let i = projectiles.length - 1; i >= 0; i--) {
+            const p = projectiles[i];
+            p.x += (p.velocityX || 0) * (p.direction ? 1 : -1);
+            p.y += p.velocityY || 0;
+            if (p.hasOwnProperty('lifespan')) p.lifespan--;
+            if (p.hasOwnProperty('velocityY')) p.velocityY += GRAVITY * (p.gravityFactor || 0.5);
+            if (p.hasOwnProperty('rotation')) p.rotation += p.rotationSpeed || 0;
+
+            if (p.lifespan <= 0 || p.x > CANVAS_WIDTH || p.x + p.width < 0 || p.y > CANVAS_HEIGHT) {
+                projectiles.splice(i, 1);
+                continue;
+            }
+
+            if (!opponent.isSwallowed && !opponent.isStunned &&
+                p.x < opponent.x + opponent.width && p.x + p.width > opponent.x &&
+                p.y < opponent.y + opponent.height && p.y + p.height > opponent.y
+            ) {
+                opponent.takeDamage(p.damage, p.direction);
+                if (effect) activeHitEffects.push({ ...effect, x: p.x, y: p.y });
+                projectiles.splice(i, 1);
+            }
+        }
+    }
+
+    updateBoltDash(opponent) {
+        if (!this.isDashing) return;
+        const moveDirection = Math.sign(this.dashTargetX - this.x);
+        this.x += moveDirection * BOLT_DASH_SPEED;
+        this.facingRight = moveDirection > 0;
+
+        if (!this.dashDamageApplied && !opponent.isSwallowed && !opponent.isStunned &&
+            this.x < opponent.x + opponent.width && this.x + this.width > opponent.x &&
+            this.y < opponent.y + opponent.height && this.y + this.height > opponent.y
+        ) {
+            opponent.takeDamage(BOLT_DASH_DAMAGE, moveDirection > 0);
+            this.dashDamageApplied = true;
+            screenShakeMagnitude = 5;
+            screenShakeTimeLeft = 5;
+            activeHitEffects.push({ text: "¡ZAS!", x: opponent.x + opponent.width / 2, y: opponent.y + opponent.height / 2, color: "#f39c12", alpha: 1.0, size: 25, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
+        }
+
+        if (Math.abs(this.x - this.dashTargetX) < BOLT_DASH_SPEED) {
+            this.x = this.dashTargetX;
+            this.dashCount--;
+            if (this.dashCount <= 0) {
+                this.isDashing = false;
+                this.trail = [];
+            } else {
+                this.dashTargetX = this.dashTargetX === 0 ? CANVAS_WIDTH - this.width : 0;
+                this.dashDamageApplied = false;
+            }
+        }
+    }
+
+    updateZanjasCrack() {
+        if (!this.isCastingCrack) return;
+        this.crackTimer--;
+        if (this.crackTimer <= 0) {
+            this.isCastingCrack = false;
+            return;
+        }
+        const opponent = players.find(p => p !== this);
+        if (!opponent || this.crackOpponentHit || opponent.isSwallowed) return;
+
+        if (this.crackTimer < ZANJAS_CRACK_LIFESPAN * 0.7 && this.crackTimer > ZANJAS_CRACK_LIFESPAN * 0.2) {
+            if (Math.abs(opponent.x + opponent.width / 2 - this.crackCenterX) < ZANJAS_CRACK_WIDTH / 2 && (opponent.y + opponent.height) >= (CANVAS_HEIGHT - 10)) {
+                opponent.takeDamage(ZANJAS_CRACK_DAMAGE, this.facingRight);
+                opponent.isSwallowed = true;
+                opponent.swallowedTimer = ZANJAS_SWALLOWED_DURATION;
+                this.crackOpponentHit = true;
+                activeHitEffects.push({ text: "¡TRAGADO!", x: opponent.x + opponent.width / 2, y: opponent.y + opponent.height / 2, color: "#8B4513", alpha: 1.0, size: 40, rotation: (Math.random() - 0.5) * 0.3, lifetime: HIT_EFFECT_LIFETIME * 2 });
+                screenShakeMagnitude = 20;
+                screenShakeTimeLeft = 30;
+            }
+        }
+    }
 
     update() {
         if (this.isSwallowed) {
             this.swallowedTimer--;
             if (this.swallowedTimer <= 0) {
                 this.isSwallowed = false;
-                this.y = -this.height; // Respawn arriba
+                this.x = Math.random() * (CANVAS_WIDTH - this.width);
+                this.y = -this.height;
+                this.velocityY = 0;
             }
             return;
         }
@@ -547,13 +815,55 @@ class Player {
             if (this.stunTimer <= 0) this.isStunned = false;
             return;
         }
-        if (!this.isPlayer1) this.updateAI();
 
-        // ... (El resto de la lógica de `update` permanece igual) ...
+        if(!this.isPlayer1) this.updateAI();
+
+        if (this.isInvisible) {
+            this.invisibilityTimer--;
+            if (this.invisibilityTimer <= 0) {
+                this.isInvisible = false;
+                const opponent = players.find(p => p !== this);
+                if (opponent) {
+                    this.x = opponent.x + (opponent.facingRight ? opponent.width + 20 : -this.width - 20);
+                    this.y = opponent.y;
+                }
+            }
+            return;
+        }
+
+        if (this.isDashing) {
+            this.updateBoltDash(players.find(p => p !== this));
+            this.trail.push({ x: this.x, y: this.y });
+            if (this.trail.length > 5) this.trail.shift();
+            return;
+        }
 
         this.x += this.velocityX;
         this.velocityY += GRAVITY;
         this.y += this.velocityY;
+
+        // AÑADIDO: Llamadas para actualizar todos los superpoderes
+        const opponent = players.find(p => p !== this);
+        if (opponent) {
+            this.updateProjectiles(opponent, this.activePiranhaProjectiles, { text: "¡ÑAM!", color: "#ff6347", alpha: 1.0, size: 20, rotation: 0, lifetime: HIT_EFFECT_LIFETIME / 2 });
+            this.updateProjectiles(opponent, this.activeMoneyWads, { text: "$$$", color: "#22c55e", alpha: 1.0, size: 30, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
+            this.updateProjectiles(opponent, this.activeCoins, { text: "$", color: "#facc15", alpha: 1.0, size: 20, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
+            this.updateProjectiles(opponent, this.activeCalculators, { text: "ERROR", color: "#e53e3e", alpha: 1.0, size: 25, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
+            this.updateProjectiles(opponent, this.activeKisses, { text: "♥", color: "#ff69b4", alpha: 1.0, size: 30, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
+            this.updateProjectiles(opponent, this.activeTeddies, { text: "¡AWW!", color: "#9b59b6", alpha: 1.0, size: 40, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
+            this.activePapers.forEach((paper, i) => {
+                 paper.y += paper.velocityY; paper.velocityY += GRAVITY * 0.3; paper.rotation += paper.rotationSpeed;
+                 if (paper.y > CANVAS_HEIGHT) this.activePapers.splice(i, 1);
+                 else if (!opponent.isSwallowed && !opponent.isStunned && paper.x < opponent.x + opponent.width && paper.x + paper.width > opponent.x && paper.y < opponent.y + opponent.height && paper.y + paper.height > opponent.y) {
+                    opponent.takeDamage(PAPELUCHO_PAPER_DAMAGE, this.facingRight);
+                    opponent.isStunned = true;
+                    opponent.stunTimer = PAPELUCHO_STUN_DURATION;
+                    this.activePapers.splice(i, 1);
+                 }
+            });
+        }
+
+        if (this.isCastingCrack) this.updateZanjasCrack();
 
         const groundY = CANVAS_HEIGHT - 10;
         if (this.y + this.height > groundY) {
@@ -590,20 +900,26 @@ class Player {
     }
 	
     _launchSuperAttack() {
+        // AÑADIDO: Lógica completa para lanzar cada superpoder
         const superAttackMap = {
-            "Piraña": () => { console.log("Lanzando Pirañas!"); /*this.launchPiranhaProjectiles()*/ },
-            "La Ex": () => { console.log("Lanzando Dinero!"); /*this.launchMoneyWadAttack()*/ },
-            // ... Mapear todos los demás personajes
+            "Piraña": () => this.launchPiranhaProjectiles(),
+            "La Ex": () => this.launchMoneyWadAttack(),
+            "Burric": () => this.launchCalculatorAttack(),
+            "Matthei Bolt": () => this.launchBoltDashAttack(),
+            "El Zanjas": () => this.launchZanjasAttack(),
+            "Carolina Papelucho": () => this.launchPapeluchoAttack(),
+            "Orsini Love": () => this.launchOrsiniLoveAttack(),
+            "Escape Room Jackson": () => this.launchEscapeRoomJacksonAttack(),
+            "Tía Cote": () => this.launchTiaCoteAttack(),
         };
         const attackFn = superAttackMap[this.name];
         if (attackFn) {
             attackFn();
-            return true; // Indica que se usó un superpoder especial
+            return true;
         }
-        return false; // Indica que es un superpoder genérico (golpe/patada más fuerte)
+        return false;
     }
     
-    // SOLUCIÓN 3: Lógica de ataque corregida
     _performAttack(isKick) {
         if ((this.isPunching || this.isKicking) || (Date.now() - this.lastAttackTime < this.attackCooldown)) return;
 
@@ -615,9 +931,9 @@ class Player {
         if (isSuperMove) {
             isSpecialSuper = this._launchSuperAttack();
             if (isSpecialSuper) {
-                damage = 0; // El daño lo manejan los proyectiles/efectos
+                damage = 0;
             } else {
-                damage = isKick ? SUPER_KICK_DAMAGE : SUPER_PUNCH_DAMAGE; // Super genérico
+                damage = isKick ? SUPER_KICK_DAMAGE : SUPER_PUNCH_DAMAGE;
             }
         }
 
@@ -630,15 +946,13 @@ class Player {
         this.lastAttackTime = Date.now();
         setTimeout(() => { this.isKicking = this.isPunching = this.attackArm = null; if (isSuperMove) this.isPerformingSuperAttackAnimation = false; }, ATTACK_LOGIC_DURATION);
         setTimeout(() => { this.attackVisualActive = false; }, ATTACK_ANIMATION_DURATION);
-        
-        // Gasta el poder SIEMPRE que se usa un super
+
         if (isSuperMove) {
             this.power = 0;
             this.isSuperCharged = false;
             updatePowerBars();
         }
         
-        // Si es un super especial (proyectiles, etc.), no hacemos chequeo de golpe aquí.
         if (isSpecialSuper) {
             return;
         }
@@ -646,25 +960,22 @@ class Player {
         const opponent = players.find(p => p !== this);
         if (!opponent || opponent.isSwallowed) return;
 
-        // Lógica de hitbox para ataques normales y supers genéricos
-        const attackHitbox = { x: this.x + (this.facingRight ? this.width / 2 : -range), y: this.y, width: range, height: this.height };
+        const attackHitbox = { x: this.x + (this.facingRight ? this.width : -range), y: this.y, width: range, height: this.height };
 
         if (attackHitbox.x < opponent.x + opponent.width && attackHitbox.x + attackHitbox.width > opponent.x &&
             attackHitbox.y < opponent.y + opponent.height && attackHitbox.y + attackHitbox.height > opponent.y) {
             opponent.takeDamage(damage, this.facingRight);
-            if (!isSuperMove) {
-                this.gainPower(POWER_GAIN_PER_HIT);
-            }
+            if (!isSuperMove) this.gainPower(POWER_GAIN_PER_HIT);
         }
     }
-
 
     punch() { this._performAttack(false); }
     kick() { this._performAttack(true); }
 	
     takeDamage(damage, attackerFacingRight) {
         if (this.isDashing || this.isSwallowed) return;
-        this.health = Math.max(0, this.health - damage);
+        this.health -= damage;
+        if (this.health < 0) this.health = 0;
         new Audio('audio/2BH.wav').play().catch(e => {});
         if (!this.isSwallowed) {
             this.x += attackerFacingRight ? this.knockbackStrength : -this.knockbackStrength;
@@ -674,64 +985,129 @@ class Player {
         updateHealthBars();
         checkGameOver();
     }
+
+    // AÑADIDO: Implementación de las funciones de lanzamiento que faltaban
+    launchPiranhaProjectiles() {
+        for (let i = 0; i < PIRANHA_PROJECTILE_COUNT; i++) {
+            this.activePiranhaProjectiles.push({
+                x: this.x + (this.facingRight ? this.width : -PIRANHA_PROJECTILE_WIDTH),
+                y: this.y + this.height / 2 - (i * 10),
+                width: PIRANHA_PROJECTILE_WIDTH, height: PIRANHA_PROJECTILE_HEIGHT,
+                velocityX: PIRANHA_PROJECTILE_SPEED, direction: this.facingRight,
+                lifespan: PIRANHA_PROJECTILE_LIFESPAN, damage: PIRANHA_PROJECTILE_DAMAGE
+            });
+        }
+    }
+    launchMoneyWadAttack() {
+        const opponent = players.find(p => p !== this);
+        if (!opponent) return;
+        for (let i = 0; i < MONEY_RAIN_COUNT; i++) {
+            const clusterCenterX = opponent.x + opponent.width / 2 + (Math.random() - 0.5) * opponent.width;
+            this.activeMoneyWads.push({
+                x: clusterCenterX, y: MONEY_RAIN_INITIAL_Y - (Math.random() * 50),
+                width: MONEY_RAIN_WAD_WIDTH, height: MONEY_RAIN_WAD_HEIGHT,
+                velocityX: (Math.random() - 0.5) * 2, velocityY: Math.random() * 4 + 3,
+                rotation: (Math.random() - 0.5) * Math.PI, rotationSpeed: (Math.random() - 0.5) * 0.1,
+                damage: MONEY_RAIN_DAMAGE
+            });
+            for (let k = 0; k < 5; k++) {
+                this.activeCoins.push({
+                    x: clusterCenterX + (Math.random() - 0.5) * 60, y: MONEY_RAIN_INITIAL_Y - (Math.random() * 50),
+                    radius: Math.random() * 5 + 5, velocityY: Math.random() * 5 + 4,
+                    damage: COIN_RAIN_DAMAGE
+                });
+            }
+        }
+    }
+    launchCalculatorAttack() {
+        const opponent = players.find(p => p !== this);
+        if (!opponent) return;
+        for (let i = 0; i < CALCULATOR_PROJECTILE_COUNT; i++) {
+            this.activeCalculators.push({
+                x: opponent.x + (Math.random() - 0.5) * opponent.width,
+                y: CALCULATOR_INITIAL_Y - (Math.random() * 100),
+                width: CALCULATOR_PROJECTILE_WIDTH, height: CALCULATOR_PROJECTILE_HEIGHT,
+                velocityX: (Math.random() - 0.5) * 2, velocityY: (Math.random() * 2) + 2,
+                rotation: (Math.random() - 0.5) * 2, rotationSpeed: (Math.random() - 0.5) * 0.2,
+                lifespan: CALCULATOR_PROJECTILE_LIFESPAN, damage: CALCULATOR_PROJECTILE_DAMAGE
+            });
+        }
+    }
+    launchBoltDashAttack() {
+        this.isDashing = true;
+        this.dashCount = BOLT_DASH_COUNT;
+        this.dashTargetX = this.x > CANVAS_WIDTH / 2 ? 0 : CANVAS_WIDTH - this.width;
+        this.dashDamageApplied = false;
+        this.velocityY = 0;
+        this.trail = [];
+    }
+    launchZanjasAttack() {
+        const opponent = players.find(p => p !== this);
+        if (!opponent) return;
+        this.isCastingCrack = true;
+        this.crackTimer = ZANJAS_CRACK_LIFESPAN;
+        this.crackOpponentHit = false;
+        this.crackCenterX = opponent.x + opponent.width / 2;
+    }
+    launchPapeluchoAttack() {
+        const opponent = players.find(p => p !== this);
+        if (!opponent) return;
+        for (let i = 0; i < PAPELUCHO_PAPER_COUNT; i++) {
+            this.activePapers.push({
+                x: opponent.x + (opponent.width / 2) + (Math.random() - 0.5) * (opponent.width * 2.5),
+                y: -PAPELUCHO_PAPER_HEIGHT - Math.random() * 300,
+                width: PAPELUCHO_PAPER_WIDTH, height: PAPELUCHO_PAPER_HEIGHT,
+                velocityX: (Math.random() - 0.5) * 4, velocityY: (Math.random() * 2) + 2,
+                rotation: (Math.random() - 0.5) * 2, rotationSpeed: (Math.random() - 0.5) * 0.2,
+                isPowerPoint: i === 0
+            });
+        }
+    }
+    launchOrsiniLoveAttack() {
+        for (let i = 0; i < ORSINI_KISS_COUNT; i++) {
+            this.activeKisses.push({
+                x: this.x + (this.facingRight ? this.width : -ORSINI_KISS_WIDTH),
+                y: this.y + this.height / 3,
+                width: ORSINI_KISS_WIDTH, height: ORSINI_KISS_HEIGHT,
+                velocityX: ORSINI_KISS_SPEED + (i * 2), direction: this.facingRight,
+                lifespan: ORSINI_KISS_LIFESPAN, damage: ORSINI_KISS_DAMAGE
+            });
+        }
+    }
+    launchEscapeRoomJacksonAttack() {
+        const opponent = players.find(p => p !== this);
+        if (!opponent) return;
+        this.isInvisible = true;
+        this.invisibilityTimer = JACKSON_INVISIBILITY_DURATION;
+        opponent.isConfused = true;
+        opponent.confusionTimer = JACKSON_CONFUSION_DURATION;
+        for (let i = 0; i < SMOKE_PARTICLE_COUNT; i++) {
+            smokeParticles.push({
+                x: this.x + this.width / 2, y: this.y + this.height / 2,
+                radius: Math.random() * 20 + 10, alpha: 1,
+                velocityX: (Math.random() - 0.5) * 4, velocityY: (Math.random() - 0.5) * 4
+            });
+        }
+        this.x = -1000;
+    }
+    launchTiaCoteAttack() {
+        const opponent = players.find(p => p !== this);
+        if (!opponent) return;
+        this.activeTeddies.push({
+            x: opponent.x + (opponent.width / 2) - (TIA_COTE_TEDDY_WIDTH / 2),
+            y: TIA_COTE_TEDDY_INITIAL_Y,
+            width: TIA_COTE_TEDDY_WIDTH, height: TIA_COTE_TEDDY_HEIGHT,
+            velocityY: 1.5, rotation: (Math.random() - 0.5) * 0.1,
+            rotationSpeed: (Math.random() - 0.5) * 0.02, damage: TIA_COTE_TEDDY_DAMAGE
+        });
+    }
 }
 
-// ... El resto de funciones como createCharacterSelectionUI, handleCharacterSelect, initGame, etc., se mantienen muy similares
-
-function initGame() {
-    if (playerSelectedCharIndex === -1 || pcSelectedCharIndex === -1) return;
-
-    activeHitEffects = [];
-    players = [
-        new Player(100, CANVAS_HEIGHT, characterAssets[playerSelectedCharIndex], true, true),
-        new Player(CANVAS_WIDTH - 150, CANVAS_HEIGHT, characterAssets[pcSelectedCharIndex], false, false)
-    ];
-
-    player1NameDisplay.textContent = players[0].name;
-    player2NameDisplay.textContent = players[1].name;
-    updateHealthBars();
-    updatePowerBars();
-
-    gameActive = true;
-    gameOverModal.classList.add('hidden');
-    controlsPanel.style.display = 'none';
-
-    const possibleBgs = [...(characterBackgrounds[players[0].name] || []), ...(characterBackgrounds[players[1].name] || [])];
-    if (possibleBgs.length > 0) {
-        canvas.style.backgroundImage = `url('${possibleBgs[Math.floor(Math.random() * possibleBgs.length)]}')`;
-    }
-
-    startMessageText.textContent = "¡Haz tus clicks para recargar Superpoder!";
-    startMessageOverlay.classList.remove('hidden');
-    setTimeout(() => startMessageOverlay.classList.add('hidden'), 3000);
-
-    if (backgroundMusic) {
-        backgroundMusic.currentTime = 0;
-        backgroundMusic.play().catch(e => {});
-    }
-    gameHeader.style.display = 'none';
-    gameLoop();
-}
-
-function gameLoop() {
-    if (!gameActive) return;
-    
-    ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-    if (!canvas.style.backgroundImage || canvas.style.backgroundImage === 'none') {
-        ctx.fillStyle = '#4a5568';
-        ctx.fillRect(0, CANVAS_HEIGHT - 10, CANVAS_WIDTH, 10);
-    }
-
-    players.forEach(player => { player.update(); player.draw(); });
-    // drawHitEffects();
-    // drawSmoke();
-
-    requestAnimationFrame(gameLoop);
-}
 
 // =================================================================
-// 4. SOLUCIÓN 1: PRE-CARGADOR DE ASSETS
+// 4. PRE-CARGADOR, LÓGICA DEL JUEGO Y EVENTOS
 // =================================================================
+
 let assetCache = {};
 
 function preloadAssets(callback) {
@@ -752,8 +1128,7 @@ function preloadAssets(callback) {
         callback();
         return;
     }
-
-    // Mostrar mensaje de carga
+    
     selectionPrompt.textContent = `Cargando recursos... 0 / ${totalAssets}`;
 
     assetUrls.forEach(url => {
@@ -764,66 +1139,21 @@ function preloadAssets(callback) {
             assetCache[url] = img;
             selectionPrompt.textContent = `Cargando recursos... ${loadedAssets} / ${totalAssets}`;
             if (loadedAssets === totalAssets) {
-                selectionPrompt.textContent = "¡Recursos cargados!";
-                setTimeout(callback, 500); // Pequeña pausa para que el usuario lea el mensaje
+                selectionPrompt.textContent = "Elige tu luchador para empezar";
+                callback();
             }
         };
         img.onerror = () => {
             console.error(`Error al cargar el asset: ${url}`);
-            loadedAssets++; // Contamos el asset con error para no bloquear la carga
+            loadedAssets++;
              if (loadedAssets === totalAssets) {
+                selectionPrompt.textContent = "Elige tu luchador para empezar";
                 callback();
             }
         };
     });
 }
 
-
-// =================================================================
-// 5. EJECUCIÓN INICIAL Y EVENT LISTENERS
-// =================================================================
-continueButton.addEventListener('click', () => {
-    splashScreen.style.display = 'none';
-    gameWrapper.style.display = 'block';
-    gameHeader.style.display = 'block';
-    document.body.style.overflow = 'auto';
-    
-    // Iniciar la precarga de assets DESPUÉS de aceptar la advertencia
-    preloadAssets(() => {
-        // Una vez cargado, preparamos la pantalla de selección
-        createCharacterSelectionUI();
-        resetSelectionScreen();
-    });
-});
-
-restartButton.addEventListener('click', () => {
-    resetSelectionScreen();
-});
-
-startButton.addEventListener('click', initGame);
-
-canvas.addEventListener('click', () => {
-    if (gameActive && players.length > 0 && players[0].isPlayer1) {
-        players[0].chargePowerOnClick();
-    }
-});
-
-window.addEventListener('keydown', (event) => {
-    if (event.code === 'Space' && gameActive && players.length > 0 && players[0].isPlayer1 && players[0].isSuperCharged) {
-        event.preventDefault();
-        players[0].kick(); // Usamos kick o punch para activar la lógica del superpoder
-    }
-});
-
-// Inicialización de la aplicación
-// Nota: La creación de UI y el reseteo ahora se llaman dentro del callback de preloadAssets
-gameHeader.style.display = 'none'; // Corrección para el estado inicial
-
-backgroundMusic = new Audio('audio/playbackbattle.mp3');
-backgroundMusic.loop = true;
-
-// Funciones restantes (resetSelectionScreen, createCharacterSelectionUI, etc.)
-// Deben permanecer en el código. Asegúrate de que estén definidas.
 function createCharacterSelectionUI() {
     characterGrid.innerHTML = '';
     characterAssets.forEach((charAsset, index) => {
@@ -847,12 +1177,14 @@ function createCharacterSelectionUI() {
 function handleCharacterSelect(index) {
     if (playerSelectedCharIndex !== -1) return;
     new Audio('audio/20H.wav').play().catch(e => {});
+
     playerSelectedCharIndex = index;
     const playerAsset = characterAssets[index];
     p1SelectedCharImg.src = playerAsset.previewImage;
     p1SelectedCharName.textContent = playerAsset.name;
     document.querySelector(`[data-char-index='${index}']`).classList.add('selected-p1');
     selectionPrompt.textContent = "El PC está eligiendo...";
+
     setTimeout(() => {
         let randomPcIndex;
         do { randomPcIndex = Math.floor(Math.random() * characterAssets.length); } while (randomPcIndex === index);
@@ -868,19 +1200,68 @@ function handleCharacterSelect(index) {
     }, 1000);
 }
 
+function initGame() {
+    if (playerSelectedCharIndex === -1 || pcSelectedCharIndex === -1) return;
+
+    activeHitEffects = [];
+    players = [
+        new Player(100, CANVAS_HEIGHT, characterAssets[playerSelectedCharIndex], true, true),
+        new Player(CANVAS_WIDTH - 150, CANVAS_HEIGHT, characterAssets[pcSelectedCharIndex], false, false)
+    ];
+
+    players.forEach(p => { p.health = p.maxHealth; p.power = 0; });
+    player1NameDisplay.textContent = players[0].name;
+    player2NameDisplay.textContent = players[1].name;
+    updateHealthBars();
+    updatePowerBars();
+
+    gameActive = true;
+    gameOverModal.classList.add('hidden');
+    controlsPanel.style.display = 'none';
+
+    const possibleBgs = [...(characterBackgrounds[players[0].name] || []), ...(characterBackgrounds[players[1].name] || [])];
+    if (possibleBgs.length > 0) {
+        const bgUrl = possibleBgs[Math.floor(Math.random() * possibleBgs.length)];
+        canvas.style.backgroundImage = `url('${bgUrl}')`;
+        canvas.style.backgroundSize = 'cover';
+        canvas.style.backgroundPosition = 'center';
+    }
+
+    startMessageText.textContent = "¡Haz tus clicks para recargar Superpoder!";
+    startMessageOverlay.classList.remove('hidden');
+    setTimeout(() => startMessageOverlay.classList.add('hidden'), 3000);
+
+    if (backgroundMusic) {
+        backgroundMusic.currentTime = 0;
+        backgroundMusic.play().catch(e => {});
+    }
+    gameHeader.style.display = 'none';
+    gameLoop();
+}
+
 function resetSelectionScreen() {
     gameOverModal.classList.add('hidden');
     controlsPanel.style.display = 'block';
     playerSelectedCharIndex = -1;
     pcSelectedCharIndex = -1;
+
     p1SelectedCharImg.src = "https://placehold.co/120x120/455a64/e0e0e0?text=P1";
     p1SelectedCharName.textContent = "- Vacío -";
+    player1NameDisplay.textContent = "JUGADOR";
+
     p2SelectedCharImg.src = "https://placehold.co/120x120/455a64/e0e0e0?text=PC";
     p2SelectedCharName.textContent = "- Al Azar -";
+    player2NameDisplay.textContent = "PC";
+
     document.querySelectorAll('.character-portrait').forEach(el => el.classList.remove('selected-p1', 'selected-p2'));
-    selectionPrompt.textContent = "Elige tu luchador para empezar";
+    if (!assetCache || Object.keys(assetCache).length === 0) {
+        selectionPrompt.textContent = "Cargando...";
+    } else {
+        selectionPrompt.textContent = "Elige tu luchador para empezar";
+    }
     selectionPrompt.className = 'text-center text-xl text-yellow-200 mb-4';
     startButton.disabled = true;
+
     if (backgroundMusic) backgroundMusic.pause();
     updatePowerBars();
     canvas.style.backgroundImage = 'none';
@@ -908,6 +1289,128 @@ function updatePowerBars() {
     player2PowerBar.classList.toggle('super-charged', players[1].isSuperCharged);
 }
 
-function checkGameOver() {
-    // Implementación de checkGameOver
+function isAnySuperPowerActive() {
+    return players.some(p => p.isDashing || p.isCastingCrack || p.isSwallowed || p.isStunned || p.activePiranhaProjectiles.length > 0 || p.activeMoneyWads.length > 0 || p.activeCalculators.length > 0 || p.activeKisses.length > 0 || p.activeTeddies.length > 0 || p.activePapers.length > 0);
 }
+
+function checkGameOver() {
+    if (players.length < 2 || ((players[0].health <= 0 || players[1].health <= 0) && isAnySuperPowerActive())) return;
+
+    let winner = null;
+    if (players[0].health <= 0 && players[1].health <= 0) {
+        winnerMessage.innerHTML = `<span class="text-4xl font-bold text-yellow-400">¡EMPATE!</span>`;
+    } else if (players[1].health <= 0) {
+        winner = players[0];
+    } else if (players[0].health <= 0) {
+        winner = players[1];
+    }
+
+    if (winner || (players[0].health <= 0 && players[1].health <= 0)) {
+        gameActive = false;
+        new Audio('audio/9BH.wav').play().catch(e => {});
+        gameOverModal.classList.remove('hidden');
+        startMessageOverlay.classList.add('hidden');
+        gameOverMessage.textContent = "¡Fin del Combate!";
+        if (winner) {
+            const winnerAsset = characterAssets.find(c => c.name === winner.name);
+            winnerMessage.innerHTML = `<p class="text-2xl mb-4">El ganador es</p><img src="${winnerAsset.previewImage}" class="w-32 h-32 mx-auto rounded-full border-4 border-yellow-400 mb-4 object-contain" style="image-rendering: pixelated;"/><p class="text-4xl font-bold text-yellow-400">${winner.name.toUpperCase()}</p>`;
+        }
+        if (backgroundMusic) backgroundMusic.pause();
+    }
+}
+
+function drawHitEffects() {
+    for (let i = activeHitEffects.length - 1; i >= 0; i--) {
+        const effect = activeHitEffects[i];
+        ctx.save();
+        ctx.font = `bold ${effect.size}px 'Comic Sans MS', 'Arial', sans-serif`;
+        ctx.fillStyle = effect.color;
+        ctx.globalAlpha = effect.alpha;
+        ctx.textAlign = 'center';
+        ctx.translate(effect.x, effect.y);
+        ctx.rotate(effect.rotation);
+        ctx.fillText(effect.text, 0, 0);
+        ctx.restore();
+        effect.lifetime--;
+        effect.alpha -= (1.0 / (effect.lifetime + 1));
+        effect.y -= 0.5;
+        if (effect.lifetime <= 0) activeHitEffects.splice(i, 1);
+    }
+}
+
+function drawSmoke() {
+    for (let i = smokeParticles.length - 1; i >= 0; i--) {
+        const p = smokeParticles[i];
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2, false);
+        ctx.fillStyle = `rgba(108, 117, 125, ${p.alpha})`;
+        ctx.fill();
+        p.x += p.velocityX;
+        p.y += p.velocityY;
+        p.alpha -= 0.02;
+        p.radius += 0.5;
+        if (p.alpha <= 0) smokeParticles.splice(i, 1);
+    }
+}
+
+function gameLoop() {
+    if (!gameActive) return;
+    
+    ctx.save();
+    if (screenShakeTimeLeft > 0) {
+        const offsetX = (Math.random() - 0.5) * 2 * screenShakeMagnitude;
+        const offsetY = (Math.random() - 0.5) * 2 * screenShakeMagnitude;
+        ctx.translate(offsetX, offsetY);
+        screenShakeTimeLeft--;
+        if (screenShakeTimeLeft <= 0) screenShakeMagnitude = 0;
+    }
+    
+    ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    if(!canvas.style.backgroundImage || canvas.style.backgroundImage === 'none') {
+        ctx.fillStyle = '#4a5568';
+        ctx.fillRect(0, CANVAS_HEIGHT - 10, CANVAS_WIDTH, 10);
+    }
+
+    players.forEach(player => { player.update(); player.draw(); });
+    drawHitEffects();
+    drawSmoke();
+
+    ctx.restore();
+    requestAnimationFrame(gameLoop);
+}
+
+continueButton.addEventListener('click', () => {
+    splashScreen.style.display = 'none';
+    gameWrapper.style.display = 'block';
+    gameHeader.style.display = 'block';
+    document.body.style.overflow = 'auto';
+    
+    preloadAssets(() => {
+        createCharacterSelectionUI();
+        resetSelectionScreen();
+    });
+});
+
+restartButton.addEventListener('click', () => {
+    resetSelectionScreen();
+});
+
+startButton.addEventListener('click', initGame);
+
+canvas.addEventListener('click', () => {
+    if (gameActive && players.length > 0 && players[0].isPlayer1) {
+        players[0].chargePowerOnClick();
+    }
+});
+
+window.addEventListener('keydown', (event) => {
+    if (event.code === 'Space' && gameActive && players.length > 0 && players[0].isPlayer1 && players[0].isSuperCharged) {
+        event.preventDefault();
+        players[0].punch();
+    }
+});
+
+gameHeader.style.display = 'none';
+
+backgroundMusic = new Audio('audio/playbackbattle.mp3');
+backgroundMusic.loop = true;
