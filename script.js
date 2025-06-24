@@ -1,3 +1,19 @@
+// ... (todo el código anterior de scripts.js permanece igual)
+
+// Llamadas de inicialización al final del archivo
+
+createCharacterSelectionUI();
+resetSelectionScreen();
+
+// SOLUCIÓN: Añadir esta línea para corregir el estado inicial
+gameHeader.style.display = 'none'; 
+
+// --- El resto del código de inicialización ---
+backgroundMusic = new Audio('audio/playbackbattle.mp3');
+backgroundMusic.loop = true;
+backgroundMusic.pause();
+backgroundMusic.currentTime = 0;
+
 // Obtención de elementos del DOM
 const splashScreen = document.getElementById('splash-screen');
 const continueButton = document.getElementById('continue-button');
