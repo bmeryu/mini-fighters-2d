@@ -827,9 +827,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         updateAI() {
-            // Ganancia de poder pasiva para la IA
-            if (!this.isPlayer1 && !this.isSuperCharged) {
-                this.gainPower(0.25); 
+             if (!this.isPlayer1 && !this.isSuperCharged) {
+                this.gainPower(0.25);
             }
 
             if (this.isConfused) {
@@ -998,7 +997,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Llamada a la IA solo si no es el jugador 1
             if (!this.isPlayer1) {
                 this.updateAI();
             }
