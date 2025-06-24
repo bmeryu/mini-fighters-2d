@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ATTACK_COOLDOWN = 550;
     const BASE_KNOCKBACK_STRENGTH = 12;
     const HIT_EFFECT_LIFETIME = 30;
-    const POWER_GAIN_PER_CLICK = 0.5;
+    const POWER_GAIN_PER_CLICK = 5; // <-- VALOR AUMENTADO PARA CARGA MÁS RÁPIDA
 
     // --- INTELIGENCIA ARTIFICIAL (IA) ---
     const AI_ACTION_INTERVAL = 250;
