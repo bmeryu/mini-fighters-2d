@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini Fighters 2D - Postura de Guardia Específica</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; margin: 0; background-color: #1a202c; color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; }
+        #gameCanvas { background-color: #2d3748; border-radius: 0.5rem; display: block; }
+        .ui-panel { background-color: rgba(45, 55, 72, 0.9); padding: 1rem; border-radius: 0.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .health-bar-container { width: 100%; background-color: #4a5568; border-radius: 0.25rem; overflow: hidden; height: 20px; border: 1px solid #718096;}
+        .health-bar { height: 100%; transition: width 0.3s ease-out; }
+        .player1-health { background-color: #e53e3e; /* red-600 */ }
+        .player2-health { background-color: #3b82f6; /* blue-500 */ }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        select { background-color: #4a5568; color: white; border-radius: 0.25rem; padding: 0.25rem 0.5rem; border: 1px solid #718096;}
+    </style>
+</head>
+<body>
+    <div id="game-container" class="w-full max-w-3xl p-4">
+        <div class="flex justify-between items-center mb-2">
+            <div class="w-2/5">
+                <div class="text-sm font-semibold mb-1 text-red-400">Jugador 1 (IA)</div>
+                <div class="health-bar-container">
+                    <div id="player1HealthBar" class="health-bar player1-health" style="width: 100%;"></div>
+                </div>
+            </div>
+            <div id="timer" class="text-2xl font-bold"></div>
+            <div class="w-2/5">
+                <div class="text-sm font-semibold mb-1 text-blue-400 text-right">Jugador 2 (IA)</div>
+                <div class="health-bar-container">
+                    <div id="player2HealthBar" class="health-bar player2-health" style="width: 100%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <canvas id="gameCanvas"></canvas>
+
+        <div id="controls-panel" class="mt-4 p-4 ui-panel rounded-lg shadow-lg text-center">
+            <div class="grid grid-cols-2 gap-x-4 gap-y-2 mb-4">
+                <div>
+                    <label for="player1BodyType" class="block text-sm font-medium text-red-400 mb-1">Tipo Cuerpo J1:</label>
+                    <select id="player1BodyType">
+                        <option value="normal">Normal</option>
+                        <option value="musculoso">Musculoso</option>
+                        <option value="delgado">Delgado</option>
+                        <option value="robusto">Robusto</option>
+                        <option value="pequeno">Pequeño</option>
+                    </select>
+                </div>
+                 <div>
+                    <label for="player2BodyType" class="block text-sm font-medium text-blue-400 mb-1">Tipo Cuerpo J2:</label>
+                    <select id="player2BodyType">
+                        <option value="normal">Normal</option>
+                        <option value="musculoso">Musculoso</option>
+                        <option value="delgado">Delgado</option>
+                        <option value="robusto">Robusto</option>
+                        <option value="pequeno">Pequeño</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="player1CharacterSelect" class="block text-sm font-medium text-red-400 mb-1">Personaje J1:</label>
+                    <select id="player1CharacterSelect"></select>
+                </div>
+                <div>
+                    <label for="player2CharacterSelect" class="block text-sm font-medium text-blue-400 mb-1">Personaje J2:</label>
+                    <select id="player2CharacterSelect"></select>
+                </div>
+            </div>
+            <button id="startButton" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg text-xl mt-2">
+                Iniciar Simulación
+            </button>
+            <div id="instructions" class="mt-4 text-sm text-gray-300">
+                <p>Selecciona tipo de cuerpo y personaje.</p>
+                 <p class="text-xs">Asegúrate de tener las imágenes en la carpeta `img/` con los nombres correctos.</p>
+            </div>
+        </div>
+
+        <div id="gameOverModal" class="modal hidden">
+            <div class="ui-panel text-center p-8 rounded-lg">
+                <h2 id="gameOverMessage" class="text-3xl font-bold mb-4">¡Simulación Terminada!</h2>
+                <p id="winnerMessage" class="text-xl mb-6"></p>
+                <button id="restartButton" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-8 rounded-lg text-xl">
+                    Volver a Simular
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const player1HealthBar = document.getElementById('player1HealthBar');
+        const player2HealthBar = document.getElementById('player2HealthBar');
+        const startButton = document.getElementById('startButton');
+        const restartButton = document.getElementById('restartButton');
+        const gameOverModal = document.getElementById('gameOverModal');
+        const winnerMessage = document.getElementById('winnerMessage');
+        const player1BodyTypeSelect = document.getElementById('player1BodyType');
+        const player2BodyTypeSelect = document.getElementById('player2BodyType');
+        const player1CharacterSelect = document.getElementById('player1CharacterSelect');
+        const player2CharacterSelect = document.getElementById('player2CharacterSelect');
+        const controlsPanel = document.getElementById('controls-panel'); 
+
+        const CANVAS_WIDTH = 800;
+        const CANVAS_HEIGHT = 400;
+        canvas.width = CANVAS_WIDTH;
+        canvas.height = CANVAS_HEIGHT;
+
+        const GRAVITY = 0.7;
+        const BASE_PLAYER_SPEED = 4; 
+        const BASE_JUMP_STRENGTH = 15;
+        const MAX_HEALTH = 100;
+        
+        const PUNCH_DAMAGE = 10;
+        const KICK_DAMAGE = 13; 
+        const PUNCH_RANGE = 50; 
+        const KICK_RANGE = 60; 
+
+        const ATTACK_ANIMATION_DURATION = 150; 
+        const ATTACK_LOGIC_DURATION = 200; 
+        const ATTACK_COOLDOWN = 700; 
+        
+        const BASE_KNOCKBACK_STRENGTH = 10;
+        const HIT_EFFECT_LIFETIME = 30; 
+
+        const AI_ACTION_INTERVAL = 300;
+        const AI_MOVE_CHANCE = 0.7;
+        const AI_JUMP_CHANCE = 0.1;
+        const AI_ATTACK_CHANCE_IN_RANGE = 0.65; 
+        const AI_KICK_CHANCE = 0.4; 
+
+        let gameActive = false;
+        let players = [];
+        let activeHitEffects = [];
+        const hitWords = ["¡POW!", "¡BAM!", "¡CRASH!", "¡KAPOW!", "¡WHAM!", "¡SLAP!", "¡BOOM!", "¡BANG!", "¡PUFF!", "¡THWACK!"];
+        const hitWordColors = ["#FFD700", "#FF4500", "#ADFF2F", "#00FFFF", "#FF69B4", "#FFFF00", "#FF1493"];
+
+        // --- Directorio de Recursos Gráficos ---
+        const characterAssets = [
+            {
+                name: "Personaje 1", 
+                baseColor: '#e53e3e', 
+                textures: {
+                    head: "img/personaje1-cabeza.png",  
+                    torso: "img/personaje1-torso.png", 
+                    upperArm: "img/personaje1-brazos.png", 
+                    foreArm: "img/personaje1-antebrazos.png",
+                    leg: "img/personaje1-piernas.png",   
+                    glove: "img/personaje1-guantes.png",
+                    shoe: "img/personaje1-zapatos.png"  
+                }
+            },
+            {
+                name: "Luchador Azul Genérico", 
+                baseColor: '#3b82f6',
+                textures: { 
+                    head: null, 
+                    torso: null,
+                    upperArm: null,
+                    foreArm: null,
+                    leg: null,
+                    glove: null,
+                    shoe: null
+                }
+            }
+        ];
+
+
+        const bodyTypeStats = {
+            normal:    { width: 50, height: 100, speedMod: 1.0, damageMod: 1.0, rangeMod: 1.0, healthMod: 1.0 },
+            musculoso: { width: 60, height: 100, speedMod: 0.9, damageMod: 1.2, rangeMod: 1.05, healthMod: 1.1 },
+            delgado:   { width: 40, height: 110, speedMod: 1.1, damageMod: 0.9, rangeMod: 0.95, healthMod: 0.9 },
+            robusto:   { width: 65, height: 90,  speedMod: 0.85, damageMod: 1.1, rangeMod: 1.0, healthMod: 1.2 },
+            pequeno:   { width: 35, height: 70,  speedMod: 1.15, damageMod: 0.8, rangeMod: 0.9, healthMod: 0.8 }
+        };
+        
+        // Arm Angles for Guard and Attack
+        const ARM_GUARD_UPPER_ANGLE = Math.PI / 4.2; // Approx 43 deg: upper arm points down and forward
+        const ARM_GUARD_FOREARM_BEND = -Math.PI / 1.6; // Approx -112 deg: forearm bends sharply up towards face
+
+        const ARM_PUNCH_UPPER_EXTEND_ANGLE = -Math.PI / 18; 
+        const ARM_PUNCH_FOREARM_EXTEND_ANGLE = Math.PI / 30; 
+        const ARM_PUNCH_UPPER_RECOIL_ANGLE = -Math.PI / 3;   
+        const ARM_PUNCH_FOREARM_RECOIL_ANGLE = Math.PI / 2.2; 
+
+        const LEG_ANGLE_RESTING_FRONT = Math.PI / 2 - Math.PI / 20; 
+        const LEG_ANGLE_RESTING_BACK = Math.PI / 2 + Math.PI / 30;  
+        const LEG_ANGLE_KICK_STRIKE = -Math.PI / 18; 
+        const LEG_ANGLE_KICK_SUPPORT = Math.PI / 2 + Math.PI / 6; 
+        const BOXING_GLOVE_COLOR = '#c00000'; 
+        const DEFAULT_SHOE_COLOR = '#4a5568'; 
+        const MUSCLE_COLOR_TINT = 'rgba(0,0,0,0.2)'; 
+
+        class Player {
+            constructor(x, initialY, characterAsset, isPlayer1 = true, facingRight = true, bodyType = 'normal') {
+                this.x = x;
+                this.baseColor = characterAsset.baseColor; 
+                this.isPlayer1 = isPlayer1;
+                this.facingRight = facingRight; 
+                this.bodyType = bodyType;
+                
+                this.headTextureImage = this.loadTexture(characterAsset.textures.head); 
+                this.bodyTextureImage = this.loadTexture(characterAsset.textures.torso); 
+                this.upperArmTextureImage = this.loadTexture(characterAsset.textures.upperArm);   
+                this.foreArmTextureImage = this.loadTexture(characterAsset.textures.foreArm);   
+                this.legTextureImage = this.loadTexture(characterAsset.textures.leg);   
+                this.gloveTextureImage = this.loadTexture(characterAsset.textures.glove);
+                this.shoeTextureImage = this.loadTexture(characterAsset.textures.shoe);
+                this.limbColorFallback = this.baseColor; 
+
+                this.setStatsByBodyType(); 
+                this.y = initialY - this.height; 
+                this.initialX = x; 
+                this.initialY = initialY; 
+                this.velocityX = 0;
+                this.velocityY = 0;
+                this.isJumping = false;
+                this.health = MAX_HEALTH * this.healthMod;
+                this.maxHealth = MAX_HEALTH * this.healthMod; 
+                this.isPunching = false;
+                this.isKicking = false;
+                this.attackVisualActive = false; 
+                this.lastAttackTime = 0;
+                this.lastAIDecisionTime = 0;
+                this.currentAction = null; 
+                this.attackArm = null; 
+                this.nextPunchArm = 'right'; 
+            }
+
+            loadTexture(src) {
+                if (!src) return null;
+                const img = new Image();
+                img.src = src;
+                img.onload = () => { /* console.log('Texture loaded:', src); */ };
+                img.onerror = () => { 
+                    console.warn('Error loading texture:', src, '- Will use base color for this part.');
+                    if (this.headTextureImage && this.headTextureImage.src && this.headTextureImage.src.endsWith(src)) this.headTextureImage = null;
+                    else if (this.bodyTextureImage && this.bodyTextureImage.src && this.bodyTextureImage.src.endsWith(src)) this.bodyTextureImage = null;
+                    else if (this.upperArmTextureImage && this.upperArmTextureImage.src && this.upperArmTextureImage.src.endsWith(src)) this.upperArmTextureImage = null;
+                    else if (this.foreArmTextureImage && this.foreArmTextureImage.src && this.foreArmTextureImage.src.endsWith(src)) this.foreArmTextureImage = null;
+                    else if (this.legTextureImage && this.legTextureImage.src && this.legTextureImage.src.endsWith(src)) this.legTextureImage = null;
+                    else if (this.gloveTextureImage && this.gloveTextureImage.src && this.gloveTextureImage.src.endsWith(src)) this.gloveTextureImage = null;
+                    else if (this.shoeTextureImage && this.shoeTextureImage.src && this.shoeTextureImage.src.endsWith(src)) this.shoeTextureImage = null;
+                };
+                return img;
+            }
+            
+            setStatsByBodyType() {
+                const stats = bodyTypeStats[this.bodyType] || bodyTypeStats.normal;
+                this.width = stats.width; 
+                this.height = stats.height; 
+                this.speed = BASE_PLAYER_SPEED * stats.speedMod;
+                this.punchDamage = PUNCH_DAMAGE * stats.damageMod;
+                this.kickDamage = KICK_DAMAGE * stats.damageMod;
+                this.punchRange = PUNCH_RANGE * stats.rangeMod;
+                this.kickRange = KICK_RANGE * stats.rangeMod;
+                this.attackCooldown = ATTACK_COOLDOWN;
+                this.jumpStrength = BASE_JUMP_STRENGTH;
+                this.knockbackStrength = BASE_KNOCKBACK_STRENGTH;
+                this.healthMod = stats.healthMod;
+                
+                let headSizeRatioFactor = 1.5; 
+                let torsoHeightRatio = 0.5;
+                let torsoWidthRatio = 0.8;
+                let armWidthRatio = 0.20; 
+                let armLengthTotalRatio = 0.85; 
+                let legHeightRatio = 0.40; 
+                let legWidthRatio = 0.22; 
+                let gloveSizeFactor = 3.0; 
+                let shoeHeightRatio = 0.05; 
+                let shoeWidthFactor = 1.1; 
+
+                if (this.bodyType === 'musculoso') {
+                    torsoWidthRatio = 0.9; armWidthRatio = 0.28; legWidthRatio = 0.26; headSizeRatioFactor = 1.3; gloveSizeFactor = 3.2; shoeWidthFactor = 1.15;
+                } else if (this.bodyType === 'delgado') {
+                    torsoWidthRatio = 0.7; armWidthRatio = 0.16; legWidthRatio = 0.18; armLengthTotalRatio = 0.90; legHeightRatio = 0.42; headSizeRatioFactor = 1.6; gloveSizeFactor = 2.8; shoeHeightRatio = 0.04;
+                } else if (this.bodyType === 'robusto') {
+                    torsoWidthRatio = 0.95; armWidthRatio = 0.26; legWidthRatio = 0.28; legHeightRatio = 0.38; headSizeRatioFactor = 1.2; gloveSizeFactor = 3.5; shoeHeightRatio = 0.06; shoeWidthFactor = 1.2;
+                } else if (this.bodyType === 'pequeno') {
+                    headSizeRatioFactor = 1.7; torsoHeightRatio = 0.45; armWidthRatio = 0.22; legWidthRatio = 0.24; armLengthTotalRatio = 0.80; legHeightRatio = 0.38; gloveSizeFactor = 2.8; shoeHeightRatio = 0.045;
+                }
+
+                this.headSize = (this.width * 0.5) * headSizeRatioFactor;
+                this.torsoHeight = this.height * torsoHeightRatio;
+                this.torsoWidth = this.width * torsoWidthRatio; 
+                this.armWidth = this.width * armWidthRatio; 
+                
+                const totalArmLength = this.torsoHeight * armLengthTotalRatio;
+                this.upperArmLength = totalArmLength * 0.5;
+                this.foreArmLength = totalArmLength * 0.5;
+
+                this.legHeight = this.height * legHeightRatio; 
+                this.legWidth = this.torsoWidth * legWidthRatio; 
+                this.gloveSize = this.armWidth * gloveSizeFactor; 
+                this.shoeHeight = this.height * shoeHeightRatio;
+                this.shoeWidth = this.legWidth * shoeWidthFactor;
+            }
+            
+            drawPartWithTexture(partName, destX, destY, destWidth, destHeight, shouldFlipHorizontally = false) {
+                let currentTexture = null;
+                let fillColor = this.baseColor; 
+
+                if (partName === 'head') currentTexture = this.headTextureImage;
+                else if (partName === 'torso') currentTexture = this.bodyTextureImage;
+                else if (partName === 'arm_upper') currentTexture = this.upperArmTextureImage; 
+                else if (partName === 'arm_fore') currentTexture = this.foreArmTextureImage; 
+                else if (partName === 'leg_upper') currentTexture = this.legTextureImage; 
+                else if (partName === 'shoe') currentTexture = this.shoeTextureImage;
+                // Glove is drawn separately
+
+                if (currentTexture && currentTexture.complete && currentTexture.width > 0) {
+                    ctx.save();
+                    if (shouldFlipHorizontally) { 
+                        ctx.translate(destX + destWidth, destY); 
+                        ctx.scale(-1, 1); 
+                        ctx.drawImage(currentTexture, 0, 0, currentTexture.width, currentTexture.height, 0, 0, destWidth, destHeight); 
+                    } else {
+                        ctx.drawImage(currentTexture, 0, 0, currentTexture.width, currentTexture.height, destX, destY, destWidth, destHeight); 
+                    }
+                    ctx.restore();
+                } else { 
+                    if (partName === 'arm_upper' || partName === 'arm_fore' || partName === 'leg_upper') fillColor = this.limbColorFallback;
+                    else if (partName === 'shoe') fillColor = DEFAULT_SHOE_COLOR;
+                    ctx.fillStyle = fillColor;
+                    ctx.fillRect(destX, destY, destWidth, destHeight);
+                }
+            }
+
+
+            drawArm(isPlayerRightArmActual) { 
+                ctx.save();
+                const torsoTopY = this.y + (this.height - this.torsoHeight - this.legHeight - this.shoeHeight);
+                const baseShoulderY = torsoTopY + this.torsoHeight * 0.25; 
+
+                let shoulderXOffset;
+                
+                if (this.facingRight) {
+                    shoulderXOffset = isPlayerRightArmActual ? this.torsoWidth * 0.30 : this.torsoWidth * 0.70;
+                } else {
+                    shoulderXOffset = isPlayerRightArmActual ? this.torsoWidth * 0.30 : this.torsoWidth * 0.70;
+                }
+                
+                const shoulderX = this.x + (this.width - this.torsoWidth) / 2 + shoulderXOffset;
+                const shoulderY = baseShoulderY;
+                
+                ctx.translate(shoulderX, shoulderY);
+
+                let finalUpperArmAngle, finalForeArmAngle;
+                const isPunchingThisArm = this.isPunching && this.attackVisualActive && 
+                                         ((isPlayerRightArmActual && this.attackArm === 'right') || (!isPlayerRightArmActual && this.attackArm === 'left'));
+                
+                if (isPunchingThisArm) {
+                    finalUpperArmAngle = this.facingRight ? ARM_PUNCH_UPPER_EXTEND_ANGLE : Math.PI - ARM_PUNCH_UPPER_EXTEND_ANGLE;
+                    finalForeArmAngle = this.facingRight ? ARM_PUNCH_FOREARM_EXTEND_ANGLE : -ARM_PUNCH_FOREARM_EXTEND_ANGLE;
+                } else if (this.isPunching && this.attackVisualActive) { 
+                    finalUpperArmAngle = this.facingRight ? ARM_PUNCH_UPPER_RECOIL_ANGLE : Math.PI - ARM_PUNCH_UPPER_RECOIL_ANGLE;
+                    finalForeArmAngle = this.facingRight ? ARM_PUNCH_FOREARM_RECOIL_ANGLE : -ARM_PUNCH_FOREARM_RECOIL_ANGLE;
+                } else { // Idle guard stance
+                    finalUpperArmAngle = this.facingRight ? ARM_GUARD_UPPER_ANGLE : Math.PI - ARM_GUARD_UPPER_ANGLE;
+                    finalForeArmAngle = this.facingRight ? ARM_GUARD_FOREARM_BEND : -ARM_GUARD_FOREARM_BEND; 
+                    
+                    const isVisuallyBackArm = (this.facingRight && !isPlayerRightArmActual) || (!this.facingRight && isPlayerRightArmActual);
+                    if (isVisuallyBackArm) {
+                         finalUpperArmAngle += this.facingRight ? 0.1 : -0.1; 
+                         finalForeArmAngle *= 0.9; 
+                    }
+                }
+                
+                // --- Draw Upper Arm ---
+                ctx.save();
+                ctx.rotate(finalUpperArmAngle);
+                this.drawPartWithTexture('arm_upper', 0, -this.armWidth / 2, this.upperArmLength, this.armWidth, false); 
+                if (this.bodyType === 'musculoso') {
+                    ctx.fillStyle = MUSCLE_COLOR_TINT;
+                    ctx.beginPath();
+                    ctx.ellipse(this.upperArmLength * 0.5, 0, this.armWidth * 0.6, this.armWidth * 0.45, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                // --- Draw Forearm ---
+                ctx.translate(this.upperArmLength, 0); 
+                ctx.rotate(finalForeArmAngle); 
+                this.drawPartWithTexture('arm_fore', 0, -this.armWidth / 2, this.foreArmLength, this.armWidth, false);
+                
+                // --- Draw Boxing Glove ---
+                const gloveMainRadiusX = this.gloveSize / 2; 
+                const gloveMainRadiusY = this.gloveSize / 2.2; 
+                const gloveWristHeight = this.gloveSize * 0.35; 
+                const gloveWristWidth = this.armWidth * 1.3; 
+                const mainGloveAttachX = this.foreArmLength - this.armWidth * 0.5; 
+                const mainGloveCenterX = mainGloveAttachX + gloveMainRadiusX * 0.7;
+
+                if (this.gloveTextureImage && this.gloveTextureImage.complete && this.gloveTextureImage.width > 0) {
+                    // Wristband
+                    ctx.save();
+                    ctx.translate(this.foreArmLength - gloveWristWidth*0.3 + gloveWristWidth/2, 0); 
+                    ctx.fillRect(-gloveWristWidth/2, -gloveWristHeight/2, gloveWristWidth, gloveWristHeight); 
+                    ctx.clip(); 
+                    ctx.drawImage(this.gloveTextureImage, 0, 0, this.gloveTextureImage.width, this.gloveTextureImage.height, -gloveWristWidth/2, -gloveWristHeight/2, gloveWristWidth, gloveWristHeight);
+                    ctx.restore();
+
+                    // Main Glove
+                    ctx.beginPath(); ctx.ellipse(mainGloveCenterX, 0, gloveMainRadiusX, gloveMainRadiusY, 0, 0, Math.PI * 2); ctx.save(); ctx.clip();
+                    ctx.drawImage(this.gloveTextureImage, 0, 0, this.gloveTextureImage.width, this.gloveTextureImage.height, mainGloveCenterX - gloveMainRadiusX, -gloveMainRadiusY, gloveMainRadiusX*2, gloveMainRadiusY*2);
+                    ctx.restore(); 
+                    
+                    
+                } else {
+                    ctx.fillStyle = BOXING_GLOVE_COLOR;
+                    ctx.fillRect(this.foreArmLength - gloveWristWidth*0.3 , -gloveWristHeight / 2, gloveWristWidth, gloveWristHeight); 
+                    ctx.beginPath(); 
+                    ctx.ellipse(mainGloveCenterX, 0, gloveMainRadiusX, gloveMainRadiusY, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    const thumbRadius = gloveMainRadiusX * 0.5; 
+                    const thumbLocalX = mainGloveCenterX - gloveMainRadiusX * 0.4; 
+                    const thumbLocalY = -gloveMainRadiusY * 0.7; 
+                    ctx.beginPath();
+                    ctx.ellipse(thumbLocalX, thumbLocalY, thumbRadius, thumbRadius * 0.85, -Math.PI / 8, 0, Math.PI * 2); 
+                    ctx.fill();
+                }
+                ctx.restore(); 
+                ctx.restore(); 
+            }
+
+            drawLeg(isFrontLeg) {
+                ctx.save();
+                const hipXOffsetFactor = isFrontLeg ? 0.65 : 0.35; 
+                const hipXOffset = this.facingRight ? this.torsoWidth * hipXOffsetFactor : this.torsoWidth * (1 - hipXOffsetFactor);
+                const hipYOffset = this.torsoHeight; 
+                const hipX = this.x + (this.width - this.torsoWidth) / 2 + hipXOffset;
+                const hipY = this.y + (this.height - this.torsoHeight - this.legHeight - this.shoeHeight) + hipYOffset; 
+                ctx.translate(hipX, hipY);
+
+                let angle;
+                if (this.isKicking && this.attackVisualActive) {
+                    if (isFrontLeg) { 
+                        angle = this.facingRight ? LEG_ANGLE_KICK_STRIKE : Math.PI - LEG_ANGLE_KICK_STRIKE;
+                    } else { 
+                        angle = this.facingRight ? LEG_ANGLE_KICK_SUPPORT : Math.PI - LEG_ANGLE_KICK_SUPPORT;
+                    }
+                } else { 
+                    if (isFrontLeg) {
+                        angle = this.facingRight ? LEG_ANGLE_RESTING_FRONT : Math.PI - LEG_ANGLE_RESTING_FRONT;
+                    } else { 
+                        angle = this.facingRight ? LEG_ANGLE_RESTING_BACK : Math.PI - LEG_ANGLE_RESTING_BACK;
+                    }
+                }
+                ctx.rotate(angle);
+                this.drawPartWithTexture('leg_upper', 0, -this.legWidth / 2, this.legHeight, this.legWidth, false); 
+                ctx.translate(this.legHeight - this.shoeHeight * 0.3, 0); 
+                this.drawPartWithTexture('shoe', -this.shoeWidth / 2, -this.shoeHeight / 2, this.shoeWidth, this.shoeHeight, false);
+                ctx.restore();
+            }
+
+            draw() {
+                const torsoGlobalY = this.y + (this.height - this.torsoHeight - this.legHeight - this.shoeHeight); 
+                const torsoGlobalX = this.x + (this.width - this.torsoWidth) / 2;
+                const headGlobalX = this.x + (this.width - this.headSize) / 2; 
+                const headGlobalY = torsoGlobalY - this.headSize; 
+
+                this.drawLeg(false); 
+                this.drawLeg(true);  
+                
+                if (this.facingRight) {
+                    this.drawArm(false); // Player's Left Arm (visually back)
+                    this.drawPartWithTexture('torso', torsoGlobalX, torsoGlobalY, this.torsoWidth, this.torsoHeight, !this.facingRight);
+                    this.drawPartWithTexture('head', headGlobalX, headGlobalY, this.headSize, this.headSize, !this.facingRight);
+                    this.drawArm(true);  // Player's Right Arm (visually front)
+                } else { 
+                    this.drawArm(true);  
+                    this.drawPartWithTexture('torso', torsoGlobalX, torsoGlobalY, this.torsoWidth, this.torsoHeight, !this.facingRight);
+                    this.drawPartWithTexture('head', headGlobalX, headGlobalY, this.headSize, this.headSize, !this.facingRight);
+                    this.drawArm(false); 
+                }
+            }
+
+            updateAI() {
+                if (Date.now() - this.lastAIDecisionTime > AI_ACTION_INTERVAL) {
+                    this.lastAIDecisionTime = Date.now();
+                    const opponent = players.find(p => p !== this);
+                    if (!opponent) return;
+
+                    const distanceToOpponent = Math.abs((this.x + this.width / 2) - (opponent.x + opponent.width / 2)) - (this.width/2 + opponent.width/2);
+                    const opponentIsToTheRight = (opponent.x + opponent.width / 2) > (this.x + this.width / 2);
+                    
+                    if (distanceToOpponent < Math.max(this.punchRange, this.kickRange) * 1.2) { 
+                        this.facingRight = opponentIsToTheRight;
+                    }
+
+                    const canAttack = !(this.isPunching || this.isKicking) && (Date.now() - this.lastAttackTime > this.attackCooldown);
+                    let decidedToAttack = false;
+                    let attackType = 'punch'; 
+
+                    if ( (distanceToOpponent < this.kickRange && (this.facingRight === opponentIsToTheRight)) || 
+                         (distanceToOpponent < this.punchRange && (this.facingRight === opponentIsToTheRight)) ) {
+                        if (Math.random() < AI_ATTACK_CHANCE_IN_RANGE) {
+                            decidedToAttack = true;
+                            if (Math.random() < AI_KICK_CHANCE && distanceToOpponent < this.kickRange) {
+                                attackType = 'kick';
+                            } else if (distanceToOpponent >= this.punchRange && distanceToOpponent < this.kickRange) {
+                                attackType = 'kick';
+                            }
+                        }
+                    }
+                    
+                    if (canAttack && decidedToAttack) {
+                        if (attackType === 'kick') {
+                            this.kick();
+                        } else {
+                            this.punch();
+                        }
+                        this.currentAction = 'attack'; 
+                    } else { 
+                        if (Math.random() < AI_MOVE_CHANCE) {
+                            const randomMove = Math.random();
+                            if (randomMove < 0.5) { 
+                                this.currentAction = opponentIsToTheRight ? 'moveRight' : 'moveLeft';
+                                this.facingRight = opponentIsToTheRight; 
+                            } else if (randomMove < 0.85) { 
+                                this.currentAction = opponentIsToTheRight ? 'moveLeft' : 'moveRight';
+                                this.facingRight = !opponentIsToTheRight; 
+                            } else { 
+                                this.currentAction = 'stand';
+                            }
+                            if (Math.random() < AI_JUMP_CHANCE && !this.isJumping) this.jump();
+                        } else {
+                            this.currentAction = 'stand';
+                        }
+                    }
+                }
+                this.velocityX = 0;
+                if (this.currentAction === 'moveLeft') this.velocityX = -this.speed;
+                else if (this.currentAction === 'moveRight') this.velocityX = this.speed;
+            }
+
+            update() {
+                this.updateAI(); 
+                this.x += this.velocityX;
+                this.velocityY += GRAVITY;
+                this.y += this.velocityY;
+                
+                const groundLevel = CANVAS_HEIGHT - this.shoeHeight; 
+                if (this.y + this.height > groundLevel) { 
+                    this.y = groundLevel - this.height;
+                    this.velocityY = 0;
+                    this.isJumping = false;
+                }
+
+
+                if (this.x < 0) this.x = 0;
+                if (this.x + this.width > CANVAS_WIDTH) this.x = CANVAS_WIDTH - this.width;
+            }
+
+            jump() {
+                if (!this.isJumping) {
+                    this.velocityY = -this.jumpStrength;
+                    this.isJumping = true;
+                }
+            }
+            
+            _performAttack(isKickMove) {
+                if (this.isPunching || this.isKicking || (Date.now() - this.lastAttackTime < this.attackCooldown)) return;
+
+                if (isKickMove) {
+                    this.isKicking = true;
+                } else { // Punch
+                    this.isPunching = true;
+                    this.attackArm = this.nextPunchArm; 
+                    this.nextPunchArm = (this.nextPunchArm === 'right' ? 'left' : 'right'); 
+                }
+                
+                this.attackVisualActive = true; 
+                this.lastAttackTime = Date.now();
+
+                setTimeout(() => { 
+                    if (isKickMove) this.isKicking = false;
+                    else this.isPunching = false;
+                    this.attackArm = null; 
+                }, ATTACK_LOGIC_DURATION);
+                
+                setTimeout(() => { 
+                    this.attackVisualActive = false; 
+                }, ATTACK_ANIMATION_DURATION);
+
+                const opponent = players.find(p => p !== this);
+                if (!opponent) return;
+
+                let damage, range;
+                let attackHitbox; 
+                let shoulderX, shoulderY; 
+
+                if (isKickMove) {
+                    damage = this.kickDamage;
+                    range = this.kickRange;
+                    const angleOfAttack = this.facingRight ? LEG_ANGLE_KICK_STRIKE : Math.PI - LEG_ANGLE_KICK_STRIKE;
+                    const limbLength = this.legHeight + this.shoeHeight / 2; 
+                    const hipY = this.y + (this.height - this.torsoHeight - this.legHeight - this.shoeHeight) + this.torsoHeight;
+                    const hipXOffsetFactor = this.facingRight ? 0.65 : 0.35;
+                    const hipX = this.x + (this.width - this.torsoWidth) / 2 + this.torsoWidth * hipXOffsetFactor;
+                    const attackEndX = hipX + Math.cos(angleOfAttack) * limbLength * 0.9; 
+                    const attackEndY = hipY + Math.sin(angleOfAttack) * limbLength * 0.9;
+                    attackHitbox = { x: attackEndX - range / 2, y: attackEndY - range / 2, width: range, height: range };
+                } else { // Punch
+                    damage = this.punchDamage;
+                    range = this.punchRange;
+                    
+                    const isAttackingPlayerRightArm = (this.facingRight && this.attackArm === 'right') || (!this.facingRight && this.attackArm === 'left');
+                    
+                    if (this.facingRight) {
+                        shoulderX = this.x + (this.width - this.torsoWidth) / 2 + (isAttackingPlayerRightArm ? this.torsoWidth * 0.70 : this.torsoWidth * 0.30);
+                    } else {
+                        shoulderX = this.x + (this.width - this.torsoWidth) / 2 + (isAttackingPlayerRightArm ? this.torsoWidth * 0.30 : this.torsoWidth * 0.70);
+                    }
+                    shoulderY = this.y + (this.height - this.torsoHeight - this.legHeight - this.shoeHeight) + this.torsoHeight * 0.20;
+
+
+                    let upperArmHitboxAngle = this.facingRight ? ARM_PUNCH_UPPER_EXTEND_ANGLE : Math.PI - ARM_PUNCH_UPPER_EXTEND_ANGLE;
+                    let foreArmHitboxAngle = this.facingRight ? ARM_PUNCH_FOREARM_EXTEND_ANGLE : -ARM_PUNCH_FOREARM_EXTEND_ANGLE;
+                    
+                    const elbowX = shoulderX + Math.cos(upperArmHitboxAngle) * this.upperArmLength;
+                    const elbowY = shoulderY + Math.sin(upperArmHitboxAngle) * this.upperArmLength;
+                    const attackEndX = elbowX + Math.cos(upperArmHitboxAngle + foreArmHitboxAngle) * (this.foreArmLength + this.gloveSize * 0.5); 
+                    const attackEndY = elbowY + Math.sin(upperArmHitboxAngle + foreArmHitboxAngle) * (this.foreArmLength + this.gloveSize * 0.5);
+
+                    attackHitbox = { x: attackEndX - range / 2, y: attackEndY - range / 2, width: range, height: range };
+                }
+                
+                const opponentBox = { x: opponent.x, y: opponent.y, width: opponent.width, height: opponent.height };
+
+                if (
+                    attackHitbox.x < opponentBox.x + opponentBox.width &&
+                    attackHitbox.x + attackHitbox.width > opponentBox.x &&
+                    attackHitbox.y < opponentBox.y + opponentBox.height &&
+                    attackHitbox.y + attackHitbox.height > opponentBox.y
+                ) {
+                    opponent.takeDamage(damage, this.facingRight);
+                }
+            }
+
+            punch() { this._performAttack(false); }
+            kick() { this._performAttack(true); }
+
+            takeDamage(damage, attackerFacingRight) { 
+                this.health -= damage;
+                if (this.health < 0) this.health = 0;
+                this.x += attackerFacingRight ? this.knockbackStrength : -this.knockbackStrength;
+                if (this.x < 0) this.x = 0;
+                if (this.x + this.width > CANVAS_WIDTH) this.x = CANVAS_WIDTH - this.width;
+                this.velocityY = -this.knockbackStrength / 2;
+                
+                const randomWord = hitWords[Math.floor(Math.random() * hitWords.length)];
+                const randomColor = hitWordColors[Math.floor(Math.random() * hitWordColors.length)];
+                activeHitEffects.push({
+                    text: randomWord,
+                    x: this.x + this.width / 2 + (Math.random() - 0.5) * 20, 
+                    y: this.y + this.height / 3 + (Math.random() - 0.5) * 20, 
+                    color: randomColor, alpha: 1.0, size: 24 + Math.random() * 16, 
+                    rotation: (Math.random() - 0.5) * 0.5, 
+                    lifetime: HIT_EFFECT_LIFETIME 
+                });
+                updateHealthBars();
+                checkGameOver();
+            }
+        }
+        
+        function populateCharacterSelects() {
+            characterAssets.forEach((char, index) => {
+                const option1 = document.createElement('option');
+                option1.value = index;
+                option1.textContent = char.name;
+                player1CharacterSelect.appendChild(option1);
+
+                const option2 = document.createElement('option');
+                option2.value = index;
+                option2.textContent = char.name;
+                player2CharacterSelect.appendChild(option2);
+            });
+            if (characterAssets.length > 1) { 
+                player2CharacterSelect.value = "1";
+            }
+        }
+
+        function initGame() {
+            const p1BodyType = player1BodyTypeSelect.value;
+            const p2BodyType = player2BodyTypeSelect.value;
+            
+            const p1CharacterIndex = parseInt(player1CharacterSelect.value);
+            const p2CharacterIndex = parseInt(player2CharacterSelect.value);
+
+            const player1Asset = characterAssets[p1CharacterIndex];
+            const player2Asset = characterAssets[p2CharacterIndex];
+
+            activeHitEffects = []; 
+            players = [
+                new Player(100, CANVAS_HEIGHT, player1Asset, true, true, p1BodyType),
+                new Player(CANVAS_WIDTH - (bodyTypeStats[p2BodyType]?.width || bodyTypeStats.normal.width) - 100, CANVAS_HEIGHT, player2Asset, false, false, p2BodyType)
+            ];
+            updateHealthBars();
+            gameActive = true;
+            gameOverModal.classList.add('hidden');
+            controlsPanel.style.display = 'none'; 
+            gameLoop();
+        }
+        
+        populateCharacterSelects();
+
+
+        function updateHealthBars() {
+            if (players.length < 2) return;
+            player1HealthBar.style.width = `${(players[0].health / players[0].maxHealth) * 100}%`;
+            player2HealthBar.style.width = `${(players[1].health / players[1].maxHealth) * 100}%`;
+        }
+
+        function checkGameOver() {
+            if (players.length < 2) return;
+            if (players[0].health <= 0 || players[1].health <= 0) {
+                gameActive = false;
+                gameOverModal.classList.remove('hidden');
+            }
+        }
+
+        function drawHitEffects() {
+            for (let i = activeHitEffects.length - 1; i >= 0; i--) {
+                const effect = activeHitEffects[i];
+                ctx.save();
+                ctx.font = `bold ${effect.size}px 'Comic Sans MS', 'Arial', sans-serif`; 
+                ctx.fillStyle = effect.color;
+                ctx.globalAlpha = effect.alpha;
+                ctx.textAlign = 'center';
+                ctx.translate(effect.x, effect.y);
+                ctx.rotate(effect.rotation);
+                ctx.fillText(effect.text, 0, 0);
+                ctx.restore();
+                effect.lifetime--;
+                effect.alpha -= (1.0 / HIT_EFFECT_LIFETIME); 
+                effect.y -= 0.5; 
+                effect.size *= 0.99; 
+                if (effect.lifetime <= 0) {
+                    activeHitEffects.splice(i, 1);
+                }
+            }
+        }
+
+        function gameLoop() {
+            if (!gameActive) {
+                ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+                if (players.length > 0) players.forEach(player => player.draw());
+                ctx.fillStyle = '#4a5568';
+                ctx.fillRect(0, CANVAS_HEIGHT - 10, CANVAS_WIDTH, 10);
+                drawHitEffects(); 
+                return;
+            }
+            ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            ctx.fillStyle = '#4a5568'; 
+            ctx.fillRect(0, CANVAS_HEIGHT - 10, CANVAS_WIDTH, 10); 
+            players.forEach(player => { player.update(); player.draw(); });
+            drawHitEffects();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        startButton.addEventListener('click', initGame);
+        restartButton.addEventListener('click', () => {
+            initGame();
+        });
+
+        controlsPanel.style.display = 'block'; 
+        gameOverModal.classList.add('hidden'); 
+        player1HealthBar.style.width = `100%`;
+        player2HealthBar.style.width = `100%`;
+        ctx.fillStyle = '#4a5568';
+        ctx.fillRect(0, CANVAS_HEIGHT - 10, CANVAS_WIDTH, 10);
+    </script>
+</body>
+</html>
+```
+He corregido el error y realizado los ajustes para la postura de guardia. Ahora los personajes deberían tener una postura de guardia más convincente con los codos flexionados y los puños a la altura de los hombr

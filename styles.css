@@ -1,0 +1,177 @@
+/* Estilos generales para el cuerpo de la página */
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    background-color: #1a202c; /* Color de fondo oscuro */
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden; /* Evita el scroll mientras el splash está activo */
+}
+
+/* Estilos para la pantalla de bienvenida (splash screen) */
+#splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #111827; /* Un fondo oscuro casi negro */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000; /* Asegura que esté por encima de todo */
+    text-align: center;
+    padding: 2rem;
+}
+
+#game-wrapper {
+    position: relative;
+    z-index: 1;
+    display: none; /* Oculto por defecto */
+}
+
+/* Estilos del lienzo del juego */
+#gameCanvas {
+    background-color: transparent; /* El fondo del canvas ahora es transparente */
+    border-radius: 0.5rem; /* Bordes redondeados */
+    display: block;
+    width: 100%; /* El lienzo se adapta al ancho del contenedor */
+    max-width: 800px; /* Ancho máximo para mantener la proporción */
+    height: 400px; /* Altura fija para el lienzo */
+    overflow: hidden; /* Evita que los efectos de estela se salgan del canvas */
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+}
+
+/* Estilo para los paneles de UI (interfaz de usuario) */
+.ui-panel {
+    background-color: rgba(45, 55, 72, 0.9); /* Fondo semi-transparente */
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* Contenedores para las barras de salud y poder */
+.health-bar-container, .power-bar-container {
+    width: 100%;
+    background-color: #4a5568; /* Color de fondo de la barra vacía */
+    border-radius: 0.25rem;
+    overflow: hidden;
+    border: 1px solid #718096;
+    transition: box-shadow 0.2s ease-out;
+}
+.health-bar-container { height: 20px; margin-bottom: 4px;}
+.power-bar-container { height: 15px; }
+
+/* Estilos para el relleno de las barras */
+.health-bar, .power-bar {
+    height: 100%;
+    transition: width 0.3s ease-out; /* Animación de llenado/vaciado */
+}
+
+/* Colores específicos para las barras de salud de cada jugador */
+.player1-health { background-color: #e53e3e; /* rojo */ }
+.player2-health { background-color: #3b82f6; /* azul */ }
+/* Color para las barras de poder */
+.player1-power { background-color: #facc15; /* amarillo */ }
+.player2-power { background-color: #facc15; /* amarillo */ }
+
+/* Animación para el estado "super-charged" de la barra de poder */
+.power-bar.super-charged {
+    animation: pulse-yellow 1s infinite;
+}
+
+.power-bar-container-flash {
+    animation: power-flash 0.15s ease-out;
+}
+
+/* Keyframes para las animaciones */
+@keyframes pulse-yellow {
+    0% { box-shadow: 0 0 5px #facc15, 0 0 10px #facc15; }
+    50% { box-shadow: 0 0 10px #fde047, 0 0 20px #fde047; } /* amarillo más claro */
+    100% { box-shadow: 0 0 5px #facc15, 0 0 10px #facc15; }
+}
+
+@keyframes power-flash {
+    0% { box-shadow: 0 0 8px 2px rgba(255, 255, 255, 0.9), 0 0 12px 4px rgba(253, 224, 71, 0.7); }
+    100% { box-shadow: none; }
+}
+
+/* Estilos para la ventana modal (Game Over) */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7); /* Fondo oscuro semi-transparente */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+#start-message-overlay {
+    top: 25%;
+}
+
+#start-message-text {
+    font-size: 2.1rem; /* Aproximadamente 15% más pequeño que 2.5rem */
+}
+
+/* Estilos para los retratos de selección de personajes */
+.character-portrait {
+    border: 2px solid #4a5568; /* Borde por defecto */
+    transition: all 0.2s ease-in-out; /* Transición suave en hover y selección */
+    cursor: pointer;
+    background-color: #2d3748; /* Fondo del retrato */
+}
+.character-portrait:hover {
+    border-color: #facc15; /* Borde amarillo al pasar el ratón */
+    transform: scale(1.05); /* Ligeramente más grande al pasar el ratón */
+}
+/* Estilos cuando el personaje es seleccionado por el Jugador 1 */
+.character-portrait.selected-p1 {
+    border-color: #e53e3e; /* Borde rojo */
+    box-shadow: 0 0 15px #e53e3e; /* Sombra roja */
+}
+/* Estilos cuando el personaje es seleccionado por el Jugador 2 */
+.character-portrait.selected-p2 {
+    border-color: #3b82f6; /* Borde azul */
+    box-shadow: 0 0 15px #3b82f6; /* Sombra azul */
+}
+.character-portrait img {
+    width: 100%;
+    height: 100px; /* Altura fija para los retratos */
+    object-fit: contain; /* Asegura que la imagen se ajuste dentro del contenedor */
+    image-rendering: pixelated; /* Mantiene el estilo pixel art */
+}
+.character-name-plate {
+    background-color: rgba(0,0,0,0.7);
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+    text-align: center;
+    color: #e2e8f0; /* Color de texto claro */
+}
+
+#game-header {
+    font-family: 'Press Start 2P', cursive;
+    color: #facc15; /* yellow-400 */
+    text-shadow: 2px 2px 0 #e53e3e, -2px -2px 0 #3b82f6;
+    position: fixed;
+    top: 10px;
+    width: 100%;
+    z-index: 5;
+    font-size: 1.25rem;
+    text-align: center;
+    display: none; /* Oculto por defecto */
+}
+
+#game-header sup {
+    font-size: 0.7rem;
+    vertical-align: super;
+}

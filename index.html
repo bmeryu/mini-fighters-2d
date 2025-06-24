@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini Fighters 2D - Selección de Personajes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="splash-screen">
+        <div class="max-w-2xl">
+            <h1 class="text-3xl font-bold text-yellow-400 mb-6">Advertencia</h1>
+            <p class="text-lg mb-8 leading-relaxed">
+                <strong>Este videojuego es una obra de ficción cuyo propósito es la sátira. Las semejanzas con personas o eventos reales son representaciones caricaturescas no literales, creadas sin intención de injuriar. Al continuar, usted reconoce y acepta la naturaleza satírica de esta obra.</strong>
+            </p>
+            <button id="continue-button" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg text-xl">
+                Aceptar
+            </button>
+        </div>
+    </div>
+    
+    <header id="game-header">
+        <p>MoleGames<sup>®</sup></p>
+    </header>
+
+    <div id="game-wrapper">
+        <div id="game-container" class="w-full max-w-3xl p-4">
+            <div class="flex justify-between items-center mb-2">
+                <div class="w-2/5">
+                    <div id="player1NameDisplay" class="text-sm font-semibold mb-1 text-red-400">JUGADOR</div>
+                    <div class="health-bar-container">
+                        <div id="player1HealthBar" class="health-bar player1-health" style="width: 100%;"></div>
+                    </div>
+                    <div id="player1PowerBarContainer" class="power-bar-container mt-1">
+                        <div id="player1PowerBar" class="power-bar player1-power" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <div class="w-2/5">
+                    <div id="player2NameDisplay" class="text-sm font-semibold mb-1 text-blue-400 text-right">PC</div>
+                    <div class="health-bar-container">
+                        <div id="player2HealthBar" class="health-bar player2-health" style="width: 100%;"></div>
+                    </div>
+                    <div class="power-bar-container mt-1">
+                        <div id="player2PowerBar" class="power-bar player2-power" style="width: 0%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <canvas id="gameCanvas"></canvas>
+
+            <div id="start-message-overlay" class="hidden absolute inset-0 flex justify-center items-center z-30 pointer-events-none">
+                 <p id="start-message-text" class="text-4xl font-black text-white text-center p-4 rounded-lg" style="font-family: 'Arial Black', Gadget, sans-serif; text-shadow: 3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;"></p>
+            </div>
+
+            <div id="controls-panel" class="mt-4 p-4 ui-panel rounded-lg shadow-lg text-center">
+                <div id="character-select-screen" class="w-full">
+                    <h2 class="text-3xl font-bold text-center mb-6 text-yellow-400" style="font-family: 'Arial Black', Gadget, sans-serif;">ELIGE TU LUCHADOR</h2>
+                    <div class="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-9 gap-4 mb-6" id="character-grid">
+                        </div>
+                    <div class="flex justify-around items-start mb-6">
+                        <div id="player1-selection-display" class="text-center p-4 border-2 border-red-600 rounded-lg w-2/5 bg-slate-700">
+                            <h3 class="text-xl font-semibold text-red-400 mb-2">TU LUCHADOR</h3>
+                            <img id="p1-selected-char-img" src="https://placehold.co/120x120/455a64/e0e0e0?text=P1" alt="P1 Seleccionado" class="w-28 h-28 mx-auto mb-2 rounded object-contain border-2 border-transparent" style="image-rendering: pixelated;">
+                            <p id="p1-selected-char-name" class="text-lg text-slate-100">- Vacío -</p>
+                        </div>
+                        <div id="player2-selection-display" class="text-center p-4 border-2 border-blue-600 rounded-lg w-2/5 bg-slate-700">
+                            <h3 class="text-xl font-semibold text-blue-400 mb-2">RIVAL (PC)</h3>
+                            <img id="p2-selected-char-img" src="https://placehold.co/120x120/455a64/e0e0e0?text=PC" alt="PC Seleccionado" class="w-28 h-28 mx-auto mb-2 rounded object-contain border-2 border-transparent" style="image-rendering: pixelated;">
+                            <p id="p2-selected-char-name" class="text-lg text-slate-100">- Al Azar -</p>
+                        </div>
+                    </div>
+                    <p id="selection-prompt" class="text-center text-xl text-yellow-200 mb-4">Elige tu luchador para empezar</p>
+                </div>
+                <button id="startButton" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg text-xl mt-2" disabled>
+                    ¡A LUCHAR!
+                </button>
+                 <div class="mt-4 text-sm text-gray-300">
+                    <p>Carga poder con clics. ¡Usa la barra espaciadora cuando esté lleno!</p>
+                </div>
+            </div>
+
+            <div id="gameOverModal" class="modal hidden">
+                <div class="ui-panel text-center p-8 rounded-lg">
+                    <h2 id="gameOverMessage" class="text-4xl font-bold mb-4">¡Fin del Combate!</h2>
+                    <div id="winnerMessage" class="text-xl mb-6"></div>
+                    <button id="restartButton" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-8 rounded-lg text-xl">
+                        JUGAR DE NUEVO
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="scripts.js"></script>
+</body>
+</html>
