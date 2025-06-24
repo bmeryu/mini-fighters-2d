@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ATTACK_COOLDOWN = 550;
     const BASE_KNOCKBACK_STRENGTH = 12;
     const HIT_EFFECT_LIFETIME = 30;
-    const POWER_GAIN_PER_CLICK = 5; // <-- VALOR AUMENTADO PARA CARGA MÁS RÁPIDA
+    const POWER_GAIN_PER_CLICK = 1.5; // <-- VALOR AJUSTADO Y BALANCEADO
 
     // --- INTELIGENCIA ARTIFICIAL (IA) ---
     const AI_ACTION_INTERVAL = 250;
@@ -827,6 +827,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         updateAI() {
+            // Ganancia de poder pasiva para la IA
+            if (!this.isSuperCharged) {
+                this.gainPower(0.25); 
+            }
+
             if (this.isConfused) {
                 this.confusionTimer--;
                 this.confusionBlinkTimer--;
@@ -1097,10 +1102,11 @@ document.addEventListener('DOMContentLoaded', () => {
         _performAttack(isKickMove) {
             if (this.isPunching || this.isKicking || (Date.now() - this.lastAttackTime < this.attackCooldown)) return;
 
-            let currentDamage, currentRange = isKickMove ? this.kickRange : this.punchRange;
+            const isSuperMove = this.isSuperCharged; // Capture the state at the start
+            let currentDamage = 0;
             let performMeele = true;
 
-            if (this.isSuperCharged) {
+            if (isSuperMove) {
                 this.isPerformingSuperAttackAnimation = true;
                 performMeele = this.launchSuperpower();
                 currentDamage = isKickMove ? SUPER_KICK_DAMAGE : SUPER_PUNCH_DAMAGE;
@@ -1110,9 +1116,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if(isKickMove) this.isKicking = true;
             else { this.isPunching = true; this.attackArm = this.nextPunchArm; this.nextPunchArm = (this.nextPunchArm === 'right' ? 'left' : 'right'); }
+            
             this.attackVisualActive = true;
             this.lastAttackTime = Date.now();
-            setTimeout(() => { if (isKickMove) this.isKicking = false; else this.isPunching = false; this.attackArm = null; this.isPerformingSuperAttackAnimation = false; }, ATTACK_LOGIC_DURATION);
+            setTimeout(() => { 
+                if (isKickMove) this.isKicking = false; 
+                else this.isPunching = false; 
+                this.attackArm = null; 
+                if(isSuperMove) this.isPerformingSuperAttackAnimation = false; 
+            }, ATTACK_LOGIC_DURATION);
             setTimeout(() => { this.attackVisualActive = false; }, ATTACK_ANIMATION_DURATION);
 
             if (performMeele) {
@@ -1142,14 +1154,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (attackHitbox.x < opponent.x + opponent.width && attackHitbox.x + attackHitbox.width > opponent.x &&
                     attackHitbox.y < opponent.y + opponent.height && attackHitbox.y + attackHitbox.height > opponent.y) {
                     opponent.takeDamage(currentDamage, this.facingRight);
-                    if (this.isSuperCharged) {
+                    if (isSuperMove) {
                         activeHitEffects.push({ text: "¡SÚPER!", x: opponent.x + opponent.width / 2, y: opponent.y + opponent.height / 2, color: "#FF00FF", alpha: 1.0, size: 50, rotation: (Math.random() - 0.5) * 0.8, lifetime: HIT_EFFECT_LIFETIME * 3 });
                         screenShakeMagnitude = 15; screenShakeTimeLeft = 20;
-                    } else this.gainPower(POWER_GAIN_PER_HIT);
+                        this.power = 0;
+                        this.isSuperCharged = false;
+                        updatePowerBars();
+                    } else {
+                        this.gainPower(POWER_GAIN_PER_HIT);
+                    }
+                } else if (isSuperMove) {
+                    // Si el superpoder de meele falla
+                    this.power = 0;
+                    this.isSuperCharged = false;
+                    updatePowerBars();
                 }
             }
 
-            if (this.isSuperCharged) {
+            // Para los superpoderes que no son de meele, se consume el poder al lanzarlos
+            if (isSuperMove && !performMeele) {
                 this.power = 0;
                 this.isSuperCharged = false;
                 updatePowerBars();
