@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -53,23 +54,24 @@
             <canvas id="gameCanvas"></canvas>
 
             <div id="start-message-overlay" class="hidden absolute inset-0 flex justify-center items-center z-30 pointer-events-none">
-                 <p id="start-message-text" class="text-4xl font-black text-white text-center p-4 rounded-lg"></p>
+                 <p id="start-message-text" class="text-4xl font-black text-white text-center p-4 rounded-lg" style="font-family: 'Arial Black', Gadget, sans-serif; text-shadow: 3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;"></p>
             </div>
+
 
             <div id="controls-panel" class="mt-4 p-4 ui-panel rounded-lg shadow-lg text-center">
                 <div id="character-select-screen" class="w-full">
-                    <h2 class="text-3xl font-bold text-center mb-6 text-yellow-400">ELIGE TU LUCHADOR</h2>
+                    <h2 class="text-3xl font-bold text-center mb-6 text-yellow-400" style="font-family: 'Arial Black', Gadget, sans-serif;">ELIGE TU LUCHADOR</h2>
                     <div class="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-9 gap-4 mb-6" id="character-grid">
                         </div>
                     <div class="flex justify-around items-start mb-6">
                         <div id="player1-selection-display" class="text-center p-4 border-2 border-red-600 rounded-lg w-2/5 bg-slate-700">
                             <h3 class="text-xl font-semibold text-red-400 mb-2">TU LUCHADOR</h3>
-                            <img id="p1-selected-char-img" src="https://placehold.co/120x120/455a64/e0e0e0?text=P1" alt="P1 Seleccionado" class="w-28 h-28 mx-auto mb-2 rounded object-contain border-2 border-transparent">
+                            <img id="p1-selected-char-img" src="https://placehold.co/120x120/455a64/e0e0e0?text=P1" alt="P1 Seleccionado" class="w-28 h-28 mx-auto mb-2 rounded object-contain border-2 border-transparent" style="image-rendering: pixelated;">
                             <p id="p1-selected-char-name" class="text-lg text-slate-100">- Vacío -</p>
                         </div>
                         <div id="player2-selection-display" class="text-center p-4 border-2 border-blue-600 rounded-lg w-2/5 bg-slate-700">
                             <h3 class="text-xl font-semibold text-blue-400 mb-2">RIVAL (PC)</h3>
-                            <img id="p2-selected-char-img" src="https://placehold.co/120x120/455a64/e0e0e0?text=PC" alt="PC Seleccionado" class="w-28 h-28 mx-auto mb-2 rounded object-contain border-2 border-transparent">
+                            <img id="p2-selected-char-img" src="https://placehold.co/120x120/455a64/e0e0e0?text=PC" alt="PC Seleccionado" class="w-28 h-28 mx-auto mb-2 rounded object-contain border-2 border-transparent" style="image-rendering: pixelated;">
                             <p id="p2-selected-char-name" class="text-lg text-slate-100">- Al Azar -</p>
                         </div>
                     </div>
@@ -94,7 +96,7 @@
             </div>
         </div>
     </div>
-    /*00:04
+    
     <script src="script.js"></script>
 </body>
 </html>
