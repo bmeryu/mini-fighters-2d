@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ATTACK_COOLDOWN = 550;
     const BASE_KNOCKBACK_STRENGTH = 12;
     const HIT_EFFECT_LIFETIME = 30;
-    const POWER_GAIN_PER_CLICK = 2;
+    const POWER_GAIN_PER_CLICK = 3;
 
     const AI_ACTION_INTERVAL = 250;
     const AI_MOVE_CHANCE = 0.7;
