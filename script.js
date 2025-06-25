@@ -1,29 +1,23 @@
 document.addEventListener('DOMContentLoaded', () => {
-
-    // (El resto del código es idéntico al anterior, solo cambia la clase Player)
-
+    // OBTENCIÓN DE ELEMENTOS DEL DOM
     const splashScreen = document.getElementById('splash-screen');
     const continueButton = document.getElementById('continue-button');
     const gameWrapper = document.getElementById('game-wrapper');
     const gameHeader = document.getElementById('game-header');
-    
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
-
     const player1HealthBar = document.getElementById('player1HealthBar');
     const player2HealthBar = document.getElementById('player2HealthBar');
     const player1PowerBar = document.getElementById('player1PowerBar');
     const player2PowerBar = document.getElementById('player2PowerBar');
     const player1NameDisplay = document.getElementById('player1NameDisplay');
     const player2NameDisplay = document.getElementById('player2NameDisplay');
-    
     const startButton = document.getElementById('startButton');
     const restartButton = document.getElementById('restartButton');
     const gameOverModal = document.getElementById('gameOverModal');
     const winnerMessage = document.getElementById('winnerMessage');
     const gameOverMessage = document.getElementById('gameOverMessage');
     const controlsPanel = document.getElementById('controls-panel');
-
     const characterGrid = document.getElementById('character-grid');
     const p1SelectedCharImg = document.getElementById('p1-selected-char-img');
     const p1SelectedCharName = document.getElementById('p1-selected-char-name');
@@ -31,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const p2SelectedCharName = document.getElementById('p2-selected-char-name');
     const selectionPrompt = document.getElementById('selection-prompt');
 
+    // CONSTANTES Y VARIABLES GLOBALES
     const CANVAS_WIDTH = 800;
     const CANVAS_HEIGHT = 400;
     canvas.width = CANVAS_WIDTH;
@@ -49,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ATTACK_COOLDOWN = 550;
     const BASE_KNOCKBACK_STRENGTH = 12;
     const HIT_EFFECT_LIFETIME = 30;
-    const POWER_GAIN_PER_CLICK = 3.5;
+    const POWER_GAIN_PER_CLICK = 7.5; // Valor rápido solicitado
 
     const AI_ACTION_INTERVAL = 250;
     const AI_MOVE_CHANCE = 0.7;
@@ -62,81 +57,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const SUPER_PUNCH_DAMAGE = 30;
     const SUPER_KICK_DAMAGE = 35;
 
-    const PIRANHA_PROJECTILE_SPEED = 8;
-    const PIRANHA_PROJECTILE_LIFESPAN = 60;
-    const PIRANHA_PROJECTILE_WIDTH = 30;
-    const PIRANHA_PROJECTILE_HEIGHT = 20;
-    const PIRANHA_PROJECTILE_DAMAGE = 15;
-    const PIRANHA_PROJECTILE_COUNT = 3;
+    // Constantes de superpoderes (sin cambios)
+    const PIRANHA_PROJECTILE_SPEED = 8, PIRANHA_PROJECTILE_LIFESPAN = 60, PIRANHA_PROJECTILE_WIDTH = 30, PIRANHA_PROJECTILE_HEIGHT = 20, PIRANHA_PROJECTILE_DAMAGE = 15, PIRANHA_PROJECTILE_COUNT = 3;
+    const MONEY_RAIN_COUNT = 5, MONEY_RAIN_WAD_WIDTH = 30, MONEY_RAIN_WAD_HEIGHT = 20, MONEY_RAIN_DAMAGE = 10, MONEY_RAIN_INITIAL_Y = -MONEY_RAIN_WAD_HEIGHT, COIN_RAIN_DAMAGE = 5;
+    const CALCULATOR_PROJECTILE_LIFESPAN = 120, CALCULATOR_PROJECTILE_WIDTH = 40, CALCULATOR_PROJECTILE_HEIGHT = 50, CALCULATOR_PROJECTILE_DAMAGE = 18, CALCULATOR_PROJECTILE_COUNT = 5, CALCULATOR_INITIAL_Y = -CALCULATOR_PROJECTILE_HEIGHT;
+    const BOLT_DASH_SPEED = 22.5, BOLT_DASH_COUNT = 5, BOLT_DASH_DAMAGE = 8;
+    const ZANJAS_CRACK_DAMAGE = 40, ZANJAS_SWALLOWED_DURATION = 90, ZANJAS_CRACK_WIDTH = 150, ZANJAS_CRACK_MAX_HEIGHT = 80, ZANJAS_CRACK_LIFESPAN = 180;
+    const PAPELUCHO_STUN_DURATION = 180, PAPELUCHO_PAPER_COUNT = 20, PAPELUCHO_PAPER_WIDTH = 25, PAPELUCHO_PAPER_HEIGHT = 35, PAPELUCHO_PAPER_DAMAGE = 1;
+    const ORSINI_KISS_SPEED = 7, ORSINI_KISS_LIFESPAN = 90, ORSINI_KISS_WIDTH = 30, ORSINI_KISS_HEIGHT = 25, ORSINI_KISS_DAMAGE = 18, ORSINI_KISS_COUNT = 2;
+    const JACKSON_INVISIBILITY_DURATION = 120, JACKSON_CONFUSION_DURATION = 120, SMOKE_PARTICLE_COUNT = 30;
+    const TIA_COTE_TEDDY_COUNT = 1, TIA_COTE_TEDDY_WIDTH = 120, TIA_COTE_TEDDY_HEIGHT = 150, TIA_COTE_TEDDY_DAMAGE = 30, TIA_COTE_TEDDY_INITIAL_Y = -TIA_COTE_TEDDY_HEIGHT - 50;
 
-    const MONEY_RAIN_COUNT = 5;
-    const MONEY_RAIN_WAD_WIDTH = 30;
-    const MONEY_RAIN_WAD_HEIGHT = 20;
-    const MONEY_RAIN_DAMAGE = 10;
-    const MONEY_RAIN_INITIAL_Y = -MONEY_RAIN_WAD_HEIGHT;
-    const COIN_RAIN_DAMAGE = 5;
-
-    const CALCULATOR_PROJECTILE_LIFESPAN = 120;
-    const CALCULATOR_PROJECTILE_WIDTH = 40;
-    const CALCULATOR_PROJECTILE_HEIGHT = 50;
-    const CALCULATOR_PROJECTILE_DAMAGE = 18;
-    const CALCULATOR_PROJECTILE_COUNT = 5;
-    const CALCULATOR_INITIAL_Y = -CALCULATOR_PROJECTILE_HEIGHT;
-
-    const BOLT_DASH_SPEED = 22.5;
-    const BOLT_DASH_COUNT = 5;
-    const BOLT_DASH_DAMAGE = 8;
-
-    const ZANJAS_CRACK_DAMAGE = 40;
-    const ZANJAS_SWALLOWED_DURATION = 90;
-    const ZANJAS_CRACK_WIDTH = 150;
-    const ZANJAS_CRACK_MAX_HEIGHT = 80;
-    const ZANJAS_CRACK_LIFESPAN = 180;
-
-    const PAPELUCHO_STUN_DURATION = 180;
-    const PAPELUCHO_PAPER_COUNT = 20;
-    const PAPELUCHO_PAPER_WIDTH = 25;
-    const PAPELUCHO_PAPER_HEIGHT = 35;
-    const PAPELUCHO_PAPER_DAMAGE = 1;
-
-    const ORSINI_KISS_SPEED = 7;
-    const ORSINI_KISS_LIFESPAN = 90;
-    const ORSINI_KISS_WIDTH = 30;
-    const ORSINI_KISS_HEIGHT = 25;
-    const ORSINI_KISS_DAMAGE = 18;
-    const ORSINI_KISS_COUNT = 2;
-
-    const JACKSON_INVISIBILITY_DURATION = 120;
-    const JACKSON_CONFUSION_DURATION = 120;
-    const SMOKE_PARTICLE_COUNT = 30;
-
-    const TIA_COTE_TEDDY_COUNT = 1;
-    const TIA_COTE_TEDDY_WIDTH = 120;
-    const TIA_COTE_TEDDY_HEIGHT = 150;
-    const TIA_COTE_TEDDY_DAMAGE = 30;
-    const TIA_COTE_TEDDY_INITIAL_Y = -TIA_COTE_TEDDY_HEIGHT - 50;
-
-    let screenShakeMagnitude = 0;
-    let screenShakeTimeLeft = 0;
+    let screenShakeMagnitude = 0, screenShakeTimeLeft = 0;
     let gameActive = false;
     let players = [];
     let activeHitEffects = [];
     const hitWords = ["¡POW!", "¡BAM!", "¡CRASH!", "¡KAPOW!", "¡WHAM!", "¡SLAP!", "¡BOOM!", "¡BANG!", "¡PUFF!", "¡THWACK!"];
     const hitWordColors = ["#FFD700", "#FF4500", "#ADFF2F", "#00FFFF", "#FF69B4", "#FFFF00", "#FF1493"];
     let backgroundMusic;
-    
-    const characterBackgrounds = {
-        "El Zanjas": ["img/lazanja.png"],
-        "Tía Cote": ["img/glitter.png"],
-        "Escape Room Jackson": ["img/happyhour.png"],
-        "Piraña": ["img/lamoneda.png"],
-        "La Ex": ["img/lamoneda.png"],
-        "Matthei Bolt": ["img/pasillomoneda.png"],
-        "Burric": ["img/pasillomoneda.png"],
-        "Orsini Love": ["img/pasillomoneda.png"],
-        "Carolina Papelucho": ["img/pasillomoneda.png"]
-    };
-
+    const characterBackgrounds = { "El Zanjas": ["img/lazanja.png"], "Tía Cote": ["img/glitter.png"], "Escape Room Jackson": ["img/happyhour.png"], "Piraña": ["img/lamoneda.png"], "La Ex": ["img/lamoneda.png"], "Matthei Bolt": ["img/pasillomoneda.png"], "Burric": ["img/pasillomoneda.png"], "Orsini Love": ["img/pasillomoneda.png"], "Carolina Papelucho": ["img/pasillomoneda.png"] };
     const characterAssets = [
         { name: "Piraña", previewImage: "img/personaje1-cabeza.png", textures: { head: "img/personaje1-cabeza.png", torso: "img/personaje1-torso.png", upperArm: "img/personaje1-brazos.png", foreArm: "img/personaje1-antebrazos.png", thigh: "img/personaje1-muslos.png", lowerLeg: "img/personaje1-piernasbajas.png", glove_r: "img/personaje1-guantes-d.png", glove_l: "img/personaje1-guantes-i.png", shoe: "img/personaje1-zapatos.png", superEffectTexture: "img/personaje1-super-effect.png" } },
         { name: "La Ex", previewImage: "img/personaje2-cabeza.png", textures: { head: "img/personaje2-cabeza.png", torso: "img/personaje2-torso.png", upperArm: "img/personaje2-brazos.png", foreArm: "img/personaje2-antebrazos.png", thigh: "img/personaje2-muslos.png", lowerLeg: "img/personaje2-piernasbajas.png", glove_r: "img/personaje2-guantes-d.png", glove_l: "img/personaje2-guantes-i.png", shoe: "img/personaje2-zapatos.png", superEffectTexture: "img/personaje2-super-effect.png" } },
@@ -148,1103 +87,89 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "Escape Room Jackson", previewImage: "img/personaje8-cabeza.png", textures: { head: "img/personaje8-cabeza.png", torso: "img/personaje8-torso.png", upperArm: "img/personaje8-brazos.png", foreArm: "img/personaje8-antebrazos.png", thigh: "img/personaje8-muslos.png", lowerLeg: "img/personaje8-piernasbajas.png", glove_r: "img/personaje8-guantes-d.png", glove_l: "img/personaje8-guantes-i.png", shoe: "img/personaje8-zapatos.png", superEffectTexture: "img/personaje8-super-effect.png" } },
         { name: "Tía Cote", previewImage: "img/personaje9-cabeza.png", textures: { head: "img/personaje9-cabeza.png", torso: "img/personaje9-torso.png", upperArm: "img/personaje9-brazos.png", foreArm: "img/personaje9-antebrazos.png", thigh: "img/personaje9-muslos.png", lowerLeg: "img/personaje9-piernasbajas.png", glove_r: "img/personaje9-guantes-d.png", glove_l: "img/personaje9-guantes-i.png", shoe: "img/personaje9-zapatos.png", superEffectTexture: "img/personaje9-super-effect.png" } }
     ];
-
     const bodyTypeStats = { normal: { width: 50, height: 100, speedMod: 1.0, damageMod: 1.0, rangeMod: 1.0, healthMod: 1.0 } };
-    const ARM_GUARD_UPPER_ANGLE = Math.PI / 4.2;
-    const ARM_GUARD_FOREARM_BEND = -Math.PI / 1.6;
-    const ARM_PUNCH_UPPER_EXTEND_ANGLE = -Math.PI / 18;
-    const ARM_PUNCH_FOREARM_EXTEND_ANGLE = Math.PI / 30;
-    const ARM_PUNCH_UPPER_RECOIL_ANGLE = -Math.PI / 3;
-    const ARM_PUNCH_FOREARM_RECOIL_ANGLE = Math.PI / 2.2;
-    const LEG_ANGLE_RESTING_FRONT = Math.PI / 2 - Math.PI / 20;
-    const LEG_ANGLE_RESTING_BACK = Math.PI / 2 + Math.PI / 30;
-    const LEG_ANGLE_KICK_STRIKE = -Math.PI / 18;
-    const LEG_ANGLE_KICK_SUPPORT = Math.PI / 2 + Math.PI / 6;
-    const BOXING_GLOVE_COLOR = '#c00000';
-    const DEFAULT_SHOE_COLOR = '#4a5568';
-    let playerSelectedCharIndex = -1;
-    let pcSelectedCharIndex = -1;
-    let smokeParticles = [];
+    const ARM_GUARD_UPPER_ANGLE = Math.PI / 4.2, ARM_GUARD_FOREARM_BEND = -Math.PI / 1.6, ARM_PUNCH_UPPER_EXTEND_ANGLE = -Math.PI / 18, ARM_PUNCH_FOREARM_EXTEND_ANGLE = Math.PI / 30, ARM_PUNCH_UPPER_RECOIL_ANGLE = -Math.PI / 3, ARM_PUNCH_FOREARM_RECOIL_ANGLE = Math.PI / 2.2;
+    const LEG_ANGLE_RESTING_FRONT = Math.PI / 2 - Math.PI / 20, LEG_ANGLE_RESTING_BACK = Math.PI / 2 + Math.PI / 30, LEG_ANGLE_KICK_STRIKE = -Math.PI / 18, LEG_ANGLE_KICK_SUPPORT = Math.PI / 2 + Math.PI / 6;
+    const BOXING_GLOVE_COLOR = '#c00000', DEFAULT_SHOE_COLOR = '#4a5568';
+    let playerSelectedCharIndex = -1, pcSelectedCharIndex = -1, smokeParticles = [];
 
-    class Player {
-        constructor(x, initialY, characterAsset, isPlayer1 = true, facingRight = true) {
-            this.name = characterAsset.name;
-            this.x = x;
-            this.isPlayer1 = isPlayer1;
-            this.facingRight = facingRight;
-            this.headTextureImage = this.loadTexture(characterAsset.textures.head);
-            this.bodyTextureImage = this.loadTexture(characterAsset.textures.torso);
-            this.upperArmTextureImage = this.loadTexture(characterAsset.textures.upperArm);
-            this.foreArmTextureImage = this.loadTexture(characterAsset.textures.foreArm);
-            this.thighTextureImage = this.loadTexture(characterAsset.textures.thigh);
-            this.lowerLegTextureImage = this.loadTexture(characterAsset.textures.lowerLeg);
-            this.gloveTextureImage_r = this.loadTexture(characterAsset.textures.glove_r);
-            this.gloveTextureImage_l = this.loadTexture(characterAsset.textures.glove_l);
-            this.shoeTextureImage = this.loadTexture(characterAsset.textures.shoe);
-            this.superEffectTextureImage = this.loadTexture(characterAsset.textures.superEffectTexture);
-            this.yellowVestTextureImage = this.loadTexture(characterAsset.textures.yellowVest);
-            this.setStats();
-            this.y = initialY - this.height;
-            this.velocityX = 0;
-            this.velocityY = 0;
-            this.isJumping = false;
-            this.health = MAX_HEALTH * this.healthMod;
-            this.maxHealth = MAX_HEALTH * this.healthMod;
-            this.power = 0;
-            this.maxPower = MAX_POWER;
-            this.isSuperCharged = false;
-            this.isPerformingSuperAttackAnimation = false;
-            this.activePiranhaProjectiles = [];
-            this.activeMoneyWads = [];
-            this.activeCoins = [];
-            this.activeCalculators = [];
-            this.activePapers = [];
-            this.activeKisses = [];
-            this.activeTeddies = [];
-            this.isDashing = false;
-            this.dashCount = 0;
-            this.dashTargetX = 0;
-            this.dashDamageApplied = false;
-            this.trail = [];
-            this.isPunching = false;
-            this.isKicking = false;
-            this.attackVisualActive = false;
-            this.lastAttackTime = 0;
-            this.lastAIDecisionTime = 0;
-            this.currentAction = null;
-            this.attackArm = null;
-            this.nextPunchArm = 'right';
-            this.isCastingCrack = false;
-            this.crackTimer = 0;
-            this.crackOpponentHit = false;
-            this.crackCenterX = 0;
-            this.isSwallowed = false;
-            this.swallowedTimer = 0;
-            this.isStunned = false;
-            this.stunTimer = 0;
-            this.isInvisible = false;
-            this.invisibilityTimer = 0;
-            this.isConfused = false;
-            this.confusionTimer = 0;
-            this.confusionBlinkTimer = 0;
-            this.showBlurred = false;
-        }
-
-        loadTexture(src) {
-            if (!src) return null;
-            const img = new Image();
-            img.src = src;
-            img.onerror = () => console.warn('Error loading texture:', src);
-            return img;
-        }
-
-        setStats() {
-            const stats = bodyTypeStats.normal;
-            this.width = stats.width;
-            this.height = stats.height;
-            this.speed = BASE_PLAYER_SPEED * stats.speedMod;
-            this.punchDamage = PUNCH_DAMAGE * stats.damageMod;
-            this.kickDamage = KICK_DAMAGE * stats.damageMod;
-            this.punchRange = PUNCH_RANGE * stats.rangeMod;
-            this.kickRange = KICK_RANGE * stats.rangeMod;
-            this.attackCooldown = ATTACK_COOLDOWN;
-            this.jumpStrength = BASE_JUMP_STRENGTH;
-            this.knockbackStrength = BASE_KNOCKBACK_STRENGTH;
-            this.healthMod = stats.healthMod;
-            let headSizeRatioFactor = 1.5;
-            let torsoHeightRatio = 0.5;
-            let torsoWidthRatio = 0.8;
-            let armWidthRatio = 0.20;
-            let armLengthTotalRatio = 0.85;
-            let legSegmentsTotalHeightRatio = 0.26;
-            let shoeHeightRatio = 0.22;
-            let shoeWidthFactor = 1.6;
-            let legWidthRatio = 0.22;
-            let gloveSizeFactor = 3.0;
-            this.headSize = (this.width * 0.5) * headSizeRatioFactor;
-            this.torsoHeight = this.height * torsoHeightRatio;
-            this.torsoWidth = this.width * torsoWidthRatio;
-            this.armWidth = this.width * armWidthRatio;
-            const totalArmLength = this.torsoHeight * armLengthTotalRatio;
-            this.upperArmLength = totalArmLength * 0.5;
-            this.foreArmLength = totalArmLength * 0.5;
-            const totalLegSegmentsCombinedH = this.height * legSegmentsTotalHeightRatio;
-            this.thighHeight = totalLegSegmentsCombinedH * 0.5;
-            this.lowerLegHeight = totalLegSegmentsCombinedH * 0.5;
-            this.legWidth = this.torsoWidth * legWidthRatio;
-            this.gloveSize = this.armWidth * gloveSizeFactor;
-            this.shoeHeight = this.height * shoeHeightRatio;
-            this.shoeWidth = this.legWidth * shoeWidthFactor;
-        }
-
-        drawPartWithTexture(partName, destX, destY, destWidth, destHeight, shouldFlipHorizontally = false) {
-            let currentTexture = null;
-            if (partName === 'head') currentTexture = this.headTextureImage;
-            else if (partName === 'torso') currentTexture = this.bodyTextureImage;
-            else if (partName === 'arm_upper') currentTexture = this.upperArmTextureImage;
-            else if (partName === 'arm_fore') currentTexture = this.foreArmTextureImage;
-            else if (partName === 'thigh') currentTexture = this.thighTextureImage;
-            else if (partName === 'lower_leg') currentTexture = this.lowerLegTextureImage;
-
-            if (currentTexture && currentTexture.complete && currentTexture.width > 0) {
-                ctx.save();
-                if (shouldFlipHorizontally) {
-                    ctx.translate(destX + destWidth, destY);
-                    ctx.scale(-1, 1);
-                    ctx.drawImage(currentTexture, 0, 0, currentTexture.width, currentTexture.height, 0, 0, destWidth, destHeight);
-                } else {
-                    ctx.drawImage(currentTexture, destX, destY, destWidth, destHeight);
-                }
-                ctx.restore();
-            } else {
-                ctx.fillStyle = 'magenta';
-                ctx.fillRect(destX, destY, destWidth, destHeight);
-            }
-        }
-
-        drawArm(isPlayerRightArmActual) {
-            ctx.save();
-            const totalLegSegmentsHeight = this.thighHeight + this.lowerLegHeight;
-            const torsoTopY = this.y + (this.height - this.torsoHeight - totalLegSegmentsHeight - this.shoeHeight);
-            const baseShoulderY = torsoTopY + this.torsoHeight * 0.25;
-            let shoulderXOffset = this.facingRight ? 
-                (isPlayerRightArmActual ? this.torsoWidth * 0.30 : this.torsoWidth * 0.70) :
-                (isPlayerRightArmActual ? this.torsoWidth * 0.70 : this.torsoWidth * 0.30);
-            
-            const shoulderX = this.x + (this.width - this.torsoWidth) / 2 + shoulderXOffset;
-            ctx.translate(shoulderX, baseShoulderY);
-
-            let finalUpperArmAngle, finalForeArmAngle;
-            const isPunchingThisArm = this.isPunching && this.attackVisualActive &&
-                                     ((isPlayerRightArmActual && this.attackArm === 'right') || (!isPlayerRightArmActual && this.attackArm === 'left'));
-
-            if (isPunchingThisArm) {
-                finalUpperArmAngle = this.facingRight ? ARM_PUNCH_UPPER_EXTEND_ANGLE : Math.PI - ARM_PUNCH_UPPER_EXTEND_ANGLE;
-                finalForeArmAngle = this.facingRight ? ARM_PUNCH_FOREARM_EXTEND_ANGLE : -ARM_PUNCH_FOREARM_EXTEND_ANGLE;
-            } else if (this.isPunching && this.attackVisualActive) {
-                finalUpperArmAngle = this.facingRight ? ARM_PUNCH_UPPER_RECOIL_ANGLE : Math.PI - ARM_PUNCH_UPPER_RECOIL_ANGLE;
-                finalForeArmAngle = this.facingRight ? ARM_PUNCH_FOREARM_RECOIL_ANGLE : -ARM_PUNCH_FOREARM_RECOIL_ANGLE;
-            } else {
-                finalUpperArmAngle = this.facingRight ? ARM_GUARD_UPPER_ANGLE : Math.PI - ARM_GUARD_UPPER_ANGLE;
-                finalForeArmAngle = this.facingRight ? ARM_GUARD_FOREARM_BEND : -ARM_GUARD_FOREARM_BEND;
-            }
-
-            ctx.rotate(finalUpperArmAngle);
-            this.drawPartWithTexture('arm_upper', 0, -this.armWidth / 2, this.upperArmLength, this.armWidth);
-            
-            ctx.translate(this.upperArmLength, 0);
-            ctx.rotate(finalForeArmAngle);
-            this.drawPartWithTexture('arm_fore', 0, -this.armWidth / 2, this.foreArmLength, this.armWidth);
-
-            let gloveTexture = this.facingRight ? this.gloveTextureImage_r : this.gloveTextureImage_l;
-            if (gloveTexture && gloveTexture.complete && gloveTexture.width > 0) {
-                const gloveDrawX = this.foreArmLength - (this.armWidth * 0.8);
-                const gloveDrawY = -this.gloveSize / 2;
-                ctx.drawImage(gloveTexture, gloveDrawX, gloveDrawY, this.gloveSize, this.gloveSize);
-            } else {
-                ctx.fillStyle = BOXING_GLOVE_COLOR;
-                ctx.beginPath();
-                ctx.arc(this.foreArmLength, 0, this.gloveSize / 2, 0, Math.PI * 2);
-                ctx.fill();
-            }
-            
-            ctx.restore();
-        }
-
-        drawLeg(isFrontLeg) {
-            ctx.save();
-            const totalLegSegmentsHeight = this.thighHeight + this.lowerLegHeight;
-            const hipXOffsetFactor = isFrontLeg ? 0.65 : 0.35;
-            const hipXOffset = this.facingRight ? this.torsoWidth * hipXOffsetFactor : this.torsoWidth * (1 - hipXOffsetFactor);
-            const hipYOffset = this.torsoHeight;
-            const hipX = this.x + (this.width - this.torsoWidth) / 2 + hipXOffset;
-            const hipY = this.y + (this.height - this.torsoHeight - totalLegSegmentsHeight - this.shoeHeight) + hipYOffset;
-            ctx.translate(hipX, hipY);
-
-            let angle;
-            if (this.isKicking && this.attackVisualActive) {
-                angle = isFrontLeg ? 
-                    (this.facingRight ? LEG_ANGLE_KICK_STRIKE : Math.PI - LEG_ANGLE_KICK_STRIKE) : 
-                    (this.facingRight ? LEG_ANGLE_KICK_SUPPORT : Math.PI - LEG_ANGLE_KICK_SUPPORT);
-            } else {
-                angle = isFrontLeg ? 
-                    (this.facingRight ? LEG_ANGLE_RESTING_FRONT : Math.PI - LEG_ANGLE_RESTING_FRONT) : 
-                    (this.facingRight ? LEG_ANGLE_RESTING_BACK : Math.PI - LEG_ANGLE_RESTING_BACK);
-            }
-            ctx.rotate(angle);
-
-            this.drawPartWithTexture('thigh', 0, -this.legWidth / 2, this.thighHeight, this.legWidth);
-            ctx.translate(this.thighHeight, 0);
-            this.drawPartWithTexture('lower_leg', 0, -this.legWidth / 2, this.lowerLegHeight, this.legWidth);
-            ctx.translate(this.lowerLegHeight, 0);
-
-            if (this.shoeTextureImage && this.shoeTextureImage.complete && this.shoeTextureImage.width > 0) {
-                ctx.drawImage(this.shoeTextureImage, -this.shoeWidth / 2, -this.shoeHeight / 2, this.shoeWidth, this.shoeHeight);
-            } else {
-                ctx.fillStyle = DEFAULT_SHOE_COLOR;
-                ctx.fillRect(-this.shoeWidth / 2, -this.shoeHeight / 2, this.shoeWidth, this.shoeHeight);
-            }
-            ctx.restore();
-        }
-        
-        drawPiranhaProjectiles() {
-            this.activePiranhaProjectiles.forEach(p => {
-                ctx.save();
-                ctx.translate(p.x, p.y);
-                if (!p.direction) {
-                    ctx.translate(p.width, 0);
-                    ctx.scale(-1, 1);
-                }
-                ctx.fillStyle = '#95a5a6';
-                ctx.beginPath();
-                ctx.ellipse(p.width / 2, p.height / 2, p.width / 2, p.height / 2.5, 0, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = '#7f8c8d';
-                ctx.beginPath();
-                ctx.moveTo(0, p.height / 2);
-                ctx.lineTo(-p.width * 0.2, 0);
-                ctx.lineTo(-p.width * 0.2, p.height);
-                ctx.closePath();
-                ctx.fill();
-                ctx.fillStyle = 'red';
-                ctx.beginPath();
-                ctx.arc(p.width * 0.75, p.height * 0.4, 2, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = 'white';
-                ctx.beginPath();
-                ctx.moveTo(p.width, p.height / 2);
-                ctx.lineTo(p.width * 0.8, p.height * 0.7);
-                ctx.lineTo(p.width, p.height * 0.9);
-                ctx.closePath();
-                ctx.fill();
-                ctx.restore();
-            });
-        }
-
-        drawMoneyWads() {
-            this.activeMoneyWads.forEach(wad => {
-                ctx.save();
-                ctx.translate(wad.x + wad.width / 2, wad.y + wad.height / 2);
-                ctx.rotate(wad.rotation);
-                ctx.fillStyle = '#22c55e';
-                ctx.fillRect(-wad.width / 2, -wad.height / 2, wad.width, wad.height);
-                ctx.fillStyle = '#facc15';
-                ctx.font = `bold ${wad.height * 0.8}px Arial`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText('$', 0, 0);
-                ctx.restore();
-            });
-        }
-        
-        drawCoins() {
-            this.activeCoins.forEach(coin => {
-                ctx.save();
-                ctx.translate(coin.x, coin.y);
-                ctx.fillStyle = '#facc15';
-                ctx.beginPath();
-                ctx.arc(0, 0, coin.radius, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.strokeStyle = '#eab308';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-                ctx.restore();
-            });
-        }
-
-        drawCalculatorProjectiles() {
-            this.activeCalculators.forEach(calc => {
-                ctx.save();
-                ctx.translate(calc.x + calc.width / 2, calc.y + calc.height / 2);
-                ctx.rotate(calc.rotation);
-                const w = calc.width, h = calc.height, depth = 8;
-                ctx.lineWidth = 2;
-                ctx.strokeStyle = '#2c3e50';
-                ctx.fillStyle = '#7f8c8d';
-                ctx.beginPath();
-                ctx.moveTo(-w / 2, -h / 2);
-                ctx.lineTo(-w / 2 + depth, -h / 2 - depth);
-                ctx.lineTo(w / 2 + depth, -h / 2 - depth);
-                ctx.lineTo(w / 2, -h / 2);
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.moveTo(w / 2, -h / 2);
-                ctx.lineTo(w / 2 + depth, -h / 2 - depth);
-                ctx.lineTo(w / 2 + depth, h / 2 - depth);
-                ctx.lineTo(w / 2, h / 2);
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
-                ctx.fillStyle = '#bdc3c7';
-                ctx.fillRect(-w / 2, -h / 2, w, h);
-                ctx.strokeRect(-w / 2, -h / 2, w, h);
-                ctx.fillStyle = '#2ecc71';
-                const screenMarginX = w * 0.1, screenMarginY = h * 0.1, screenHeight = h * 0.25;
-                ctx.fillRect(-w / 2 + screenMarginX, -h / 2 + screenMarginY, w - screenMarginX * 2, screenHeight);
-                ctx.strokeRect(-w / 2 + screenMarginX, -h / 2 + screenMarginY, w - screenMarginX * 2, screenHeight);
-                ctx.restore();
-            });
-        }
-
-        drawPapers() {
-            this.activePapers.forEach(paper => {
-                ctx.save();
-                ctx.translate(paper.x + paper.width / 2, paper.y + paper.height / 2);
-                ctx.rotate(paper.rotation);
-                if (paper.isPowerPoint) {
-                    const w = paper.width * 1.5, h = paper.height * 1.5;
-                    ctx.fillStyle = '#D04423';
-                    ctx.fillRect(-w / 2, -h / 2, w, h);
-                    ctx.fillStyle = 'white';
-                    ctx.beginPath();
-                    ctx.arc(0, 0, w * 0.35, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.fillStyle = '#D04423';
-                    ctx.font = `bold ${h * 0.5}px Arial`;
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText('P', 0, h * 0.05);
-                } else {
-                    ctx.fillStyle = 'white';
-                    ctx.fillRect(-paper.width / 2, -paper.height / 2, paper.width, paper.height);
-                    ctx.strokeStyle = '#cccccc';
-                    ctx.lineWidth = 1;
-                    for (let i = 1; i < 5; i++) {
-                        const lineY = -paper.height / 2 + (paper.height / 5) * i;
-                        ctx.beginPath();
-                        ctx.moveTo(-paper.width / 2, lineY);
-                        ctx.lineTo(paper.width / 2, lineY);
-                        ctx.stroke();
-                    }
-                }
-                ctx.restore();
-            });
-        }
-
-        drawKisses() {
-            this.activeKisses.forEach(kiss => {
-                ctx.save();
-                ctx.translate(kiss.x, kiss.y);
-                const w = kiss.width, h = kiss.height, pixelSize = w / 11;
-                ctx.fillStyle = '#ef233c';
-                const lipMap = ["   xxx   ", "  xxxxx  ", " xxxxxxx ", "xxxxxxxxx", "xxxxxxxxx", " xxxxxxx ", "  xxxxx  ", "   xxx   "];
-                for(let r = 0; r < lipMap.length; r++) {
-                    for (let c = 0; c < lipMap[r].length; c++) {
-                        if(lipMap[r][c] === 'x') {
-                            ctx.fillRect(c * pixelSize, r * pixelSize, pixelSize, pixelSize);
-                        }
-                    }
-                }
-                ctx.fillStyle = '#8d0801';
-                ctx.fillRect(0, 4 * pixelSize, w, pixelSize);
-                ctx.restore();
-            });
-        }
-
-        drawTeddies() {
-            this.activeTeddies.forEach(teddy => {
-                ctx.save();
-                ctx.translate(teddy.x + teddy.width / 2, teddy.y + teddy.height / 2);
-                ctx.rotate(teddy.rotation);
-                const w = teddy.width, h = teddy.height;
-                ctx.fillStyle = '#ffc0cb';
-                ctx.strokeStyle = '#e75480';
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.ellipse(0, h * 0.1, w * 0.35, h * 0.4, 0, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.arc(0, -h * 0.25, w * 0.25, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.stroke();
-                const earWidth = w * 0.12, earHeight = h * 0.35;
-                ctx.beginPath();
-                ctx.ellipse(-w * 0.2, -h * 0.5, earWidth, earHeight, -0.2, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.ellipse(w * 0.2, -h * 0.5, earWidth, earHeight, 0.2, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.stroke();
-                ctx.fillStyle = '#ffdae0';
-                ctx.beginPath();
-                ctx.ellipse(0, -h * 0.2, w * 0.12, w * 0.1, 0, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.stroke();
-                ctx.fillStyle = 'black';
-                ctx.beginPath();
-                ctx.arc(-w * 0.08, -h * 0.25, w * 0.04, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(w * 0.08, -h * 0.25, w * 0.04, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.moveTo(0, -h * 0.22);
-                ctx.lineTo(-w * 0.04, -h * 0.18);
-                ctx.lineTo(w * 0.04, -h * 0.18);
-                ctx.closePath(); 
-                ctx.fill();
-                ctx.restore();
-            });
-        }
-
-        drawZanjasCrack() {
-            if (!this.isCastingCrack) return;
-            const groundY = CANVAS_HEIGHT - 10, halfLife = ZANJAS_CRACK_LIFESPAN / 2;
-            let progress = this.crackTimer > halfLife ? (ZANJAS_CRACK_LIFESPAN - this.crackTimer) / halfLife : this.crackTimer / halfLife;
-            const currentCrackWidth = ZANJAS_CRACK_WIDTH * progress;
-            const currentCrackDepth = ZANJAS_CRACK_MAX_HEIGHT * progress;
-            if (currentCrackWidth <= 2) return;
-            ctx.save();
-            ctx.fillStyle = 'black';
-            ctx.beginPath();
-            ctx.moveTo(this.crackCenterX - currentCrackWidth / 2, groundY);
-            ctx.lineTo(this.crackCenterX + currentCrackWidth / 2, groundY);
-            ctx.lineTo(this.crackCenterX, groundY + currentCrackDepth);
-            ctx.closePath();
-            ctx.fill();
-            ctx.strokeStyle = '#4a2a0a';
-            ctx.lineWidth = 3;
-            for (let s = -1; s <= 1; s += 2) {
-                ctx.beginPath();
-                ctx.moveTo(this.crackCenterX + (s * currentCrackWidth / 2), groundY);
-                for (let i = 0; i <= 10; i++) {
-                    ctx.lineTo(this.crackCenterX + (s * (currentCrackWidth / 2) * (1 - (i/10))), groundY + (Math.random() - 0.5) * 8 * progress);
-                }
-                ctx.stroke();
-            }
-            ctx.restore();
-        }
-
-        draw() {
-            if(this.isInvisible) return;
-            ctx.save();
-
-            if (this.isDashing) {
-                this.trail.forEach((pos, index) => {
-                    ctx.globalAlpha = (index / this.trail.length) * 0.5;
-                     this.drawPlayerModel(pos.x, pos.y);
-                });
-                ctx.globalAlpha = 1;
-            }
-            this.drawPlayerModel(this.x, this.y);
-
-            this.drawPiranhaProjectiles();
-            this.drawMoneyWads();
-            this.drawCoins();
-            this.drawCalculatorProjectiles();
-            this.drawPapers();
-            this.drawKisses();
-            this.drawTeddies();
-            
-            if (this.isCastingCrack) this.drawZanjasCrack();
-            
-            if (this.isConfused) {
-                ctx.font = `bold 24px 'Comic Sans MS'`;
-                ctx.fillStyle = 'yellow';
-                ctx.textAlign = 'center';
-                ctx.fillText('???', this.x + this.width / 2, this.y - 20);
-            } else if (this.isStunned) {
-                ctx.font = `bold 24px 'Comic Sans MS'`;
-                ctx.fillStyle = 'white';
-                ctx.textAlign = 'center';
-                ctx.fillText('!!!', this.x + this.width / 2, this.y - 20);
-            }
-
-            if (this.isPerformingSuperAttackAnimation && this.attackVisualActive && this.superEffectTextureImage && this.superEffectTextureImage.complete && this.name !== "Piraña") {
-                const effectWidth = this.width * 1.5, effectHeight = this.height * 1.5;
-                const effectX = this.x + (this.width - effectWidth) / 2, effectY = this.y + (this.height - effectHeight) / 2;
-                ctx.globalAlpha = 0.7;
-                ctx.drawImage(this.superEffectTextureImage, effectX, effectY, effectWidth, effectHeight);
-                ctx.globalAlpha = 1.0;
-            }
-            ctx.restore();
-        }
-
-        drawPlayerModel(x, y) {
-            if (this.isSwallowed) return;
-            const originalX = this.x, originalY = this.y;
-            this.x = x; this.y = y;
-            if (this.showBlurred) ctx.filter = 'blur(4px)';
-            else if (this.isPerformingSuperAttackAnimation && this.attackVisualActive) ctx.filter = 'brightness(1.75) saturate(2.5)';
-            const totalLegSegmentsHeight = this.thighHeight + this.lowerLegHeight;
-            const torsoGlobalY = this.y + (this.height - this.torsoHeight - totalLegSegmentsHeight - this.shoeHeight);
-            const torsoGlobalX = this.x + (this.width - this.torsoWidth) / 2;
-            const headGlobalX = this.x + (this.width - this.headSize) / 2;
-            const headGlobalY = torsoGlobalY - this.headSize;
-            const visuallyBackLegIsFront = !this.facingRight;
-            this.drawLeg(visuallyBackLegIsFront);
-            this.drawLeg(!visuallyBackLegIsFront);
-            if (this.facingRight) {
-                this.drawArm(false);
-                this.drawPartWithTexture('torso', torsoGlobalX, torsoGlobalY, this.torsoWidth, this.torsoHeight, !this.facingRight);
-                if (this.name === 'Matthei Bolt' && this.isDashing) this.drawVest(torsoGlobalX, torsoGlobalY);
-                this.drawPartWithTexture('head', headGlobalX, headGlobalY, this.headSize, this.headSize, !this.facingRight);
-                this.drawArm(true);
-            } else {
-                this.drawArm(true);
-                this.drawPartWithTexture('torso', torsoGlobalX, torsoGlobalY, this.torsoWidth, this.torsoHeight, !this.facingRight);
-                if (this.name === 'Matthei Bolt' && this.isDashing) this.drawVest(torsoGlobalX, torsoGlobalY);
-                this.drawPartWithTexture('head', headGlobalX, headGlobalY, this.headSize, this.headSize, !this.facingRight);
-                this.drawArm(false);
-            }
-            ctx.filter = 'none';
-            this.x = originalX; this.y = originalY;
-        }
-
-        drawVest(torsoX, torsoY) {
-            ctx.save();
-            if (!this.facingRight) {
-                 ctx.translate(this.x + this.width/2, 0);
-                 ctx.scale(-1,1);
-                 ctx.translate(-(this.x + this.width/2), 0);
-            }
-            if (this.yellowVestTextureImage && this.yellowVestTextureImage.complete && this.yellowVestTextureImage.width > 0) {
-                ctx.drawImage(this.yellowVestTextureImage, torsoX, torsoY, this.torsoWidth, this.torsoHeight);
-            } else {
-                ctx.fillStyle = '#eab308';
-                ctx.fillRect(torsoX, torsoY, this.torsoWidth, this.torsoHeight);
-            }
-            ctx.restore();
-        }
-
-        updateAI() {
-            if(this.isPlayer1) return;
-
-            if (this.isConfused) {
-                this.confusionTimer--;
-                this.confusionBlinkTimer--;
-                if(this.confusionTimer <= 0) { this.isConfused = false; this.showBlurred = false; }
-                if(this.confusionBlinkTimer <= 0) { this.showBlurred = !this.showBlurred; this.confusionBlinkTimer = 15; }
-                return;
-             }
-            if (this.isDashing || this.isSwallowed || this.isCastingCrack || this.isStunned) return;
-            if (Date.now() - this.lastAIDecisionTime > AI_ACTION_INTERVAL) {
-                this.lastAIDecisionTime = Date.now();
-                const opponent = players.find(p => p !== this);
-                if (!opponent || opponent.isInvisible) { this.currentAction = 'stand'; return; }
-                const distanceToOpponent = Math.abs((this.x + this.width / 2) - (opponent.x + opponent.width / 2)) - (this.width/2 + opponent.width/2);
-                const opponentIsToTheRight = (opponent.x + opponent.width / 2) > (this.x + this.width / 2);
-                if (distanceToOpponent < Math.max(this.punchRange, this.kickRange) * 1.5) this.facingRight = opponentIsToTheRight;
-                const canAttack = !(this.isPunching || this.isKicking) && (Date.now() - this.lastAttackTime > this.attackCooldown);
-                let decidedToAttack = false, attackType = 'punch';
-                if (this.facingRight === opponentIsToTheRight) {
-                    if (distanceToOpponent < this.kickRange && Math.random() < AI_ATTACK_CHANCE_IN_RANGE) {
-                        decidedToAttack = true;
-                        if (Math.random() < AI_KICK_CHANCE || distanceToOpponent >= this.punchRange) attackType = 'kick';
-                    } else if (distanceToOpponent < this.punchRange && Math.random() < AI_ATTACK_CHANCE_IN_RANGE) {
-                        decidedToAttack = true;
-                    }
-                }
-                if (canAttack && decidedToAttack) {
-                    if (this.isSuperCharged && Math.random() < 0.8) attackType === 'kick' ? this.kick() : this.punch();
-                    else attackType === 'kick' ? this.kick() : this.punch();
-                    this.currentAction = 'attack';
-                } else {
-                    if (Math.random() < AI_MOVE_CHANCE) {
-                        if (distanceToOpponent > this.punchRange * 0.5) { this.currentAction = opponentIsToTheRight ? 'moveRight' : 'moveLeft'; this.facingRight = opponentIsToTheRight; }
-                        else if (Math.random() < 0.3) this.currentAction = opponentIsToTheRight ? 'moveLeft' : 'moveRight';
-                        else this.currentAction = 'stand';
-                        if (Math.random() < AI_JUMP_CHANCE && !this.isJumping) this.jump();
-                    } else { this.currentAction = 'stand'; }
-                }
-            }
-            this.velocityX = 0;
-            if (this.currentAction === 'moveLeft') this.velocityX = -this.speed;
-            else if (this.currentAction === 'moveRight') this.velocityX = this.speed;
-        }
-        
-        // ===================================================================
-        // ===== FUNCIÓN DE ACTUALIZACIÓN PRINCIPAL (CORREGIDA) =============
-        // ===================================================================
-        update() {
-            if (this.isSwallowed) {
-                this.swallowedTimer--;
-                if (this.swallowedTimer <= 0) { this.isSwallowed = false; this.x = Math.random() * (CANVAS_WIDTH - this.width); this.y = -this.height; this.velocityY = 0; }
-                return;
-            }
-            if (this.isStunned) {
-                this.stunTimer--;
-                if (this.stunTimer <= 0) this.isStunned = false;
-                return;
-            }
-            
-            this.updateAI();
-
-            if (this.isInvisible) {
-                this.invisibilityTimer--;
-                if (this.invisibilityTimer <= 0) { this.isInvisible = false; const opponent = players.find(p => p !== this); if (opponent) { this.x = opponent.x + (opponent.facingRight ? opponent.width + 20 : -this.width - 20); this.y = opponent.y; } }
-                return;
-            }
-
-            // --- LÓGICA CORREGIDA ---
-            // Primero se procesan los estados de movimiento especiales como el Dash.
-            if (this.isDashing) {
-                const opponent = players.find(p => p !== this); 
-                this.updateBoltDash(opponent); 
-                this.trail.push({ x: this.x, y: this.y }); 
-                if (this.trail.length > 5) this.trail.shift();
-                return; // Se sale de la función para no aplicar la física normal.
-            }
-            
-            // Si no hay ningún estado especial, se aplica la física y movimiento estándar.
-            this.x += this.velocityX;
-            this.velocityY += GRAVITY;
-            this.y += this.velocityY;
-
-            const opponent = players.find(p => p !== this);
-            if(opponent) {
-                this.updateProjectiles(opponent);
-                this.updateZanjasCrack(opponent);
-            }
-            
-            const actualGroundSurfaceY = CANVAS_HEIGHT - 10;
-            if (this.y + this.height > actualGroundSurfaceY) { this.y = actualGroundSurfaceY - this.height; this.velocityY = 0; this.isJumping = false; }
-            if (this.x < 0) this.x = 0;
-            if (this.x + this.width > CANVAS_WIDTH) this.x = CANVAS_WIDTH - this.width;
-        }
-
-        updateProjectiles(opponent) {
-            const updateList = (list, damage, onHitCallback) => {
-                for (let i = list.length - 1; i >= 0; i--) {
-                    const p = list[i];
-                    if(p.velocityX) p.x += p.velocityX * (p.direction ? 1 : -1);
-                    if(p.velocityY) {p.y += p.velocityY; p.velocityY += GRAVITY * 0.4;}
-                    if(p.rotationSpeed) p.rotation += p.rotationSpeed;
-                    if(p.lifespan) p.lifespan--;
-                    if ((p.lifespan && p.lifespan <= 0) || p.y > CANVAS_HEIGHT || p.x > CANVAS_WIDTH || p.x + (p.width || 0) < 0) { list.splice(i, 1); continue; }
-                    const pBox = { x: p.x, y: p.y, width: p.width || p.radius * 2, height: p.height || p.radius * 2 };
-                    if (p.radius) { pBox.x -= p.radius; pBox.y -= p.radius; }
-                    if (!opponent.isSwallowed && !opponent.isStunned && pBox.x < opponent.x + opponent.width && pBox.x + pBox.width > opponent.x && pBox.y < opponent.y + opponent.height && pBox.y + pBox.height > opponent.y) {
-                        opponent.takeDamage(damage, p.direction);
-                        if(onHitCallback) onHitCallback(p);
-                        list.splice(i, 1);
-                    }
-                }
-            };
-            updateList(this.activePiranhaProjectiles, PIRANHA_PROJECTILE_DAMAGE, p => activeHitEffects.push({ text: "¡ÑAM!", x: p.x, y: p.y, color: "#ff6347", alpha: 1.0, size: 20, rotation: 0, lifetime: HIT_EFFECT_LIFETIME / 2 }));
-            updateList(this.activeMoneyWads, MONEY_RAIN_DAMAGE, p => activeHitEffects.push({ text: "$$$", x: p.x, y: p.y, color: "#22c55e", alpha: 1.0, size: 30, rotation: 0, lifetime: HIT_EFFECT_LIFETIME }));
-            updateList(this.activeCoins, COIN_RAIN_DAMAGE, p => activeHitEffects.push({ text: "$", x: p.x, y: p.y, color: "#facc15", alpha: 1.0, size: 20, rotation: 0, lifetime: HIT_EFFECT_LIFETIME }));
-            updateList(this.activeCalculators, CALCULATOR_PROJECTILE_DAMAGE, p => activeHitEffects.push({ text: "ERROR", x: p.x, y: p.y, color: "#e53e3e", alpha: 1.0, size: 25, rotation: 0, lifetime: HIT_EFFECT_LIFETIME }));
-            updateList(this.activeKisses, ORSINI_KISS_DAMAGE, p => activeHitEffects.push({ text: "♥", x: p.x, y: p.y, color: "#ff69b4", alpha: 1.0, size: 30, rotation: 0, lifetime: HIT_EFFECT_LIFETIME }));
-            updateList(this.activeTeddies, TIA_COTE_TEDDY_DAMAGE, p => activeHitEffects.push({ text: "¡AWW!", x: p.x, y: p.y, color: "#9b59b6", alpha: 1.0, size: 40, rotation: 0, lifetime: HIT_EFFECT_LIFETIME }));
-            for (let i = this.activePapers.length - 1; i >= 0; i--) {
-                const paper = this.activePapers[i];
-                paper.velocityY += GRAVITY * 0.3; paper.y += paper.velocityY; paper.x += paper.velocityX; paper.rotation += paper.rotationSpeed;
-                if (paper.y > CANVAS_HEIGHT) { this.activePapers.splice(i, 1); continue; }
-                if (!opponent.isSwallowed && !opponent.isStunned && paper.x < opponent.x + opponent.width && paper.x + paper.width > opponent.x && paper.y < opponent.y + opponent.height && paper.y + paper.height > opponent.y) {
-                    opponent.takeDamage(PAPELUCHO_PAPER_DAMAGE, this.facingRight);
-                    opponent.isStunned = true;
-                    opponent.stunTimer = PAPELUCHO_STUN_DURATION;
-                    this.activePapers.splice(i, 1);
-                }
-            }
-        }
-        
-        updateBoltDash(opponent) {
-            if (!this.isDashing) return;
-            const moveDirection = Math.sign(this.dashTargetX - this.x);
-            this.x += moveDirection * BOLT_DASH_SPEED; this.facingRight = moveDirection > 0;
-            if (!this.dashDamageApplied && !opponent.isSwallowed && !opponent.isStunned &&
-                this.x < opponent.x + opponent.width && this.x + this.width > opponent.x &&
-                this.y < opponent.y + opponent.height && this.y + this.height > opponent.y) {
-                opponent.takeDamage(BOLT_DASH_DAMAGE, moveDirection > 0);
-                this.dashDamageApplied = true;
-                screenShakeMagnitude = 5; screenShakeTimeLeft = 5;
-                activeHitEffects.push({ text: "¡ZAS!", x: opponent.x + opponent.width/2, y: opponent.y + opponent.height/2, color: "#f39c12", alpha: 1.0, size: 25, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
-            }
-            if (Math.abs(this.x - this.dashTargetX) < BOLT_DASH_SPEED) {
-                this.x = this.dashTargetX;
-                this.dashCount--;
-                if (this.dashCount <= 0) { this.isDashing = false; this.trail = []; }
-                else { this.dashTargetX = this.dashTargetX === 0 ? CANVAS_WIDTH - this.width : 0; this.dashDamageApplied = false; }
-            }
-        }
-
-        updateZanjasCrack(opponent) {
-            if (!this.isCastingCrack || !opponent) return;
-            this.crackTimer--;
-            if (this.crackTimer <= 0) { this.isCastingCrack = false; return; }
-            if (this.crackOpponentHit || opponent.isSwallowed) return;
-            if (this.crackTimer < ZANJAS_CRACK_LIFESPAN * 0.7 && this.crackTimer > ZANJAS_CRACK_LIFESPAN * 0.2) {
-                if (Math.abs((opponent.x + opponent.width / 2) - this.crackCenterX) < ZANJAS_CRACK_WIDTH / 2 && (opponent.y + opponent.height) >= (CANVAS_HEIGHT - 10)) {
-                    opponent.takeDamage(ZANJAS_CRACK_DAMAGE, this.facingRight);
-                    opponent.isSwallowed = true;
-                    opponent.swallowedTimer = ZANJAS_SWALLOWED_DURATION;
-                    this.crackOpponentHit = true;
-                    activeHitEffects.push({ text: "¡TRAGADO!", x: opponent.x + opponent.width / 2, y: opponent.y + opponent.height / 2, color: "#8B4513", alpha: 1.0, size: 40, rotation: (Math.random() - 0.5) * 0.3, lifetime: HIT_EFFECT_LIFETIME * 2 });
-                    screenShakeMagnitude = 20; screenShakeTimeLeft = 30;
-                }
-            }
-        }
-
-        chargePowerOnClick() {
-            if (this.isSuperCharged || !gameActive) return;
-            if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(15);
-            const powerBarContainer = document.getElementById('player1PowerBarContainer');
-            powerBarContainer.classList.add('power-bar-container-flash');
-            setTimeout(() => powerBarContainer.classList.remove('power-bar-container-flash'), 150);
-            this.power += POWER_GAIN_PER_CLICK;
-            if (this.power >= this.maxPower) { this.power = this.maxPower; this.isSuperCharged = true; }
-            updatePowerBars();
-        }
-
-        jump() { if (!this.isJumping) { this.velocityY = -this.jumpStrength; this.isJumping = true; } }
-
-        gainPower(amount) {
-            if (this.isSuperCharged) return;
-            this.power += amount;
-            if (this.power >= this.maxPower) { this.power = this.maxPower; this.isSuperCharged = true; }
-            updatePowerBars();
-        }
-
-        launchPiranhaProjectiles() {
-            let handX, handY;
-            const totalLegSegmentsHeight = this.thighHeight + this.lowerLegHeight;
-            const shoulderX = this.x + (this.width - this.torsoWidth) / 2 + (this.facingRight ? this.torsoWidth * 0.70 : this.torsoWidth * 0.30);
-            const shoulderY = this.y + (this.height - this.torsoHeight - totalLegSegmentsHeight - this.shoeHeight) + this.torsoHeight * 0.20;
-            const armAngle = this.facingRight ? ARM_PUNCH_UPPER_EXTEND_ANGLE : Math.PI - ARM_PUNCH_UPPER_EXTEND_ANGLE;
-            const forearmAngle = this.facingRight ? ARM_PUNCH_FOREARM_EXTEND_ANGLE : -ARM_PUNCH_FOREARM_EXTEND_ANGLE;
-            const elbowX = shoulderX + Math.cos(armAngle) * this.upperArmLength;
-            const elbowY = shoulderY + Math.sin(armAngle) * this.upperArmLength;
-            handX = elbowX + Math.cos(armAngle + forearmAngle) * (this.foreArmLength + this.gloveSize * 0.25);
-            handY = elbowY + Math.sin(armAngle + forearmAngle) * (this.foreArmLength + this.gloveSize * 0.25);
-            for (let i = 0; i < PIRANHA_PROJECTILE_COUNT; i++) this.activePiranhaProjectiles.push({ x: handX, y: handY - PIRANHA_PROJECTILE_HEIGHT / 2 + (i * 15), width: PIRANHA_PROJECTILE_WIDTH, height: PIRANHA_PROJECTILE_HEIGHT, velocityX: PIRANHA_PROJECTILE_SPEED, direction: this.facingRight, lifespan: PIRANHA_PROJECTILE_LIFESPAN });
-        }
-        launchMoneyWadAttack() {
-            const opponent = players.find(p => p !== this); if (!opponent) return;
-            for (let i = 0; i < MONEY_RAIN_COUNT; i++) { const clusterCenterX = opponent.x + opponent.width / 2 + (Math.random() - 0.5) * opponent.width; for (let j = 0; j < 3; j++) this.activeMoneyWads.push({ x: clusterCenterX + (Math.random() - 0.5) * 40, y: MONEY_RAIN_INITIAL_Y - (Math.random() * CANVAS_HEIGHT / 2), width: MONEY_RAIN_WAD_WIDTH, height: MONEY_RAIN_WAD_HEIGHT, velocityX: (Math.random() - 0.5) * 2, velocityY: Math.random() * 4 + 3, rotation: (Math.random() - 0.5) * Math.PI, rotationSpeed: (Math.random() - 0.5) * 0.1 }); for (let k = 0; k < 5; k++) this.activeCoins.push({ x: clusterCenterX + (Math.random() - 0.5) * 60, y: MONEY_RAIN_INITIAL_Y - (Math.random() * CANVAS_HEIGHT / 2), radius: Math.random() * 5 + 5, velocityY: Math.random() * 5 + 4 }); }
-        }
-        launchCalculatorAttack() {
-            const opponent = players.find(p => p !== this); if (!opponent) return;
-            for (let i = 0; i < CALCULATOR_PROJECTILE_COUNT; i++) this.activeCalculators.push({ x: opponent.x + (Math.random() - 0.5) * opponent.width, y: CALCULATOR_INITIAL_Y - (Math.random() * 100), width: CALCULATOR_PROJECTILE_WIDTH, height: CALCULATOR_PROJECTILE_HEIGHT, velocityX: (Math.random() - 0.5) * 2, velocityY: (Math.random() * 2) + 2, rotation: (Math.random() - 0.5) * 2, rotationSpeed: (Math.random() - 0.5) * 0.2, lifespan: CALCULATOR_PROJECTILE_LIFESPAN });
-        }
-        launchPapeluchoAttack() {
-            const opponent = players.find(p => p !== this); if (!opponent) return;
-            for (let i = 0; i < PAPELUCHO_PAPER_COUNT; i++) this.activePapers.push({ x: opponent.x + (opponent.width / 2) + (Math.random() - 0.5) * (opponent.width * 2.5), y: -PAPELUCHO_PAPER_HEIGHT - Math.random() * 300, width: PAPELUCHO_PAPER_WIDTH, height: PAPELUCHO_PAPER_HEIGHT, velocityX: (Math.random() - 0.5) * 4, velocityY: (Math.random() * 2) + 2, rotation: (Math.random() - 0.5) * 2, rotationSpeed: (Math.random() - 0.5) * 0.2, isPowerPoint: i === 0 });
-        }
-        launchOrsiniLoveAttack() {
-            let handX, handY;
-            const totalLegSegmentsHeight = this.thighHeight + this.lowerLegHeight;
-            const shoulderX = this.x + (this.width - this.torsoWidth) / 2 + (this.facingRight ? this.torsoWidth * 0.70 : this.torsoWidth * 0.30);
-            const shoulderY = this.y + (this.height - this.torsoHeight - totalLegSegmentsHeight - this.shoeHeight) + this.torsoHeight * 0.20;
-            const armAngle = this.facingRight ? ARM_PUNCH_UPPER_EXTEND_ANGLE : Math.PI - ARM_PUNCH_UPPER_EXTEND_ANGLE;
-            const forearmAngle = this.facingRight ? ARM_PUNCH_FOREARM_EXTEND_ANGLE : -ARM_PUNCH_FOREARM_EXTEND_ANGLE;
-            const elbowX = shoulderX + Math.cos(armAngle) * this.upperArmLength;
-            const elbowY = shoulderY + Math.sin(armAngle) * this.upperArmLength;
-            handX = elbowX + Math.cos(armAngle + forearmAngle) * (this.foreArmLength + this.gloveSize * 0.25);
-            handY = elbowY + Math.sin(armAngle + forearmAngle) * (this.foreArmLength + this.gloveSize * 0.25);
-            for (let i = 0; i < ORSINI_KISS_COUNT; i++) this.activeKisses.push({ x: handX, y: handY, width: ORSINI_KISS_WIDTH, height: ORSINI_KISS_HEIGHT, velocityX: ORSINI_KISS_SPEED + (i * 2), direction: this.facingRight, lifespan: ORSINI_KISS_LIFESPAN });
-        }
-        launchEscapeRoomJacksonAttack() {
-            const opponent = players.find(p => p !== this); if (!opponent) return;
-            this.isInvisible = true; this.invisibilityTimer = JACKSON_INVISIBILITY_DURATION;
-            opponent.isConfused = true; opponent.confusionTimer = JACKSON_CONFUSION_DURATION;
-            new Audio('audio/smoke-bomb.wav').play().catch(e => {});
-            for (let i = 0; i < SMOKE_PARTICLE_COUNT; i++) smokeParticles.push({ x: this.x + this.width / 2, y: this.y + this.height / 2, radius: Math.random() * 20 + 10, alpha: 1, velocityX: (Math.random() - 0.5) * 4, velocityY: (Math.random() - 0.5) * 4 });
-            this.x = -1000;
-        }
-        launchTiaCoteAttack() {
-            const opponent = players.find(p => p !== this); if (!opponent) return;
-            for (let i = 0; i < TIA_COTE_TEDDY_COUNT; i++) this.activeTeddies.push({ x: opponent.x + (opponent.width / 2) - (TIA_COTE_TEDDY_WIDTH / 2), y: TIA_COTE_TEDDY_INITIAL_Y - (Math.random() * 50), width: TIA_COTE_TEDDY_WIDTH, height: TIA_COTE_TEDDY_HEIGHT, velocityY: 1.5, rotation: (Math.random() - 0.5) * 0.1, rotationSpeed: (Math.random() - 0.5) * 0.02 });
-        }
-        launchBoltDashAttack() { this.isDashing = true; this.dashCount = BOLT_DASH_COUNT; this.dashTargetX = this.x > CANVAS_WIDTH / 2 ? 0 : CANVAS_WIDTH - this.width; this.dashDamageApplied = false; this.velocityY = 0; this.trail = []; }
-        launchZanjasAttack() { const opponent = players.find(p => p !== this); if (!opponent) return; this.isCastingCrack = true; this.crackTimer = ZANJAS_CRACK_LIFESPAN; this.crackOpponentHit = false; this.crackCenterX = opponent.x + opponent.width / 2; }
-
-        _performAttack(isKickMove) {
-            if (this.isPunching || this.isKicking || (Date.now() - this.lastAttackTime < this.attackCooldown)) return;
-            let currentDamage;
-            let currentRange = isKickMove ? this.kickRange : this.punchRange;
-            this.isPerformingSuperAttackAnimation = false;
-            let isSuperMove = this.isSuperCharged;
-            if (isSuperMove) {
-                currentDamage = isKickMove ? SUPER_KICK_DAMAGE : SUPER_PUNCH_DAMAGE;
-                this.isPerformingSuperAttackAnimation = true;
-                if (this.name === "Piraña") { new Audio('audio/hadouken.wav').play().catch(e => {}); this.launchPiranhaProjectiles(); currentDamage = 0; }
-                else if (this.name === "La Ex") { this.launchMoneyWadAttack(); currentDamage = 0; }
-                else if (this.name === "Burric") { this.launchCalculatorAttack(); currentDamage = 0; }
-                else if (this.name === "Matthei Bolt") { this.launchBoltDashAttack(); currentDamage = 0; }
-                else if (this.name === "El Zanjas") { this.launchZanjasAttack(); currentDamage = 0; }
-                else if (this.name === "Carolina Papelucho") { this.launchPapeluchoAttack(); currentDamage = 0; }
-                else if (this.name === "Orsini Love") { this.launchOrsiniLoveAttack(); currentDamage = 0; }
-                else if (this.name === "Escape Room Jackson") { this.launchEscapeRoomJacksonAttack(); currentDamage = 0; }
-                else if (this.name === "Tía Cote") { this.launchTiaCoteAttack(); currentDamage = 0; }
-                else { new Audio('audio/38H.wav').play().catch(e => {}); }
-            } else {
-                currentDamage = isKickMove ? this.kickDamage : this.punchDamage;
-            }
-            if (isKickMove) { this.isKicking = true; } 
-            else { this.isPunching = true; this.attackArm = this.nextPunchArm; this.nextPunchArm = (this.nextPunchArm === 'right' ? 'left' : 'right'); }
-            this.attackVisualActive = true;
-            this.lastAttackTime = Date.now();
-            setTimeout(() => { if (isKickMove) this.isKicking = false; else this.isPunching = false; this.attackArm = null; if (isSuperMove) this.isPerformingSuperAttackAnimation = false; }, ATTACK_LOGIC_DURATION);
-            setTimeout(() => { this.attackVisualActive = false; }, ATTACK_ANIMATION_DURATION);
-            const opponent = players.find(p => p !== this);
-            if (!opponent || opponent.isSwallowed) return;
-            if (!isSuperMove || (isSuperMove && currentDamage > 0)) { // Si es un ataque normal o un super de contacto
-                let attackHitbox;
-                if (isKickMove) { const angleOfAttack = this.facingRight ? LEG_ANGLE_KICK_STRIKE : Math.PI - LEG_ANGLE_KICK_STRIKE; const limbLength = this.thighHeight + this.lowerLegHeight; const hipY = this.y + this.torsoHeight * 0.8; const hipX = this.x + this.width/2; const attackEndX = hipX + Math.cos(angleOfAttack) * limbLength; const attackEndY = hipY + Math.sin(angleOfAttack) * limbLength; attackHitbox = { x: attackEndX - currentRange / 2, y: attackEndY - currentRange / 2, width: currentRange, height: currentRange };
-                } else { const shoulderY = this.y + this.torsoHeight * 0.25; const shoulderX = this.x + this.width/2; const armAngle = this.facingRight ? ARM_PUNCH_UPPER_EXTEND_ANGLE : Math.PI - ARM_PUNCH_UPPER_EXTEND_ANGLE; const forearmAngle = this.facingRight ? ARM_PUNCH_FOREARM_EXTEND_ANGLE : -ARM_PUNCH_FOREARM_EXTEND_ANGLE; const elbowX = shoulderX + Math.cos(armAngle) * this.upperArmLength; const elbowY = shoulderY + Math.sin(armAngle) * this.upperArmLength; const attackEndX = elbowX + Math.cos(armAngle + forearmAngle) * this.foreArmLength; const attackEndY = elbowY + Math.sin(armAngle + forearmAngle) * this.foreArmLength; attackHitbox = { x: attackEndX - currentRange / 2, y: attackEndY - currentRange / 2, width: currentRange, height: currentRange };}
-                if (attackHitbox.x < opponent.x + opponent.width && attackHitbox.x + attackHitbox.width > opponent.x && attackHitbox.y < opponent.y + opponent.height && attackHitbox.y + attackHitbox.height > opponent.y) {
-                    opponent.takeDamage(currentDamage, this.facingRight);
-                    if (!isSuperMove) { this.gainPower(POWER_GAIN_PER_HIT); } 
-                    else { this.power = 0; this.isSuperCharged = false; updatePowerBars(); activeHitEffects.push({ text: "¡SÚPER!", x: opponent.x + opponent.width / 2, y: opponent.y + opponent.height / 2, color: "#FF00FF", alpha: 1.0, size: 50, rotation: (Math.random() - 0.5) * 0.8, lifetime: HIT_EFFECT_LIFETIME * 3 }); screenShakeMagnitude = 15; screenShakeTimeLeft = 20; }
-                } else if (isSuperMove) { this.power = 0; this.isSuperCharged = false; updatePowerBars(); }
-            } else if (isSuperMove) { this.power = 0; this.isSuperCharged = false; updatePowerBars(); screenShakeMagnitude = 10; screenShakeTimeLeft = 15; }
-        }
-
-        punch() { this._performAttack(false); }
-        kick() { this._performAttack(true); }
-
-        takeDamage(damage, attackerFacingRight) {
-            if(this.isDashing || this.isSwallowed) return;
-            this.health -= damage;
-            if (this.health < 0) this.health = 0;
-            new Audio('audio/2BH.wav').play().catch(e => {});
-            if (!this.isSwallowed) {
-                this.x += attackerFacingRight ? this.knockbackStrength : -this.knockbackStrength;
-                this.velocityY = -this.knockbackStrength / 2;
-            }
-            const randomWord = hitWords[Math.floor(Math.random() * hitWords.length)];
-            const randomColor = hitWordColors[Math.floor(Math.random() * hitWordColors.length)];
-            activeHitEffects.push({ text: randomWord, x: this.x + this.width / 2, y: this.y + this.height / 3, color: randomColor, alpha: 1.0, size: 24 + Math.random() * 16, rotation: (Math.random() - 0.5) * 0.5, lifetime: HIT_EFFECT_LIFETIME });
-            updateHealthBars();
-            checkGameOver();
-        }
+    function Player(x, initialY, characterAsset, isPlayer1 = true, facingRight = true) {
+        this.name = characterAsset.name; this.x = x; this.isPlayer1 = isPlayer1; this.facingRight = facingRight;
+        this.headTextureImage = this.loadTexture(characterAsset.textures.head); this.bodyTextureImage = this.loadTexture(characterAsset.textures.torso); this.upperArmTextureImage = this.loadTexture(characterAsset.textures.upperArm); this.foreArmTextureImage = this.loadTexture(characterAsset.textures.foreArm); this.thighTextureImage = this.loadTexture(characterAsset.textures.thigh); this.lowerLegTextureImage = this.loadTexture(characterAsset.textures.lowerLeg); this.gloveTextureImage_r = this.loadTexture(characterAsset.textures.glove_r); this.gloveTextureImage_l = this.loadTexture(characterAsset.textures.glove_l); this.shoeTextureImage = this.loadTexture(characterAsset.textures.shoe); this.superEffectTextureImage = this.loadTexture(characterAsset.textures.superEffectTexture); this.yellowVestTextureImage = this.loadTexture(characterAsset.textures.yellowVest);
+        this.setStats(); this.y = initialY - this.height; this.velocityX = 0; this.velocityY = 0; this.isJumping = false; this.health = MAX_HEALTH * this.healthMod; this.maxHealth = MAX_HEALTH * this.healthMod; this.power = 0; this.maxPower = MAX_POWER; this.isSuperCharged = false; this.isPerformingSuperAttackAnimation = false;
+        this.activePiranhaProjectiles = []; this.activeMoneyWads = []; this.activeCoins = []; this.activeCalculators = []; this.activePapers = []; this.activeKisses = []; this.activeTeddies = [];
+        this.isDashing = false; this.dashCount = 0; this.dashTargetX = 0; this.dashDamageApplied = false; this.trail = [];
+        this.isPunching = false; this.isKicking = false; this.attackVisualActive = false; this.lastAttackTime = 0; this.lastAIDecisionTime = 0; this.currentAction = null; this.attackArm = null; this.nextPunchArm = 'right';
+        this.isCastingCrack = false; this.crackTimer = 0; this.crackOpponentHit = false; this.crackCenterX = 0;
+        this.isSwallowed = false; this.swallowedTimer = 0; this.isStunned = false; this.stunTimer = 0;
+        this.isInvisible = false; this.invisibilityTimer = 0; this.isConfused = false; this.confusionTimer = 0; this.confusionBlinkTimer = 0; this.showBlurred = false;
     }
-
-    // --- El resto de las funciones (createCharacterSelectionUI, initGame, gameLoop, etc.) permanecen igual ---
-
-    function createCharacterSelectionUI() {
-        characterGrid.innerHTML = '';
-        characterAssets.forEach((charAsset, index) => {
-            const portraitWrapper = document.createElement('div');
-            portraitWrapper.className = 'character-portrait rounded-lg overflow-hidden p-1';
-            portraitWrapper.dataset.charIndex = index;
-            const imgEl = document.createElement('img');
-            imgEl.src = charAsset.previewImage;
-            imgEl.alt = charAsset.name;
-            imgEl.onerror = () => imgEl.src = `https://placehold.co/100x100/2d3748/e0e0e0?text=${charAsset.name.substring(0,3)}`;
-            portraitWrapper.appendChild(imgEl);
-            const namePlate = document.createElement('div');
-            namePlate.className = 'character-name-plate';
-            namePlate.textContent = charAsset.name;
-            portraitWrapper.appendChild(namePlate);
-            portraitWrapper.addEventListener('click', () => handleCharacterSelect(index));
-            characterGrid.appendChild(portraitWrapper);
-        });
-        startButton.disabled = true;
-    }
-
-    function handleCharacterSelect(index) {
-        if (playerSelectedCharIndex !== -1) return;
-        new Audio('audio/20H.wav').play().catch(e => {});
-        playerSelectedCharIndex = index;
-        const playerAsset = characterAssets[index];
-        p1SelectedCharImg.src = playerAsset.previewImage;
-        p1SelectedCharName.textContent = playerAsset.name;
-        document.querySelector(`[data-char-index='${index}']`).classList.add('selected-p1');
-        selectionPrompt.textContent = "El PC está eligiendo...";
-        setTimeout(() => {
-            let randomPcIndex;
-            do { randomPcIndex = Math.floor(Math.random() * characterAssets.length); } while (randomPcIndex === index);
-            pcSelectedCharIndex = randomPcIndex;
-            const pcAsset = characterAssets[pcSelectedCharIndex];
-            p2SelectedCharImg.src = pcAsset.previewImage;
-            p2SelectedCharName.textContent = pcAsset.name;
-            document.querySelector(`[data-char-index='${pcSelectedCharIndex}']`).classList.add('selected-p2');
-            selectionPrompt.textContent = "¡Listo para luchar!";
-            selectionPrompt.classList.replace('text-yellow-200', 'text-green-400');
-            startButton.disabled = false;
-        }, 1000);
-    }
-
-    function initGame() {
-        if (playerSelectedCharIndex === -1 || pcSelectedCharIndex === -1) return;
-        const playerAsset = characterAssets[playerSelectedCharIndex];
-        const pcAsset = characterAssets[pcSelectedCharIndex];
-        activeHitEffects = [];
-        players = [
-            new Player(100, CANVAS_HEIGHT, playerAsset, true, true),
-            new Player(CANVAS_WIDTH - 150, CANVAS_HEIGHT, pcAsset, false, false)
-        ];
-        player1NameDisplay.textContent = players[0].name;
-        player2NameDisplay.textContent = players[1].name;
-        updateHealthBars();
-        updatePowerBars();
-        gameActive = true;
-        gameOverModal.classList.add('hidden');
-        controlsPanel.style.display = 'none';
-        const possibleBgs = [...(characterBackgrounds[playerAsset.name] || []), ...(characterBackgrounds[pcAsset.name] || [])];
-        if (possibleBgs.length > 0) {
-            canvas.style.backgroundImage = `url('${possibleBgs[Math.floor(Math.random() * possibleBgs.length)]}')`;
-            canvas.style.backgroundSize = 'cover';
-        }
-        const startMessageOverlay = document.getElementById('start-message-overlay');
-        const startMessageText = document.getElementById('start-message-text');
-        startMessageText.textContent = "¡Haz tus clicks para recargar Superpoder!";
-        startMessageOverlay.classList.remove('hidden');
-        setTimeout(() => startMessageOverlay.classList.add('hidden'), 3000);
-        if (!backgroundMusic) {
-            backgroundMusic = new Audio('audio/playbackbattle.mp3');
-            backgroundMusic.loop = true;
-        }
-        backgroundMusic.play().catch(e => {});
-        gameHeader.style.display = 'none';
-        gameLoop();
-    }
+    Player.prototype.loadTexture = function(src) { if (!src) return null; const img = new Image(); img.src = src; img.onerror = () => console.warn('Error loading texture:', src); return img; };
+    Player.prototype.setStats = function() { const stats = bodyTypeStats.normal; this.width = stats.width; this.height = stats.height; this.speed = BASE_PLAYER_SPEED * stats.speedMod; this.punchDamage = PUNCH_DAMAGE * stats.damageMod; this.kickDamage = KICK_DAMAGE * stats.damageMod; this.punchRange = PUNCH_RANGE * stats.rangeMod; this.kickRange = KICK_RANGE * stats.rangeMod; this.attackCooldown = ATTACK_COOLDOWN; this.jumpStrength = BASE_JUMP_STRENGTH; this.knockbackStrength = BASE_KNOCKBACK_STRENGTH; this.healthMod = stats.healthMod;
+    let headSizeRatioFactor=1.5,torsoHeightRatio=.5,torsoWidthRatio=.8,armWidthRatio=.2,armLengthTotalRatio=.85,legSegmentsTotalHeightRatio=.26,shoeHeightRatio=.22,shoeWidthFactor=1.6,legWidthRatio=.22,gloveSizeFactor=3;
+    this.headSize=(this.width*.5)*headSizeRatioFactor;this.torsoHeight=this.height*torsoHeightRatio;this.torsoWidth=this.width*torsoWidthRatio;this.armWidth=this.width*armWidthRatio;const totalArmLength=this.torsoHeight*armLengthTotalRatio;this.upperArmLength=totalArmLength*.5;this.foreArmLength=totalArmLength*.5;const totalLegSegmentsCombinedH=this.height*legSegmentsTotalHeightRatio;this.thighHeight=totalLegSegmentsCombinedH*.5;this.lowerLegHeight=totalLegSegmentsCombinedH*.5;this.legWidth=this.torsoWidth*legWidthRatio;this.gloveSize=this.armWidth*gloveSizeFactor;this.shoeHeight=this.height*shoeHeightRatio;this.shoeWidth=this.legWidth*shoeWidthFactor};
+    Player.prototype.drawPartWithTexture = function(partName, destX, destY, destWidth, destHeight, shouldFlipHorizontally = false) { let currentTexture = null; if (partName === 'head') currentTexture = this.headTextureImage; else if (partName === 'torso') currentTexture = this.bodyTextureImage; else if (partName === 'arm_upper') currentTexture = this.upperArmTextureImage; else if (partName === 'arm_fore') currentTexture = this.foreArmTextureImage; else if (partName === 'thigh') currentTexture = this.thighTextureImage; else if (partName === 'lower_leg') currentTexture = this.lowerLegTextureImage; if (currentTexture && currentTexture.complete && currentTexture.width > 0) { ctx.save(); if (shouldFlipHorizontally) { ctx.translate(destX + destWidth, destY); ctx.scale(-1, 1); ctx.drawImage(currentTexture, 0, 0, currentTexture.width, currentTexture.height, 0, 0, destWidth, destHeight) } else { ctx.drawImage(currentTexture, destX, destY, destWidth, destHeight) } ctx.restore() } else { ctx.fillStyle = 'magenta'; ctx.fillRect(destX, destY, destWidth, destHeight) } };
+    Player.prototype.drawArm = function(isPlayerRightArmActual) { ctx.save(); const totalLegSegmentsHeight = this.thighHeight + this.lowerLegHeight; const torsoTopY = this.y + (this.height - this.torsoHeight - totalLegSegmentsHeight - this.shoeHeight); const baseShoulderY = torsoTopY + this.torsoHeight * 0.25; let shoulderXOffset = this.facingRight ? (isPlayerRightArmActual ? this.torsoWidth * 0.30 : this.torsoWidth * 0.70) : (isPlayerRightArmActual ? this.torsoWidth * 0.70 : this.torsoWidth * 0.30); const shoulderX = this.x + (this.width - this.torsoWidth) / 2 + shoulderXOffset; ctx.translate(shoulderX, baseShoulderY); let finalUpperArmAngle, finalForeArmAngle; const isPunchingThisArm = this.isPunching && this.attackVisualActive && ((isPlayerRightArmActual && this.attackArm === 'right') || (!isPlayerRightArmActual && this.attackArm === 'left')); if (isPunchingThisArm) { finalUpperArmAngle = this.facingRight ? ARM_PUNCH_UPPER_EXTEND_ANGLE : Math.PI - ARM_PUNCH_UPPER_EXTEND_ANGLE; finalForeArmAngle = this.facingRight ? ARM_PUNCH_FOREARM_EXTEND_ANGLE : -ARM_PUNCH_FOREARM_EXTEND_ANGLE } else if (this.isPunching && this.attackVisualActive) { finalUpperArmAngle = this.facingRight ? ARM_PUNCH_UPPER_RECOIL_ANGLE : Math.PI - ARM_PUNCH_UPPER_RECOIL_ANGLE; finalForeArmAngle = this.facingRight ? ARM_PUNCH_FOREARM_RECOIL_ANGLE : -ARM_PUNCH_FOREARM_RECOIL_ANGLE } else { finalUpperArmAngle = this.facingRight ? ARM_GUARD_UPPER_ANGLE : Math.PI - ARM_GUARD_UPPER_ANGLE; finalForeArmAngle = this.facingRight ? ARM_GUARD_FOREARM_BEND : -ARM_GUARD_FOREARM_BEND } ctx.rotate(finalUpperArmAngle); this.drawPartWithTexture('arm_upper', 0, -this.armWidth / 2, this.upperArmLength, this.armWidth); ctx.translate(this.upperArmLength, 0); ctx.rotate(finalForeArmAngle); this.drawPartWithTexture('arm_fore', 0, -this.armWidth / 2, this.foreArmLength, this.armWidth); let gloveTexture = this.facingRight ? this.gloveTextureImage_r : this.gloveTextureImage_l; if (gloveTexture && gloveTexture.complete && gloveTexture.width > 0) { const gloveDrawX = this.foreArmLength - (this.armWidth * 0.8); const gloveDrawY = -this.gloveSize / 2; ctx.drawImage(gloveTexture, gloveDrawX, gloveDrawY, this.gloveSize, this.gloveSize) } else { ctx.fillStyle = BOXING_GLOVE_COLOR; ctx.beginPath(); ctx.arc(this.foreArmLength, 0, this.gloveSize / 2, 0, Math.PI * 2); ctx.fill() } ctx.restore() };
+    Player.prototype.drawLeg = function(isFrontLeg) { ctx.save(); const totalLegSegmentsHeight = this.thighHeight + this.lowerLegHeight; const hipXOffsetFactor = isFrontLeg ? 0.65 : 0.35; const hipXOffset = this.facingRight ? this.torsoWidth * hipXOffsetFactor : this.torsoWidth * (1 - hipXOffsetFactor); const hipYOffset = this.torsoHeight; const hipX = this.x + (this.width - this.torsoWidth) / 2 + hipXOffset; const hipY = this.y + (this.height - this.torsoHeight - totalLegSegmentsHeight - this.shoeHeight) + hipYOffset; ctx.translate(hipX, hipY); let angle; if (this.isKicking && this.attackVisualActive) { angle = isFrontLeg ? (this.facingRight ? LEG_ANGLE_KICK_STRIKE : Math.PI - LEG_ANGLE_KICK_STRIKE) : (this.facingRight ? LEG_ANGLE_KICK_SUPPORT : Math.PI - LEG_ANGLE_KICK_SUPPORT) } else { angle = isFrontLeg ? (this.facingRight ? LEG_ANGLE_RESTING_FRONT : Math.PI - LEG_ANGLE_RESTING_FRONT) : (this.facingRight ? LEG_ANGLE_RESTING_BACK : Math.PI - LEG_ANGLE_RESTING_BACK) } ctx.rotate(angle); this.drawPartWithTexture('thigh', 0, -this.legWidth / 2, this.thighHeight, this.legWidth); ctx.translate(this.thighHeight, 0); this.drawPartWithTexture('lower_leg', 0, -this.legWidth / 2, this.lowerLegHeight, this.legWidth); ctx.translate(this.lowerLegHeight, 0); if (this.shoeTextureImage && this.shoeTextureImage.complete && this.shoeTextureImage.width > 0) { ctx.drawImage(this.shoeTextureImage, -this.shoeWidth / 2, -this.shoeHeight / 2, this.shoeWidth, this.shoeHeight) } else { ctx.fillStyle = DEFAULT_SHOE_COLOR; ctx.fillRect(-this.shoeWidth / 2, -this.shoeHeight / 2, this.shoeWidth, this.shoeHeight) } ctx.restore() };
+    Player.prototype.drawPiranhaProjectiles = function() { this.activePiranhaProjectiles.forEach(p => { ctx.save(); ctx.translate(p.x, p.y); if (!p.direction) { ctx.translate(p.width, 0); ctx.scale(-1, 1) } ctx.fillStyle = '#95a5a6'; ctx.beginPath(); ctx.ellipse(p.width / 2, p.height / 2, p.width / 2, p.height / 2.5, 0, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#7f8c8d'; ctx.beginPath(); ctx.moveTo(0, p.height / 2); ctx.lineTo(-p.width * .2, 0); ctx.lineTo(-p.width * .2, p.height); ctx.closePath(); ctx.fill(); ctx.fillStyle = 'red'; ctx.beginPath(); ctx.arc(p.width * .75, p.height * .4, 2, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = 'white'; ctx.beginPath(); ctx.moveTo(p.width, p.height / 2); ctx.lineTo(p.width * .8, p.height * .7); ctx.lineTo(p.width, p.height * .9); ctx.closePath(); ctx.fill(); ctx.restore() }) };
+    Player.prototype.drawMoneyWads = function() { this.activeMoneyWads.forEach(wad => { ctx.save(); ctx.translate(wad.x + wad.width / 2, wad.y + wad.height / 2); ctx.rotate(wad.rotation); ctx.fillStyle = '#22c55e'; ctx.fillRect(-wad.width / 2, -wad.height / 2, wad.width, wad.height); ctx.fillStyle = '#facc15'; ctx.font = `bold ${wad.height*.8}px Arial`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('$', 0, 0); ctx.restore() }) };
+    Player.prototype.drawCoins = function() { this.activeCoins.forEach(coin => { ctx.save(); ctx.translate(coin.x, coin.y); ctx.fillStyle = '#facc15'; ctx.beginPath(); ctx.arc(0, 0, coin.radius, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = '#eab308'; ctx.lineWidth = 2; ctx.stroke(); ctx.restore() }) };
+    Player.prototype.drawCalculatorProjectiles = function() { this.activeCalculators.forEach(calc => { ctx.save(); ctx.translate(calc.x + calc.width / 2, calc.y + calc.height / 2); ctx.rotate(calc.rotation); const w = calc.width, h = calc.height, depth = 8; ctx.lineWidth = 2; ctx.strokeStyle = '#2c3e50'; ctx.fillStyle = '#7f8c8d'; ctx.beginPath(); ctx.moveTo(-w / 2, -h / 2); ctx.lineTo(-w / 2 + depth, -h / 2 - depth); ctx.lineTo(w / 2 + depth, -h / 2 - depth); ctx.lineTo(w / 2, -h / 2); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(w / 2, -h / 2); ctx.lineTo(w / 2 + depth, -h / 2 - depth); ctx.lineTo(w / 2 + depth, h / 2 - depth); ctx.lineTo(w / 2, h / 2); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#bdc3c7'; ctx.fillRect(-w / 2, -h / 2, w, h); ctx.strokeRect(-w / 2, -h / 2, w, h); ctx.fillStyle = '#2ecc71'; const screenMarginX = w * .1, screenMarginY = h * .1, screenHeight = h * .25; ctx.fillRect(-w / 2 + screenMarginX, -h / 2 + screenMarginY, w - screenMarginX * 2, screenHeight); ctx.strokeRect(-w / 2 + screenMarginX, -h / 2 + screenMarginY, w - screenMarginX * 2, screenHeight); ctx.restore() }) };
+    Player.prototype.drawPapers = function() { this.activePapers.forEach(paper => { ctx.save(); ctx.translate(paper.x + paper.width / 2, paper.y + paper.height / 2); ctx.rotate(paper.rotation); if (paper.isPowerPoint) { const w = paper.width * 1.5, h = paper.height * 1.5; ctx.fillStyle = '#D04423'; ctx.fillRect(-w / 2, -h / 2, w, h); ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(0, 0, w * .35, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#D04423'; ctx.font = `bold ${h*.5}px Arial`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('P', 0, h * .05) } else { ctx.fillStyle = 'white'; ctx.fillRect(-paper.width / 2, -paper.height / 2, paper.width, paper.height); ctx.strokeStyle = '#cccccc'; ctx.lineWidth = 1; for (let i = 1; i < 5; i++) { const lineY = -paper.height / 2 + (paper.height / 5) * i; ctx.beginPath(); ctx.moveTo(-paper.width / 2, lineY); ctx.lineTo(paper.width / 2, lineY); ctx.stroke() } } ctx.restore() }) };
+    Player.prototype.drawKisses = function() { this.activeKisses.forEach(kiss => { ctx.save(); ctx.translate(kiss.x, kiss.y); const w = kiss.width, h = kiss.height, pixelSize = w / 11; ctx.fillStyle = '#ef233c'; const lipMap = ["   xxx   ", "  xxxxx  ", " xxxxxxx ", "xxxxxxxxx", "xxxxxxxxx", " xxxxxxx ", "  xxxxx  ", "   xxx   "]; for (let r = 0; r < lipMap.length; r++) { for (let c = 0; c < lipMap[r].length; c++) { if (lipMap[r][c] === 'x') { ctx.fillRect(c * pixelSize, r * pixelSize, pixelSize, pixelSize) } } } ctx.fillStyle = '#8d0801'; ctx.fillRect(0, 4 * pixelSize, w, pixelSize); ctx.restore() }) };
+    Player.prototype.drawTeddies = function() { this.activeTeddies.forEach(teddy => { ctx.save(); ctx.translate(teddy.x + teddy.width / 2, teddy.y + teddy.height / 2); ctx.rotate(teddy.rotation); const w = teddy.width, h = teddy.height; ctx.fillStyle = '#ffc0cb'; ctx.strokeStyle = '#e75480'; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(0, h * .1, w * .35, h * .4, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.arc(0, -h * .25, w * .25, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); const earWidth = w * .12, earHeight = h * .35; ctx.beginPath(); ctx.ellipse(-w * .2, -h * .5, earWidth, earHeight, -.2, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.ellipse(w * .2, -h * .5, earWidth, earHeight, .2, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#ffdae0'; ctx.beginPath(); ctx.ellipse(0, -h * .2, w * .12, w * .1, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.fillStyle = 'black'; ctx.beginPath(); ctx.arc(-w * .08, -h * .25, w * .04, 0, Math.PI * 2); ctx.fill(); ctx.beginPath(); ctx.arc(w * .08, -h * .25, w * .04, 0, Math.PI * 2); ctx.fill(); ctx.beginPath(); ctx.moveTo(0, -h * .22); ctx.lineTo(-w * .04, -h * .18); ctx.lineTo(w * .04, -h * .18); ctx.closePath(); ctx.fill(); ctx.restore() }) };
+    Player.prototype.drawZanjasCrack = function() { if (!this.isCastingCrack) return; const groundY = CANVAS_HEIGHT - 10, halfLife = ZANJAS_CRACK_LIFESPAN / 2; let progress = this.crackTimer > halfLife ? (ZANJAS_CRACK_LIFESPAN - this.crackTimer) / halfLife : this.crackTimer / halfLife; const currentCrackWidth = ZANJAS_CRACK_WIDTH * progress; const currentCrackDepth = ZANJAS_CRACK_MAX_HEIGHT * progress; if (currentCrackWidth <= 2) return; ctx.save(); ctx.fillStyle = 'black'; ctx.beginPath(); ctx.moveTo(this.crackCenterX - currentCrackWidth / 2, groundY); ctx.lineTo(this.crackCenterX + currentCrackWidth / 2, groundY); ctx.lineTo(this.crackCenterX, groundY + currentCrackDepth); ctx.closePath(); ctx.fill(); ctx.strokeStyle = '#4a2a0a'; ctx.lineWidth = 3; for (let s = -1; s <= 1; s += 2) { ctx.beginPath(); ctx.moveTo(this.crackCenterX + (s * currentCrackWidth / 2), groundY); for (let i = 0; i <= 10; i++) { ctx.lineTo(this.crackCenterX + (s * (currentCrackWidth / 2) * (1 - (i / 10))), groundY + (Math.random() - .5) * 8 * progress) } ctx.stroke() } ctx.restore() };
+    Player.prototype.drawPlayerModel = function(x, y) { if (this.isSwallowed) return; const originalX = this.x, originalY = this.y; this.x = x; this.y = y; if (this.showBlurred) ctx.filter = 'blur(4px)'; else if (this.isPerformingSuperAttackAnimation && this.attackVisualActive) ctx.filter = 'brightness(1.75) saturate(2.5)'; const totalLegSegmentsHeight = this.thighHeight + this.lowerLegHeight; const torsoGlobalY = this.y + (this.height - this.torsoHeight - totalLegSegmentsHeight - this.shoeHeight); const torsoGlobalX = this.x + (this.width - this.torsoWidth) / 2; const headGlobalX = this.x + (this.width - this.headSize) / 2; const headGlobalY = torsoGlobalY - this.headSize; const visuallyBackLegIsFront = !this.facingRight; this.drawLeg(visuallyBackLegIsFront); this.drawLeg(!visuallyBackLegIsFront); if (this.facingRight) { this.drawArm(false); this.drawPartWithTexture('torso', torsoGlobalX, torsoGlobalY, this.torsoWidth, this.torsoHeight, !this.facingRight); if (this.name === 'Matthei Bolt' && this.isDashing) this.drawVest(torsoGlobalX, torsoGlobalY); this.drawPartWithTexture('head', headGlobalX, headGlobalY, this.headSize, this.headSize, !this.facingRight); this.drawArm(true) } else { this.drawArm(true); this.drawPartWithTexture('torso', torsoGlobalX, torsoGlobalY, this.torsoWidth, this.torsoHeight, !this.facingRight); if (this.name === 'Matthei Bolt' && this.isDashing) this.drawVest(torsoGlobalX, torsoGlobalY); this.drawPartWithTexture('head', headGlobalX, headGlobalY, this.headSize, this.headSize, !this.facingRight); this.drawArm(false) } ctx.filter = 'none'; this.x = originalX; this.y = originalY };
+    Player.prototype.drawVest = function(torsoX, torsoY) { ctx.save(); if (!this.facingRight) { ctx.translate(this.x + this.width / 2, 0); ctx.scale(-1, 1); ctx.translate(-(this.x + this.width / 2), 0) } if (this.yellowVestTextureImage && this.yellowVestTextureImage.complete && this.yellowVestTextureImage.width > 0) { ctx.drawImage(this.yellowVestTextureImage, torsoX, torsoY, this.torsoWidth, this.torsoHeight) } else { ctx.fillStyle = '#eab308'; ctx.fillRect(torsoX, torsoY, this.torsoWidth, this.torsoHeight) } ctx.restore() };
+    Player.prototype.draw = function() { if (this.isInvisible) return; ctx.save(); if (this.isDashing) { this.trail.forEach((pos, index) => { ctx.globalAlpha = (index / this.trail.length) * .5; this.drawPlayerModel(pos.x, pos.y) }); ctx.globalAlpha = 1 } this.drawPlayerModel(this.x, this.y); this.drawPiranhaProjectiles(); this.drawMoneyWads(); this.drawCoins(); this.drawCalculatorProjectiles(); this.drawPapers(); this.drawKisses(); this.drawTeddies(); if (this.isCastingCrack) this.drawZanjasCrack(); if (this.isConfused) { ctx.font = `bold 24px 'Comic Sans MS'`; ctx.fillStyle = 'yellow'; ctx.textAlign = 'center'; ctx.fillText('???', this.x + this.width / 2, this.y - 20) } else if (this.isStunned) { ctx.font = `bold 24px 'Comic Sans MS'`; ctx.fillStyle = 'white'; ctx.textAlign = 'center'; ctx.fillText('!!!', this.x + this.width / 2, this.y - 20) } if (this.isPerformingSuperAttackAnimation && this.attackVisualActive && this.superEffectTextureImage && this.superEffectTextureImage.complete && this.name !== "Piraña") { const effectWidth = this.width * 1.5; const effectHeight = this.height * 1.5; const effectX = this.x + (this.width - effectWidth) / 2; const effectY = this.y + (this.height - effectHeight) / 2; ctx.globalAlpha = 0.7; ctx.drawImage(this.superEffectTextureImage, effectX, effectY, effectWidth, effectHeight); ctx.globalAlpha = 1.0 } ctx.restore() };
+    Player.prototype.updateAI = function() { if(this.isPlayer1) return; if (this.isConfused) { this.confusionTimer--; this.confusionBlinkTimer--; if(this.confusionTimer <= 0) { this.isConfused = false; this.showBlurred = false; } if(this.confusionBlinkTimer <= 0) { this.showBlurred = !this.showBlurred; this.confusionBlinkTimer = 15; } return; } if (this.isDashing || this.isSwallowed || this.isCastingCrack || this.isStunned) return; if (Date.now() - this.lastAIDecisionTime > AI_ACTION_INTERVAL) { this.lastAIDecisionTime = Date.now(); const opponent = players.find(p => p !== this); if (!opponent || opponent.isInvisible) { this.currentAction = 'stand'; return; } const distanceToOpponent = Math.abs((this.x + this.width / 2) - (opponent.x + opponent.width / 2)) - (this.width/2 + opponent.width/2); const opponentIsToTheRight = (opponent.x + opponent.width / 2) > (this.x + this.width / 2); if (distanceToOpponent < Math.max(this.punchRange, this.kickRange) * 1.5) this.facingRight = opponentIsToTheRight; const canAttack = !(this.isPunching || this.isKicking) && (Date.now() - this.lastAttackTime > this.attackCooldown); let decidedToAttack = false, attackType = 'punch'; if (this.facingRight === opponentIsToTheRight) { if (distanceToOpponent < this.kickRange && Math.random() < AI_ATTACK_CHANCE_IN_RANGE) { decidedToAttack = true; if (Math.random() < AI_KICK_CHANCE || distanceToOpponent >= this.punchRange) attackType = 'kick'; } else if (distanceToOpponent < this.punchRange && Math.random() < AI_ATTACK_CHANCE_IN_RANGE) { decidedToAttack = true; } } if (canAttack && decidedToAttack) { if (this.isSuperCharged && Math.random() < 0.8) attackType === 'kick' ? this.kick() : this.punch(); else attackType === 'kick' ? this.kick() : this.punch(); this.currentAction = 'attack'; } else { if (Math.random() < AI_MOVE_CHANCE) { if (distanceToOpponent > this.punchRange * 0.5) { this.currentAction = opponentIsToTheRight ? 'moveRight' : 'moveLeft'; this.facingRight = opponentIsToTheRight; } else if (Math.random() < 0.3) this.currentAction = opponentIsToTheRight ? 'moveLeft' : 'moveRight'; else this.currentAction = 'stand'; if (Math.random() < AI_JUMP_CHANCE && !this.isJumping) this.jump(); } else { this.currentAction = 'stand'; } } } this.velocityX = 0; if (this.currentAction === 'moveLeft') this.velocityX = -this.speed; else if (this.currentAction === 'moveRight') this.velocityX = this.speed; };
+    Player.prototype.updateProjectiles = function(opponent) { const updateList = (list, onHitCallback) => { for (let i = list.length - 1; i >= 0; i--) { const p = list[i]; if(p.velocityX) p.x += p.velocityX * (p.direction ? 1 : -1); if(p.velocityY !== undefined) {p.y += p.velocityY; p.velocityY += GRAVITY * 0.4;} if(p.rotationSpeed) p.rotation += p.rotationSpeed; if(p.lifespan) p.lifespan--; if ((p.lifespan && p.lifespan <= 0) || p.y > CANVAS_HEIGHT || p.x > CANVAS_WIDTH || p.x + (p.width || 0) < 0) { list.splice(i, 1); continue; } const pBox = { x: p.x, y: p.y, width: p.width || p.radius * 2, height: p.height || p.radius * 2 }; if (p.radius) { pBox.x -= p.radius; pBox.y -= p.radius; } if (!opponent.isSwallowed && !opponent.isStunned && pBox.x < opponent.x + opponent.width && pBox.x + pBox.width > opponent.x && pBox.y < opponent.y + opponent.height && pBox.y + pBox.height > opponent.y) { if(onHitCallback) onHitCallback(p, opponent); list.splice(i, 1); } } };
+    updateList(this.activePiranhaProjectiles, (p, o) => { o.takeDamage(PIRANHA_PROJECTILE_DAMAGE, p.direction); activeHitEffects.push({ text: "¡ÑAM!", x: p.x, y: p.y, color: "#ff6347", alpha: 1.0, size: 20, rotation: 0, lifetime: HIT_EFFECT_LIFETIME / 2 }); });
+    updateList(this.activeMoneyWads, (p, o) => { o.takeDamage(MONEY_RAIN_DAMAGE, p.x > o.x + o.width / 2); activeHitEffects.push({ text: "$$$", x: p.x, y: p.y, color: "#22c55e", alpha: 1.0, size: 30, rotation: 0, lifetime: HIT_EFFECT_LIFETIME }); });
+    updateList(this.activeCoins, (p, o) => { o.takeDamage(COIN_RAIN_DAMAGE, p.x > o.x + o.width / 2); activeHitEffects.push({ text: "$", x: p.x, y: p.y, color: "#facc15", alpha: 1.0, size: 20, rotation: 0, lifetime: HIT_EFFECT_LIFETIME }); });
+    updateList(this.activeCalculators, (p, o) => { o.takeDamage(CALCULATOR_PROJECTILE_DAMAGE, p.velocityX > 0); activeHitEffects.push({ text: "ERROR", x: p.x, y: p.y, color: "#e53e3e", alpha: 1.0, size: 25, rotation: 0, lifetime: HIT_EFFECT_LIFETIME }); });
+    updateList(this.activeKisses, (p, o) => { o.takeDamage(ORSINI_KISS_DAMAGE, p.direction); activeHitEffects.push({ text: "♥", x: p.x, y: p.y, color: "#ff69b4", alpha: 1.0, size: 30, rotation: 0, lifetime: HIT_EFFECT_LIFETIME }); });
+    updateList(this.activeTeddies, (p, o) => { o.takeDamage(TIA_COTE_TEDDY_DAMAGE, this.facingRight); activeHitEffects.push({ text: "¡AWW!", x: p.x, y: p.y, color: "#9b59b6", alpha: 1.0, size: 40, rotation: 0, lifetime: HIT_EFFECT_LIFETIME }); });
+    for (let i = this.activePapers.length - 1; i >= 0; i--) { const paper = this.activePapers[i]; paper.velocityY += GRAVITY * 0.3; paper.y += paper.velocityY; paper.x += paper.velocityX; paper.rotation += paper.rotationSpeed; if (paper.y > CANVAS_HEIGHT) { this.activePapers.splice(i, 1); continue; } if (!opponent.isSwallowed && !opponent.isStunned && paper.x < opponent.x + opponent.width && paper.x + paper.width > opponent.x && paper.y < opponent.y + opponent.height && paper.y + paper.height > opponent.y) { opponent.takeDamage(PAPELUCHO_PAPER_DAMAGE, this.facingRight); opponent.isStunned = true; opponent.stunTimer = PAPELUCHO_STUN_DURATION; this.activePapers.splice(i, 1); } } };
+    Player.prototype.updateBoltDash = function(opponent) { if (!this.isDashing) return; const moveDirection = Math.sign(this.dashTargetX - this.x); this.x += moveDirection * BOLT_DASH_SPEED; this.facingRight = moveDirection > 0; if (!this.dashDamageApplied && !opponent.isSwallowed && !opponent.isStunned && this.x < opponent.x + opponent.width && this.x + this.width > opponent.x && this.y < opponent.y + opponent.height && this.y + this.height > opponent.y) { opponent.takeDamage(BOLT_DASH_DAMAGE, moveDirection > 0); this.dashDamageApplied = true; screenShakeMagnitude = 5; screenShakeTimeLeft = 5; activeHitEffects.push({ text: "¡ZAS!", x: opponent.x + opponent.width/2, y: opponent.y + opponent.height/2, color: "#f39c12", alpha: 1.0, size: 25, rotation: 0, lifetime: HIT_EFFECT_LIFETIME }); } if (Math.abs(this.x - this.dashTargetX) < BOLT_DASH_SPEED) { this.x = this.dashTargetX; this.dashCount--; if (this.dashCount <= 0) { this.isDashing = false; this.trail = []; } else { this.dashTargetX = this.dashTargetX === 0 ? CANVAS_WIDTH - this.width : 0; this.dashDamageApplied = false; } } };
+    Player.prototype.updateZanjasCrack = function(opponent) { if (!this.isCastingCrack || !opponent) return; this.crackTimer--; if (this.crackTimer <= 0) { this.isCastingCrack = false; return; } if (this.crackOpponentHit || opponent.isSwallowed) return; if (this.crackTimer < ZANJAS_CRACK_LIFESPAN * 0.7 && this.crackTimer > ZANJAS_CRACK_LIFESPAN * 0.2) { if (Math.abs((opponent.x + opponent.width / 2) - this.crackCenterX) < ZANJAS_CRACK_WIDTH / 2 && (opponent.y + opponent.height) >= (CANVAS_HEIGHT - 10)) { opponent.takeDamage(ZANJAS_CRACK_DAMAGE, this.facingRight); opponent.isSwallowed = true; opponent.swallowedTimer = ZANJAS_SWALLOWED_DURATION; this.crackOpponentHit = true; activeHitEffects.push({ text: "¡TRAGADO!", x: opponent.x + opponent.width / 2, y: opponent.y + opponent.height / 2, color: "#8B4513", alpha: 1.0, size: 40, rotation: (Math.random() - .5) * 0.3, lifetime: HIT_EFFECT_LIFETIME * 2 }); screenShakeMagnitude = 20; screenShakeTimeLeft = 30; } } };
+    Player.prototype.update = function() { if (this.isSwallowed) { this.swallowedTimer--; if (this.swallowedTimer <= 0) { this.isSwallowed = false; this.x = Math.random() * (CANVAS_WIDTH - this.width); this.y = -this.height; this.velocityY = 0; } return; } if (this.isStunned) { this.stunTimer--; if (this.stunTimer <= 0) this.isStunned = false; return; } this.updateAI(); if (this.isInvisible) { this.invisibilityTimer--; if (this.invisibilityTimer <= 0) { this.isInvisible = false; const opponent = players.find(p => p !== this); if (opponent) { this.x = opponent.x + (opponent.facingRight ? opponent.width + 20 : -this.width - 20); this.y = opponent.y; } } return; } if (this.isDashing) { const opponent = players.find(p => p !== this); this.updateBoltDash(opponent); this.trail.push({ x: this.x, y: this.y }); if (this.trail.length > 5) this.trail.shift(); return; } this.x += this.velocityX; this.velocityY += GRAVITY; this.y += this.velocityY; const opponent = players.find(p => p !== this); if(opponent) { this.updateProjectiles(opponent); this.updateZanjasCrack(opponent); } const actualGroundSurfaceY = CANVAS_HEIGHT - 10; if (this.y + this.height > actualGroundSurfaceY) { this.y = actualGroundSurfaceY - this.height; this.velocityY = 0; this.isJumping = false; } if (this.x < 0) this.x = 0; if (this.x + this.width > CANVAS_WIDTH) this.x = CANVAS_WIDTH - this.width; };
+    Player.prototype.chargePowerOnClick = function() { if (this.isSuperCharged || !gameActive) return; if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(15); const powerBarContainer = document.getElementById('player1PowerBarContainer'); powerBarContainer.classList.add('power-bar-container-flash'); setTimeout(() => powerBarContainer.classList.remove('power-bar-container-flash'), 150); this.power += POWER_GAIN_PER_CLICK; if (this.power >= this.maxPower) { this.power = this.maxPower; this.isSuperCharged = true; } updatePowerBars(); };
+    Player.prototype.jump = function() { if (!this.isJumping) { this.velocityY = -this.jumpStrength; this.isJumping = true; } };
+    Player.prototype.gainPower = function(amount) { if (this.isSuperCharged) return; this.power += amount; if (this.power >= this.maxPower) { this.power = this.maxPower; this.isSuperCharged = true; } updatePowerBars(); };
+    Player.prototype.launchPiranhaProjectiles = function() { let handX, handY; const totalLegSegmentsHeight = this.thighHeight + this.lowerLegHeight; const shoulderX = this.x + (this.width - this.torsoWidth) / 2 + (this.facingRight ? this.torsoWidth * 0.70 : this.torsoWidth * 0.30); const shoulderY = this.y + (this.height - this.torsoHeight - totalLegSegmentsHeight - this.shoeHeight) + this.torsoHeight * 0.20; const armAngle = this.facingRight ? ARM_PUNCH_UPPER_EXTEND_ANGLE : Math.PI - ARM_PUNCH_UPPER_EXTEND_ANGLE; const forearmAngle = this.facingRight ? ARM_PUNCH_FOREARM_EXTEND_ANGLE : -ARM_PUNCH_FOREARM_EXTEND_ANGLE; const elbowX = shoulderX + Math.cos(armAngle) * this.upperArmLength; const elbowY = shoulderY + Math.sin(armAngle) * this.upperArmLength; handX = elbowX + Math.cos(armAngle + forearmAngle) * (this.foreArmLength + this.gloveSize * 0.25); handY = elbowY + Math.sin(armAngle + forearmAngle) * (this.foreArmLength + this.gloveSize * 0.25); for (let i = 0; i < PIRANHA_PROJECTILE_COUNT; i++) this.activePiranhaProjectiles.push({ x: handX, y: handY - PIRANHA_PROJECTILE_HEIGHT / 2 + (i * 15), width: PIRANHA_PROJECTILE_WIDTH, height: PIRANHA_PROJECTILE_HEIGHT, velocityX: PIRANHA_PROJECTILE_SPEED, direction: this.facingRight, lifespan: PIRANHA_PROJECTILE_LIFESPAN }); };
+    Player.prototype.launchMoneyWadAttack = function() { const opponent = players.find(p => p !== this); if (!opponent) return; for (let i = 0; i < MONEY_RAIN_COUNT; i++) { const clusterCenterX = opponent.x + opponent.width / 2 + (Math.random() - 0.5) * opponent.width; for (let j = 0; j < 3; j++) this.activeMoneyWads.push({ x: clusterCenterX + (Math.random() - 0.5) * 40, y: MONEY_RAIN_INITIAL_Y - (Math.random() * CANVAS_HEIGHT / 2), width: MONEY_RAIN_WAD_WIDTH, height: MONEY_RAIN_WAD_HEIGHT, velocityX: (Math.random() - 0.5) * 2, velocityY: Math.random() * 4 + 3, rotation: (Math.random() - 0.5) * Math.PI, rotationSpeed: (Math.random() - 0.5) * 0.1 }); for (let k = 0; k < 5; k++) this.activeCoins.push({ x: clusterCenterX + (Math.random() - 0.5) * 60, y: MONEY_RAIN_INITIAL_Y - (Math.random() * CANVAS_HEIGHT / 2), radius: Math.random() * 5 + 5, velocityY: Math.random() * 5 + 4 }); } };
+    Player.prototype.launchCalculatorAttack = function() { const opponent = players.find(p => p !== this); if (!opponent) return; for (let i = 0; i < CALCULATOR_PROJECTILE_COUNT; i++) this.activeCalculators.push({ x: opponent.x + (Math.random() - 0.5) * opponent.width, y: CALCULATOR_INITIAL_Y - (Math.random() * 100), width: CALCULATOR_PROJECTILE_WIDTH, height: CALCULATOR_PROJECTILE_HEIGHT, velocityX: (Math.random() - 0.5) * 2, velocityY: (Math.random() * 2) + 2, rotation: (Math.random() - 0.5) * 2, rotationSpeed: (Math.random() - 0.5) * 0.2, lifespan: CALCULATOR_PROJECTILE_LIFESPAN }); };
+    Player.prototype.launchPapeluchoAttack = function() { const opponent = players.find(p => p !== this); if (!opponent) return; for (let i = 0; i < PAPELUCHO_PAPER_COUNT; i++) this.activePapers.push({ x: opponent.x + (opponent.width / 2) + (Math.random() - 0.5) * (opponent.width * 2.5), y: -PAPELUCHO_PAPER_HEIGHT - Math.random() * 300, width: PAPELUCHO_PAPER_WIDTH, height: PAPELUCHO_PAPER_HEIGHT, velocityX: (Math.random() - 0.5) * 4, velocityY: (Math.random() * 2) + 2, rotation: (Math.random() - 0.5) * 2, rotationSpeed: (Math.random() - 0.5) * 0.2, isPowerPoint: i === 0 }); };
+    Player.prototype.launchOrsiniLoveAttack = function() { let handX, handY; const totalLegSegmentsHeight = this.thighHeight + this.lowerLegHeight; const shoulderX = this.x + (this.width - this.torsoWidth) / 2 + (this.facingRight ? this.torsoWidth * 0.70 : this.torsoWidth * 0.30); const shoulderY = this.y + (this.height - this.torsoHeight - totalLegSegmentsHeight - this.shoeHeight) + this.torsoHeight * 0.20; const armAngle = this.facingRight ? ARM_PUNCH_UPPER_EXTEND_ANGLE : Math.PI - ARM_PUNCH_UPPER_EXTEND_ANGLE; const forearmAngle = this.facingRight ? ARM_PUNCH_FOREARM_EXTEND_ANGLE : -ARM_PUNCH_FOREARM_EXTEND_ANGLE; const elbowX = shoulderX + Math.cos(armAngle) * this.upperArmLength; const elbowY = shoulderY + Math.sin(armAngle) * this.upperArmLength; handX = elbowX + Math.cos(armAngle + forearmAngle) * (this.foreArmLength + this.gloveSize * 0.25); handY = elbowY + Math.sin(armAngle + forearmAngle) * (this.foreArmLength + this.gloveSize * 0.25); for (let i = 0; i < ORSINI_KISS_COUNT; i++) this.activeKisses.push({ x: handX, y: handY, width: ORSINI_KISS_WIDTH, height: ORSINI_KISS_HEIGHT, velocityX: ORSINI_KISS_SPEED + (i * 2), direction: this.facingRight, lifespan: ORSINI_KISS_LIFESPAN }); };
+    Player.prototype.launchEscapeRoomJacksonAttack = function() { const opponent = players.find(p => p !== this); if (!opponent) return; this.isInvisible = true; this.invisibilityTimer = JACKSON_INVISIBILITY_DURATION; opponent.isConfused = true; opponent.confusionTimer = JACKSON_CONFUSION_DURATION; new Audio('audio/smoke-bomb.wav').play().catch(e => {}); for (let i = 0; i < SMOKE_PARTICLE_COUNT; i++) smokeParticles.push({ x: this.x + this.width / 2, y: this.y + this.height / 2, radius: Math.random() * 20 + 10, alpha: 1, velocityX: (Math.random() - 0.5) * 4, velocityY: (Math.random() - 0.5) * 4 }); this.x = -1000; };
+    Player.prototype.launchTiaCoteAttack = function() { const opponent = players.find(p => p !== this); if (!opponent) return; for (let i = 0; i < TIA_COTE_TEDDY_COUNT; i++) this.activeTeddies.push({ x: opponent.x + (opponent.width / 2) - (TIA_COTE_TEDDY_WIDTH / 2), y: TIA_COTE_TEDDY_INITIAL_Y - (Math.random() * 50), width: TIA_COTE_TEDDY_WIDTH, height: TIA_COTE_TEDDY_HEIGHT, velocityY: 1.5, rotation: (Math.random() - 0.5) * 0.1, rotationSpeed: (Math.random() - 0.5) * 0.02 }); };
+    Player.prototype.launchBoltDashAttack = function() { this.isDashing = true; this.dashCount = BOLT_DASH_COUNT; this.dashTargetX = this.x > CANVAS_WIDTH / 2 ? 0 : CANVAS_WIDTH - this.width; this.dashDamageApplied = false; this.velocityY = 0; this.trail = []; };
+    Player.prototype.launchZanjasAttack = function() { const opponent = players.find(p => p !== this); if (!opponent) return; this.isCastingCrack = true; this.crackTimer = ZANJAS_CRACK_LIFESPAN; this.crackOpponentHit = false; this.crackCenterX = opponent.x + opponent.width / 2; };
+    Player.prototype._performAttack = function(isKickMove) { if (this.isPunching || this.isKicking || (Date.now() - this.lastAttackTime < this.attackCooldown)) return; let currentDamage; let currentRange = isKickMove ? this.kickRange : this.punchRange; this.isPerformingSuperAttackAnimation = false; let isSuperMove = this.isSuperCharged; if (isSuperMove) { currentDamage = isKickMove ? SUPER_KICK_DAMAGE : SUPER_PUNCH_DAMAGE; this.isPerformingSuperAttackAnimation = true; if (this.name === "Piraña") { new Audio('audio/hadouken.wav').play().catch(e => {}); this.launchPiranhaProjectiles(); currentDamage = 0; } else if (this.name === "La Ex") { this.launchMoneyWadAttack(); currentDamage = 0; } else if (this.name === "Burric") { this.launchCalculatorAttack(); currentDamage = 0; } else if (this.name === "Matthei Bolt") { this.launchBoltDashAttack(); currentDamage = 0; } else if (this.name === "El Zanjas") { this.launchZanjasAttack(); currentDamage = 0; } else if (this.name === "Carolina Papelucho") { this.launchPapeluchoAttack(); currentDamage = 0; } else if (this.name === "Orsini Love") { this.launchOrsiniLoveAttack(); currentDamage = 0; } else if (this.name === "Escape Room Jackson") { this.launchEscapeRoomJacksonAttack(); currentDamage = 0; } else if (this.name === "Tía Cote") { this.launchTiaCoteAttack(); currentDamage = 0; } else { new Audio('audio/38H.wav').play().catch(e => {}); } } else { currentDamage = isKickMove ? this.kickDamage : this.punchDamage; } if (isKickMove) { this.isKicking = true; } else { this.isPunching = true; this.attackArm = this.nextPunchArm; this.nextPunchArm = (this.nextPunchArm === 'right' ? 'left' : 'right'); } this.attackVisualActive = true; this.lastAttackTime = Date.now(); setTimeout(() => { if (isKickMove) this.isKicking = false; else this.isPunching = false; this.attackArm = null; if (isSuperMove) this.isPerformingSuperAttackAnimation = false; }, ATTACK_LOGIC_DURATION); setTimeout(() => { this.attackVisualActive = false; }, ATTACK_ANIMATION_DURATION); const opponent = players.find(p => p !== this); if (!opponent || opponent.isSwallowed) return; if (!isSuperMove || (isSuperMove && currentDamage > 0)) { let attackHitbox; if (isKickMove) { const angleOfAttack = this.facingRight ? LEG_ANGLE_KICK_STRIKE : Math.PI - LEG_ANGLE_KICK_STRIKE; const limbLength = this.thighHeight + this.lowerLegHeight; const hipY = this.y + this.torsoHeight * 0.8; const hipX = this.x + this.width/2; const attackEndX = hipX + Math.cos(angleOfAttack) * limbLength; const attackEndY = hipY + Math.sin(angleOfAttack) * limbLength; attackHitbox = { x: attackEndX - currentRange / 2, y: attackEndY - currentRange / 2, width: currentRange, height: currentRange }; } else { const shoulderY = this.y + this.torsoHeight * 0.25; const shoulderX = this.x + this.width/2; const armAngle = this.facingRight ? ARM_PUNCH_UPPER_EXTEND_ANGLE : Math.PI - ARM_PUNCH_UPPER_EXTEND_ANGLE; const forearmAngle = this.facingRight ? ARM_PUNCH_FOREARM_EXTEND_ANGLE : -ARM_PUNCH_FOREARM_EXTEND_ANGLE; const elbowX = shoulderX + Math.cos(armAngle) * this.upperArmLength; const elbowY = shoulderY + Math.sin(armAngle) * this.upperArmLength; const attackEndX = elbowX + Math.cos(armAngle + forearmAngle) * this.foreArmLength; const attackEndY = elbowY + Math.sin(armAngle + forearmAngle) * this.foreArmLength; attackHitbox = { x: attackEndX - currentRange / 2, y: attackEndY - currentRange / 2, width: currentRange, height: currentRange };} if (attackHitbox.x < opponent.x + opponent.width && attackHitbox.x + attackHitbox.width > opponent.x && attackHitbox.y < opponent.y + opponent.height && attackHitbox.y + attackHitbox.height > opponent.y) { opponent.takeDamage(currentDamage, this.facingRight); if (!isSuperMove) { this.gainPower(POWER_GAIN_PER_HIT); } else { this.power = 0; this.isSuperCharged = false; updatePowerBars(); activeHitEffects.push({ text: "¡SÚPER!", x: opponent.x + opponent.width / 2, y: opponent.y + opponent.height / 2, color: "#FF00FF", alpha: 1.0, size: 50, rotation: (Math.random() - 0.5) * 0.8, lifetime: HIT_EFFECT_LIFETIME * 3 }); screenShakeMagnitude = 15; screenShakeTimeLeft = 20; } } else if (isSuperMove) { this.power = 0; this.isSuperCharged = false; updatePowerBars(); } } else if (isSuperMove) { this.power = 0; this.isSuperCharged = false; updatePowerBars(); screenShakeMagnitude = 10; screenShakeTimeLeft = 15; } };
+    Player.prototype.punch = function() { this._performAttack(false); };
+    Player.prototype.kick = function() { this._performAttack(true); };
+    Player.prototype.takeDamage = function(damage, attackerFacingRight) { if(this.isDashing || this.isSwallowed) return; this.health -= damage; if (this.health < 0) this.health = 0; new Audio('audio/2BH.wav').play().catch(e => {}); if (!this.isSwallowed) { this.x += attackerFacingRight ? this.knockbackStrength : -this.knockbackStrength; this.velocityY = -this.knockbackStrength / 2; } const randomWord = hitWords[Math.floor(Math.random() * hitWords.length)]; const randomColor = hitWordColors[Math.floor(Math.random() * hitWordColors.length)]; activeHitEffects.push({ text: randomWord, x: this.x + this.width / 2, y: this.y + this.height / 3, color: randomColor, alpha: 1.0, size: 24 + Math.random() * 16, rotation: (Math.random() - 0.5) * 0.5, lifetime: HIT_EFFECT_LIFETIME }); updateHealthBars(); checkGameOver(); };
     
-    function resetSelectionScreen() {
-        gameOverModal.classList.add('hidden');
-        controlsPanel.style.display = 'block';
-        playerSelectedCharIndex = -1;
-        pcSelectedCharIndex = -1;
-        p1SelectedCharImg.src = "https://placehold.co/120x120/455a64/e0e0e0?text=P1";
-        p1SelectedCharName.textContent = "- Vacío -";
-        player1NameDisplay.textContent = "JUGADOR";
-        p2SelectedCharImg.src = "https://placehold.co/120x120/455a64/e0e0e0?text=PC";
-        p2SelectedCharName.textContent = "- Al Azar -";
-        player2NameDisplay.textContent = "PC";
-        document.querySelectorAll('.character-portrait').forEach(el => el.classList.remove('selected-p1', 'selected-p2'));
-        selectionPrompt.textContent = "Elige tu luchador para empezar";
-        selectionPrompt.classList.replace('text-green-400', 'text-yellow-200');
-        startButton.disabled = true;
-        if (backgroundMusic) { backgroundMusic.pause(); backgroundMusic.currentTime = 0; }
-        if (player1PowerBar) { player1PowerBar.style.width = '0%'; player1PowerBar.classList.remove('super-charged'); }
-        if (player2PowerBar) { player2PowerBar.style.width = '0%'; player2PowerBar.classList.remove('super-charged'); }
-        canvas.style.backgroundImage = 'none';
-        ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-        ctx.fillStyle = 'rgba(45, 55, 72, 0.5)';
-        ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-        ctx.fillStyle = '#4a5568';
-        ctx.fillRect(0, CANVAS_HEIGHT - 10, CANVAS_WIDTH, 10);
-        gameHeader.style.display = 'block';
-    }
-
-    function updateHealthBars() {
-        if (players.length < 2) return;
-        player1HealthBar.style.width = `${(players[0].health / players[0].maxHealth) * 100}%`;
-        player2HealthBar.style.width = `${(players[1].health / players[1].maxHealth) * 100}%`;
-    }
-
-    function updatePowerBars() {
-        if (players.length < 2) return;
-        player1PowerBar.style.width = `${(players[0].power / players[0].maxPower) * 100}%`;
-        player2PowerBar.style.width = `${(players[1].power / players[1].maxPower) * 100}%`;
-        player1PowerBar.classList.toggle('super-charged', players[0].isSuperCharged);
-        player2PowerBar.classList.toggle('super-charged', players[1].isSuperCharged);
-    }
+    // El resto de las funciones globales se mantienen igual
+    function createCharacterSelectionUI() { characterGrid.innerHTML = ''; characterAssets.forEach((charAsset, index) => { const portraitWrapper = document.createElement('div'); portraitWrapper.className = 'character-portrait rounded-lg overflow-hidden p-1'; portraitWrapper.dataset.charIndex = index; const imgEl = document.createElement('img'); imgEl.src = charAsset.previewImage; imgEl.alt = charAsset.name; imgEl.onerror = () => imgEl.src = `https://placehold.co/100x100/2d3748/e0e0e0?text=${charAsset.name.substring(0,3)}`; portraitWrapper.appendChild(imgEl); const namePlate = document.createElement('div'); namePlate.className = 'character-name-plate'; namePlate.textContent = charAsset.name; portraitWrapper.appendChild(namePlate); portraitWrapper.addEventListener('click', () => handleCharacterSelect(index)); characterGrid.appendChild(portraitWrapper); }); startButton.disabled = true; }
+    function handleCharacterSelect(index) { if (playerSelectedCharIndex !== -1) return; new Audio('audio/20H.wav').play().catch(e => {}); playerSelectedCharIndex = index; const playerAsset = characterAssets[index]; p1SelectedCharImg.src = playerAsset.previewImage; p1SelectedCharName.textContent = playerAsset.name; document.querySelector(`[data-char-index='${index}']`).classList.add('selected-p1'); selectionPrompt.textContent = "El PC está eligiendo..."; setTimeout(() => { let randomPcIndex; do { randomPcIndex = Math.floor(Math.random() * characterAssets.length); } while (randomPcIndex === index); pcSelectedCharIndex = randomPcIndex; const pcAsset = characterAssets[pcSelectedCharIndex]; p2SelectedCharImg.src = pcAsset.previewImage; p2SelectedCharName.textContent = pcAsset.name; document.querySelector(`[data-char-index='${pcSelectedCharIndex}']`).classList.add('selected-p2'); selectionPrompt.textContent = "¡Listo para luchar!"; selectionPrompt.classList.replace('text-yellow-200', 'text-green-400'); startButton.disabled = false; }, 1000); }
+    function initGame() { if (playerSelectedCharIndex === -1 || pcSelectedCharIndex === -1) return; const playerAsset = characterAssets[playerSelectedCharIndex]; const pcAsset = characterAssets[pcSelectedCharIndex]; activeHitEffects = []; players = [new Player(100, CANVAS_HEIGHT, playerAsset, true, true), new Player(CANVAS_WIDTH - 150, CANVAS_HEIGHT, pcAsset, false, false)]; player1NameDisplay.textContent = players[0].name; player2NameDisplay.textContent = players[1].name; updateHealthBars(); updatePowerBars(); gameActive = true; gameOverModal.classList.add('hidden'); controlsPanel.style.display = 'none'; const possibleBgs = [...(characterBackgrounds[playerAsset.name] || []), ...(characterBackgrounds[pcAsset.name] || [])]; if (possibleBgs.length > 0) { canvas.style.backgroundImage = `url('${possibleBgs[Math.floor(Math.random() * possibleBgs.length)]}')`; canvas.style.backgroundSize = 'cover'; } const startMessageOverlay = document.getElementById('start-message-overlay'); const startMessageText = document.getElementById('start-message-text'); startMessageText.textContent = "¡Haz tus clicks para recargar Superpoder!"; startMessageOverlay.classList.remove('hidden'); setTimeout(() => startMessageOverlay.classList.add('hidden'), 3000); if (!backgroundMusic) { backgroundMusic = new Audio('audio/playbackbattle.mp3'); backgroundMusic.loop = true; } backgroundMusic.play().catch(e => {}); gameHeader.style.display = 'none'; gameLoop(); }
+    function resetSelectionScreen() { gameOverModal.classList.add('hidden'); controlsPanel.style.display = 'block'; playerSelectedCharIndex = -1; pcSelectedCharIndex = -1; p1SelectedCharImg.src = "https://placehold.co/120x120/455a64/e0e0e0?text=P1"; p1SelectedCharName.textContent = "- Vacío -"; player1NameDisplay.textContent = "JUGADOR"; p2SelectedCharImg.src = "https://placehold.co/120x120/455a64/e0e0e0?text=PC"; p2SelectedCharName.textContent = "- Al Azar -"; player2NameDisplay.textContent = "PC"; document.querySelectorAll('.character-portrait').forEach(el => el.classList.remove('selected-p1', 'selected-p2')); selectionPrompt.textContent = "Elige tu luchador para empezar"; selectionPrompt.classList.replace('text-green-400', 'text-yellow-200'); startButton.disabled = true; if (backgroundMusic) { backgroundMusic.pause(); backgroundMusic.currentTime = 0; } if (player1PowerBar) { player1PowerBar.style.width = '0%'; player1PowerBar.classList.remove('super-charged'); } if (player2PowerBar) { player2PowerBar.style.width = '0%'; player2PowerBar.classList.remove('super-charged'); } canvas.style.backgroundImage = 'none'; ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT); ctx.fillStyle = 'rgba(45, 55, 72, 0.5)'; ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT); ctx.fillStyle = '#4a5568'; ctx.fillRect(0, CANVAS_HEIGHT - 10, CANVAS_WIDTH, 10); gameHeader.style.display = 'block'; }
+    function updateHealthBars() { if (players.length < 2) return; player1HealthBar.style.width = `${(players[0].health / players[0].maxHealth) * 100}%`; player2HealthBar.style.width = `${(players[1].health / players[1].maxHealth) * 100}%`; }
+    function updatePowerBars() { if (players.length < 2) return; player1PowerBar.style.width = `${(players[0].power / players[0].maxPower) * 100}%`; player2PowerBar.style.width = `${(players[1].power / players[1].maxPower) * 100}%`; player1PowerBar.classList.toggle('super-charged', players[0].isSuperCharged); player2PowerBar.classList.toggle('super-charged', players[1].isSuperCharged); }
+    function isAnySuperPowerActive() { return players.some(p => p.isDashing || p.isCastingCrack || p.isSwallowed || p.isStunned || p.activePiranhaProjectiles.length > 0 || p.activeMoneyWads.length > 0 || p.activeCalculators.length > 0 || p.activeKisses.length > 0 || p.activeTeddies.length > 0 || p.activePapers.length > 0); }
+    function checkGameOver() { if (players.length < 2) return; if ((players[0].health <= 0 || players[1].health <= 0) && isAnySuperPowerActive()) return; let winner = null, winnerAsset = null; if (players[0].health <= 0 && players[1].health <= 0) { winnerMessage.innerHTML = `<span class="text-4xl font-bold text-yellow-400">¡EMPATE!</span>`; } else if (players[1].health <= 0) { winner = players[0]; winnerAsset = characterAssets[playerSelectedCharIndex]; } else if (players[0].health <= 0) { winner = players[1]; winnerAsset = characterAssets[pcSelectedCharIndex]; } if (winner || (players[0].health <= 0 && players[1].health <= 0)) { gameActive = false; new Audio('audio/9BH.wav').play().catch(e => {}); gameOverModal.classList.remove('hidden'); document.getElementById('start-message-overlay').classList.add('hidden'); gameOverMessage.textContent = "¡Fin del Combate!"; if (winner && winnerAsset) { winnerMessage.innerHTML = `<p class="text-2xl mb-4">El ganador es</p><img src="${winnerAsset.previewImage}" onerror="this.src='https://placehold.co/120x120/455a64/e0e0e0?text=WIN'" class="w-32 h-32 mx-auto rounded-full border-4 border-yellow-400 mb-4 object-contain" style="image-rendering: pixelated;"/><p class="text-4xl font-bold text-yellow-400">${winner.name.toUpperCase()}</p>`; } if (backgroundMusic) { backgroundMusic.pause(); backgroundMusic.currentTime = 0; } } }
+    function drawHitEffects() { for (let i = activeHitEffects.length - 1; i >= 0; i--) { const effect = activeHitEffects[i]; ctx.save(); ctx.font = `bold ${effect.size}px 'Comic Sans MS', 'Arial', sans-serif`; ctx.fillStyle = effect.color; ctx.globalAlpha = effect.alpha; ctx.textAlign = 'center'; ctx.translate(effect.x, effect.y); ctx.rotate(effect.rotation); ctx.fillText(effect.text, 0, 0); ctx.restore(); effect.lifetime--; effect.alpha -= (1.0 / (effect.lifetime + 1)); effect.y -= 0.5; effect.size *= 0.99; if (effect.lifetime <= 0) activeHitEffects.splice(i, 1); } }
+    function drawSmoke() { for (let i = smokeParticles.length - 1; i >= 0; i--) { const p = smokeParticles[i]; ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2, false); ctx.fillStyle = `rgba(108, 117, 125, ${p.alpha})`; ctx.fill(); p.x += p.velocityX; p.y += p.velocityY; p.alpha -= 0.02; p.radius += 0.5; if (p.alpha <= 0) smokeParticles.splice(i, 1); } }
+    function gameLoop() { if (!gameActive) return; let offsetX = 0, offsetY = 0; if (screenShakeTimeLeft > 0) { offsetX = (Math.random() - 0.5) * 2 * screenShakeMagnitude; offsetY = (Math.random() - 0.5) * 2 * screenShakeMagnitude; ctx.translate(offsetX, offsetY); screenShakeTimeLeft--; if(screenShakeTimeLeft <= 0) screenShakeMagnitude = 0; } ctx.clearRect(-CANVAS_WIDTH, -CANVAS_HEIGHT, CANVAS_WIDTH*2, CANVAS_HEIGHT*2); ctx.fillStyle = '#4a5568'; ctx.fillRect(0, CANVAS_HEIGHT - 10, CANVAS_WIDTH, 10); players.forEach(player => { player.update(); player.draw(); }); drawHitEffects(); drawSmoke(); if (offsetX !== 0 || offsetY !== 0) ctx.translate(-offsetX, -offsetY); requestAnimationFrame(gameLoop); }
     
-    function isAnySuperPowerActive() {
-        return players.some(p => p.isDashing || p.isCastingCrack || p.isSwallowed || p.isStunned || p.activePiranhaProjectiles.length > 0 || p.activeMoneyWads.length > 0 || p.activeCalculators.length > 0 || p.activeKisses.length > 0 || p.activeTeddies.length > 0 || p.activePapers.length > 0);
-    }
-
-    function checkGameOver() {
-        if (players.length < 2) return;
-        if ((players[0].health <= 0 || players[1].health <= 0) && isAnySuperPowerActive()) return;
-
-        let winner = null, winnerAsset = null;
-        if (players[0].health <= 0 && players[1].health <= 0) {
-            winnerMessage.innerHTML = `<span class="text-4xl font-bold text-yellow-400">¡EMPATE!</span>`;
-        } else if (players[1].health <= 0) {
-            winner = players[0];
-            winnerAsset = characterAssets[playerSelectedCharIndex];
-        } else if (players[0].health <= 0) {
-            winner = players[1];
-            winnerAsset = characterAssets[pcSelectedCharIndex];
-        }
-
-        if (winner || (players[0].health <= 0 && players[1].health <= 0)) {
-            gameActive = false;
-            new Audio('audio/9BH.wav').play().catch(e => {});
-            gameOverModal.classList.remove('hidden');
-            document.getElementById('start-message-overlay').classList.add('hidden');
-            gameOverMessage.textContent = "¡Fin del Combate!";
-            if (winner && winnerAsset) {
-                winnerMessage.innerHTML = `<p class="text-2xl mb-4">El ganador es</p><img src="${winnerAsset.previewImage}" onerror="this.src='https://placehold.co/120x120/455a64/e0e0e0?text=WIN'" class="w-32 h-32 mx-auto rounded-full border-4 border-yellow-400 mb-4 object-contain" style="image-rendering: pixelated;"/><p class="text-4xl font-bold text-yellow-400">${winner.name.toUpperCase()}</p>`;
-            }
-            if (backgroundMusic) { backgroundMusic.pause(); backgroundMusic.currentTime = 0; }
-        }
-    }
-    
-    function drawHitEffects() {
-        for (let i = activeHitEffects.length - 1; i >= 0; i--) {
-            const effect = activeHitEffects[i];
-            ctx.save();
-            ctx.font = `bold ${effect.size}px 'Comic Sans MS', 'Arial', sans-serif`;
-            ctx.fillStyle = effect.color;
-            ctx.globalAlpha = effect.alpha;
-            ctx.textAlign = 'center';
-            ctx.translate(effect.x, effect.y);
-            ctx.rotate(effect.rotation);
-            ctx.fillText(effect.text, 0, 0);
-            ctx.restore();
-            effect.lifetime--;
-            effect.alpha -= (1.0 / (effect.lifetime + 1));
-            effect.y -= 0.5;
-            effect.size *= 0.99;
-            if (effect.lifetime <= 0) activeHitEffects.splice(i, 1);
-        }
-    }
-    
-    function drawSmoke() {
-        for (let i = smokeParticles.length - 1; i >= 0; i--) {
-            const p = smokeParticles[i];
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2, false);
-            ctx.fillStyle = `rgba(108, 117, 125, ${p.alpha})`;
-            ctx.fill();
-            p.x += p.velocityX;
-            p.y += p.velocityY;
-            p.alpha -= 0.02;
-            p.radius += 0.5;
-            if (p.alpha <= 0) smokeParticles.splice(i, 1);
-        }
-    }
-
-    function gameLoop() {
-        if (!gameActive) return;
-
-        let offsetX = 0, offsetY = 0;
-        if (screenShakeTimeLeft > 0) {
-            offsetX = (Math.random() - 0.5) * 2 * screenShakeMagnitude;
-            offsetY = (Math.random() - 0.5) * 2 * screenShakeMagnitude;
-            ctx.translate(offsetX, offsetY);
-            screenShakeTimeLeft--;
-            if(screenShakeTimeLeft <= 0) screenShakeMagnitude = 0;
-        }
-
-        ctx.clearRect(-CANVAS_WIDTH, -CANVAS_HEIGHT, CANVAS_WIDTH*2, CANVAS_HEIGHT*2);
-        ctx.fillStyle = '#4a5568';
-        ctx.fillRect(0, CANVAS_HEIGHT - 10, CANVAS_WIDTH, 10);
-        
-        players.forEach(player => { player.update(); player.draw(); });
-        drawHitEffects();
-        drawSmoke();
-
-        if (offsetX !== 0 || offsetY !== 0) ctx.translate(-offsetX, -offsetY);
-
-        requestAnimationFrame(gameLoop);
-    }
-
-    continueButton.addEventListener('click', () => {
-        splashScreen.style.display = 'none';
-        gameWrapper.style.display = 'block';
-        gameHeader.style.display = 'block';
-        document.body.style.overflow = 'auto';
-    });
+    // INICIALIZACIÓN Y EVENT LISTENERS
+    continueButton.addEventListener('click', () => { splashScreen.style.display = 'none'; gameWrapper.style.display = 'block'; gameHeader.style.display = 'block'; document.body.style.overflow = 'auto'; });
     restartButton.addEventListener('click', resetSelectionScreen);
     startButton.addEventListener('click', initGame);
     canvas.addEventListener('click', () => { if (gameActive && players.length > 0) { players[0].chargePowerOnClick(); } });
-    window.addEventListener('keydown', (event) => {
-        if (event.code === 'Space' && gameActive && players.length > 0 && players[0].isSuperCharged) {
-            event.preventDefault();
-            players[0].punch();
-        }
-    });
+    window.addEventListener('keydown', (event) => { if (event.code === 'Space' && gameActive && players.length > 0 && players[0].isSuperCharged) { event.preventDefault(); players[0].punch(); } });
 
     createCharacterSelectionUI();
     resetSelectionScreen();
