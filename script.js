@@ -1,9 +1,7 @@
-// Espera a que el contenido del DOM esté completamente cargado antes de ejecutar el script.
 document.addEventListener('DOMContentLoaded', () => {
 
-    //================================================================
-    // OBTENCIÓN DE ELEMENTOS DEL DOM
-    //================================================================
+    // (El resto del código es idéntico al anterior, solo cambia la clase Player)
+
     const splashScreen = document.getElementById('splash-screen');
     const continueButton = document.getElementById('continue-button');
     const gameWrapper = document.getElementById('game-wrapper');
@@ -33,9 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const p2SelectedCharName = document.getElementById('p2-selected-char-name');
     const selectionPrompt = document.getElementById('selection-prompt');
 
-    //================================================================
-    // CONSTANTES Y VARIABLES GLOBALES DEL JUEGO
-    //================================================================
     const CANVAS_WIDTH = 800;
     const CANVAS_HEIGHT = 400;
     canvas.width = CANVAS_WIDTH;
@@ -54,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ATTACK_COOLDOWN = 550;
     const BASE_KNOCKBACK_STRENGTH = 12;
     const HIT_EFFECT_LIFETIME = 30;
-    const POWER_GAIN_PER_CLICK = 3; // Valor ajustado para carga rápida
+    const POWER_GAIN_PER_CLICK = 3.5;
 
     const AI_ACTION_INTERVAL = 250;
     const AI_MOVE_CHANCE = 0.7;
@@ -717,13 +712,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         updateAI() {
-            if(this.isPlayer1) return; // LA LÓGICA DE AI SOLO SE EJECUTA PARA EL PC
+            if(this.isPlayer1) return;
 
             if (this.isConfused) {
                 this.confusionTimer--;
                 this.confusionBlinkTimer--;
                 if(this.confusionTimer <= 0) { this.isConfused = false; this.showBlurred = false; }
-                if(this.confusionBlinkTimer <= 0) { this.showBlurred = !this.showBlurred; this.confusionBlinkTimer = 15; new Audio('audio/pouf-bomb.wav').play().catch(e => {}); }
+                if(this.confusionBlinkTimer <= 0) { this.showBlurred = !this.showBlurred; this.confusionBlinkTimer = 15; }
                 return;
              }
             if (this.isDashing || this.isSwallowed || this.isCastingCrack || this.isStunned) return;
@@ -761,45 +756,81 @@ document.addEventListener('DOMContentLoaded', () => {
             if (this.currentAction === 'moveLeft') this.velocityX = -this.speed;
             else if (this.currentAction === 'moveRight') this.velocityX = this.speed;
         }
+        
+        // ===================================================================
+        // ===== FUNCIÓN DE ACTUALIZACIÓN PRINCIPAL (CORREGIDA) =============
+        // ===================================================================
+        update() {
+            if (this.isSwallowed) {
+                this.swallowedTimer--;
+                if (this.swallowedTimer <= 0) { this.isSwallowed = false; this.x = Math.random() * (CANVAS_WIDTH - this.width); this.y = -this.height; this.velocityY = 0; }
+                return;
+            }
+            if (this.isStunned) {
+                this.stunTimer--;
+                if (this.stunTimer <= 0) this.isStunned = false;
+                return;
+            }
+            
+            this.updateAI();
+
+            if (this.isInvisible) {
+                this.invisibilityTimer--;
+                if (this.invisibilityTimer <= 0) { this.isInvisible = false; const opponent = players.find(p => p !== this); if (opponent) { this.x = opponent.x + (opponent.facingRight ? opponent.width + 20 : -this.width - 20); this.y = opponent.y; } }
+                return;
+            }
+
+            // --- LÓGICA CORREGIDA ---
+            // Primero se procesan los estados de movimiento especiales como el Dash.
+            if (this.isDashing) {
+                const opponent = players.find(p => p !== this); 
+                this.updateBoltDash(opponent); 
+                this.trail.push({ x: this.x, y: this.y }); 
+                if (this.trail.length > 5) this.trail.shift();
+                return; // Se sale de la función para no aplicar la física normal.
+            }
+            
+            // Si no hay ningún estado especial, se aplica la física y movimiento estándar.
+            this.x += this.velocityX;
+            this.velocityY += GRAVITY;
+            this.y += this.velocityY;
+
+            const opponent = players.find(p => p !== this);
+            if(opponent) {
+                this.updateProjectiles(opponent);
+                this.updateZanjasCrack(opponent);
+            }
+            
+            const actualGroundSurfaceY = CANVAS_HEIGHT - 10;
+            if (this.y + this.height > actualGroundSurfaceY) { this.y = actualGroundSurfaceY - this.height; this.velocityY = 0; this.isJumping = false; }
+            if (this.x < 0) this.x = 0;
+            if (this.x + this.width > CANVAS_WIDTH) this.x = CANVAS_WIDTH - this.width;
+        }
 
         updateProjectiles(opponent) {
-            // Este método ahora actualiza todos los tipos de proyectiles
             const updateList = (list, damage, onHitCallback) => {
                 for (let i = list.length - 1; i >= 0; i--) {
                     const p = list[i];
-                    
                     if(p.velocityX) p.x += p.velocityX * (p.direction ? 1 : -1);
-                    if(p.velocityY) p.y += (p.velocityY += GRAVITY * 0.5);
+                    if(p.velocityY) {p.y += p.velocityY; p.velocityY += GRAVITY * 0.4;}
                     if(p.rotationSpeed) p.rotation += p.rotationSpeed;
                     if(p.lifespan) p.lifespan--;
-
-                    if ((p.lifespan && p.lifespan <= 0) || p.y > CANVAS_HEIGHT || p.x > CANVAS_WIDTH || p.x + (p.width || 0) < 0) {
-                        list.splice(i, 1);
-                        continue;
-                    }
-
+                    if ((p.lifespan && p.lifespan <= 0) || p.y > CANVAS_HEIGHT || p.x > CANVAS_WIDTH || p.x + (p.width || 0) < 0) { list.splice(i, 1); continue; }
                     const pBox = { x: p.x, y: p.y, width: p.width || p.radius * 2, height: p.height || p.radius * 2 };
                     if (p.radius) { pBox.x -= p.radius; pBox.y -= p.radius; }
-
-                    if (!opponent.isSwallowed && !opponent.isStunned && 
-                        pBox.x < opponent.x + opponent.width && pBox.x + pBox.width > opponent.x &&
-                        pBox.y < opponent.y + opponent.height && pBox.y + pBox.height > opponent.y) {
-                        
+                    if (!opponent.isSwallowed && !opponent.isStunned && pBox.x < opponent.x + opponent.width && pBox.x + pBox.width > opponent.x && pBox.y < opponent.y + opponent.height && pBox.y + pBox.height > opponent.y) {
                         opponent.takeDamage(damage, p.direction);
                         if(onHitCallback) onHitCallback(p);
                         list.splice(i, 1);
                     }
                 }
             };
-
             updateList(this.activePiranhaProjectiles, PIRANHA_PROJECTILE_DAMAGE, p => activeHitEffects.push({ text: "¡ÑAM!", x: p.x, y: p.y, color: "#ff6347", alpha: 1.0, size: 20, rotation: 0, lifetime: HIT_EFFECT_LIFETIME / 2 }));
             updateList(this.activeMoneyWads, MONEY_RAIN_DAMAGE, p => activeHitEffects.push({ text: "$$$", x: p.x, y: p.y, color: "#22c55e", alpha: 1.0, size: 30, rotation: 0, lifetime: HIT_EFFECT_LIFETIME }));
             updateList(this.activeCoins, COIN_RAIN_DAMAGE, p => activeHitEffects.push({ text: "$", x: p.x, y: p.y, color: "#facc15", alpha: 1.0, size: 20, rotation: 0, lifetime: HIT_EFFECT_LIFETIME }));
             updateList(this.activeCalculators, CALCULATOR_PROJECTILE_DAMAGE, p => activeHitEffects.push({ text: "ERROR", x: p.x, y: p.y, color: "#e53e3e", alpha: 1.0, size: 25, rotation: 0, lifetime: HIT_EFFECT_LIFETIME }));
             updateList(this.activeKisses, ORSINI_KISS_DAMAGE, p => activeHitEffects.push({ text: "♥", x: p.x, y: p.y, color: "#ff69b4", alpha: 1.0, size: 30, rotation: 0, lifetime: HIT_EFFECT_LIFETIME }));
             updateList(this.activeTeddies, TIA_COTE_TEDDY_DAMAGE, p => activeHitEffects.push({ text: "¡AWW!", x: p.x, y: p.y, color: "#9b59b6", alpha: 1.0, size: 40, rotation: 0, lifetime: HIT_EFFECT_LIFETIME }));
-            
-            // Caso especial para papeles que aturden
             for (let i = this.activePapers.length - 1; i >= 0; i--) {
                 const paper = this.activePapers[i];
                 paper.velocityY += GRAVITY * 0.3; paper.y += paper.velocityY; paper.x += paper.velocityX; paper.rotation += paper.rotationSpeed;
@@ -834,10 +865,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         updateZanjasCrack(opponent) {
-            if (!this.isCastingCrack) return;
+            if (!this.isCastingCrack || !opponent) return;
             this.crackTimer--;
             if (this.crackTimer <= 0) { this.isCastingCrack = false; return; }
-            if (!opponent || this.crackOpponentHit || opponent.isSwallowed) return;
+            if (this.crackOpponentHit || opponent.isSwallowed) return;
             if (this.crackTimer < ZANJAS_CRACK_LIFESPAN * 0.7 && this.crackTimer > ZANJAS_CRACK_LIFESPAN * 0.2) {
                 if (Math.abs((opponent.x + opponent.width / 2) - this.crackCenterX) < ZANJAS_CRACK_WIDTH / 2 && (opponent.y + opponent.height) >= (CANVAS_HEIGHT - 10)) {
                     opponent.takeDamage(ZANJAS_CRACK_DAMAGE, this.facingRight);
@@ -848,45 +879,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     screenShakeMagnitude = 20; screenShakeTimeLeft = 30;
                 }
             }
-        }
-
-        update() {
-            if (this.isSwallowed) {
-                this.swallowedTimer--;
-                if (this.swallowedTimer <= 0) { this.isSwallowed = false; this.x = Math.random() * (CANVAS_WIDTH - this.width); this.y = -this.height; this.velocityY = 0; }
-                return;
-            }
-            if (this.isStunned) {
-                this.stunTimer--;
-                if (this.stunTimer <= 0) this.isStunned = false;
-                return;
-            }
-            
-            this.updateAI(); // Llamado para ambos, pero la lógica interna decide si actuar.
-
-            if (this.isInvisible) {
-                this.invisibilityTimer--;
-                if (this.invisibilityTimer <= 0) { this.isInvisible = false; const opponent = players.find(p => p !== this); if (opponent) { this.x = opponent.x + (opponent.facingRight ? opponent.width + 20 : -this.width - 20); this.y = opponent.y; } }
-                return;
-            }
-            if (this.isDashing) {
-                const opponent = players.find(p => p !== this); this.updateBoltDash(opponent); this.trail.push({ x: this.x, y: this.y }); if (this.trail.length > 5) this.trail.shift();
-                return;
-            }
-            
-            this.x += this.velocityX;
-            this.velocityY += GRAVITY;
-            this.y += this.velocityY;
-
-            const opponent = players.find(p => p !== this);
-            if (opponent) this.updateProjectiles(opponent);
-            
-            this.updateZanjasCrack(opponent);
-            
-            const actualGroundSurfaceY = CANVAS_HEIGHT - 10;
-            if (this.y + this.height > actualGroundSurfaceY) { this.y = actualGroundSurfaceY - this.height; this.velocityY = 0; this.isJumping = false; }
-            if (this.x < 0) this.x = 0;
-            if (this.x + this.width > CANVAS_WIDTH) this.x = CANVAS_WIDTH - this.width;
         }
 
         chargePowerOnClick() {
@@ -900,9 +892,7 @@ document.addEventListener('DOMContentLoaded', () => {
             updatePowerBars();
         }
 
-        jump() {
-            if (!this.isJumping) { this.velocityY = -this.jumpStrength; this.isJumping = true; }
-        }
+        jump() { if (!this.isJumping) { this.velocityY = -this.jumpStrength; this.isJumping = true; } }
 
         gainPower(amount) {
             if (this.isSuperCharged) return;
@@ -911,7 +901,6 @@ document.addEventListener('DOMContentLoaded', () => {
             updatePowerBars();
         }
 
-        // --- MÉTODOS PARA LANZAR SUPERPODERES ---
         launchPiranhaProjectiles() {
             let handX, handY;
             const totalLegSegmentsHeight = this.thighHeight + this.lowerLegHeight;
@@ -965,15 +954,12 @@ document.addEventListener('DOMContentLoaded', () => {
         launchBoltDashAttack() { this.isDashing = true; this.dashCount = BOLT_DASH_COUNT; this.dashTargetX = this.x > CANVAS_WIDTH / 2 ? 0 : CANVAS_WIDTH - this.width; this.dashDamageApplied = false; this.velocityY = 0; this.trail = []; }
         launchZanjasAttack() { const opponent = players.find(p => p !== this); if (!opponent) return; this.isCastingCrack = true; this.crackTimer = ZANJAS_CRACK_LIFESPAN; this.crackOpponentHit = false; this.crackCenterX = opponent.x + opponent.width / 2; }
 
-        // --- LÓGICA DE ATAQUE CENTRAL (RESTAURADA A LA VERSIÓN ORIGINAL) ---
         _performAttack(isKickMove) {
             if (this.isPunching || this.isKicking || (Date.now() - this.lastAttackTime < this.attackCooldown)) return;
-
             let currentDamage;
             let currentRange = isKickMove ? this.kickRange : this.punchRange;
             this.isPerformingSuperAttackAnimation = false;
             let isSuperMove = this.isSuperCharged;
-
             if (isSuperMove) {
                 currentDamage = isKickMove ? SUPER_KICK_DAMAGE : SUPER_PUNCH_DAMAGE;
                 this.isPerformingSuperAttackAnimation = true;
@@ -990,59 +976,24 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 currentDamage = isKickMove ? this.kickDamage : this.punchDamage;
             }
-
             if (isKickMove) { this.isKicking = true; } 
             else { this.isPunching = true; this.attackArm = this.nextPunchArm; this.nextPunchArm = (this.nextPunchArm === 'right' ? 'left' : 'right'); }
-            
             this.attackVisualActive = true;
             this.lastAttackTime = Date.now();
             setTimeout(() => { if (isKickMove) this.isKicking = false; else this.isPunching = false; this.attackArm = null; if (isSuperMove) this.isPerformingSuperAttackAnimation = false; }, ATTACK_LOGIC_DURATION);
             setTimeout(() => { this.attackVisualActive = false; }, ATTACK_ANIMATION_DURATION);
-
             const opponent = players.find(p => p !== this);
             if (!opponent || opponent.isSwallowed) return;
-
-            // La lógica de detección de golpes de contacto (melee)
-            let isMeleeAttack = !isSuperMove || (isSuperMove && currentDamage > 0);
-            if (isMeleeAttack) {
+            if (!isSuperMove || (isSuperMove && currentDamage > 0)) { // Si es un ataque normal o un super de contacto
                 let attackHitbox;
-                if (isKickMove) {
-                    const angleOfAttack = this.facingRight ? LEG_ANGLE_KICK_STRIKE : Math.PI - LEG_ANGLE_KICK_STRIKE;
-                    const limbLength = this.thighHeight + this.lowerLegHeight;
-                    const hipY = this.y + this.torsoHeight * 0.8;
-                    const hipX = this.x + this.width/2;
-                    const attackEndX = hipX + Math.cos(angleOfAttack) * limbLength;
-                    const attackEndY = hipY + Math.sin(angleOfAttack) * limbLength;
-                    attackHitbox = { x: attackEndX - currentRange / 2, y: attackEndY - currentRange / 2, width: currentRange, height: currentRange };
-                } else {
-                    const shoulderY = this.y + this.torsoHeight * 0.25;
-                    const shoulderX = this.x + this.width/2;
-                    const armAngle = this.facingRight ? ARM_PUNCH_UPPER_EXTEND_ANGLE : Math.PI - ARM_PUNCH_UPPER_EXTEND_ANGLE;
-                    const forearmAngle = this.facingRight ? ARM_PUNCH_FOREARM_EXTEND_ANGLE : -ARM_PUNCH_FOREARM_EXTEND_ANGLE;
-                    const elbowX = shoulderX + Math.cos(armAngle) * this.upperArmLength;
-                    const elbowY = shoulderY + Math.sin(armAngle) * this.upperArmLength;
-                    const attackEndX = elbowX + Math.cos(armAngle + forearmAngle) * this.foreArmLength;
-                    const attackEndY = elbowY + Math.sin(armAngle + forearmAngle) * this.foreArmLength;
-                    attackHitbox = { x: attackEndX - currentRange / 2, y: attackEndY - currentRange / 2, width: currentRange, height: currentRange };
-                }
-
-                if (attackHitbox.x < opponent.x + opponent.width && attackHitbox.x + attackHitbox.width > opponent.x &&
-                    attackHitbox.y < opponent.y + opponent.height && attackHitbox.y + attackHitbox.height > opponent.y) {
+                if (isKickMove) { const angleOfAttack = this.facingRight ? LEG_ANGLE_KICK_STRIKE : Math.PI - LEG_ANGLE_KICK_STRIKE; const limbLength = this.thighHeight + this.lowerLegHeight; const hipY = this.y + this.torsoHeight * 0.8; const hipX = this.x + this.width/2; const attackEndX = hipX + Math.cos(angleOfAttack) * limbLength; const attackEndY = hipY + Math.sin(angleOfAttack) * limbLength; attackHitbox = { x: attackEndX - currentRange / 2, y: attackEndY - currentRange / 2, width: currentRange, height: currentRange };
+                } else { const shoulderY = this.y + this.torsoHeight * 0.25; const shoulderX = this.x + this.width/2; const armAngle = this.facingRight ? ARM_PUNCH_UPPER_EXTEND_ANGLE : Math.PI - ARM_PUNCH_UPPER_EXTEND_ANGLE; const forearmAngle = this.facingRight ? ARM_PUNCH_FOREARM_EXTEND_ANGLE : -ARM_PUNCH_FOREARM_EXTEND_ANGLE; const elbowX = shoulderX + Math.cos(armAngle) * this.upperArmLength; const elbowY = shoulderY + Math.sin(armAngle) * this.upperArmLength; const attackEndX = elbowX + Math.cos(armAngle + forearmAngle) * this.foreArmLength; const attackEndY = elbowY + Math.sin(armAngle + forearmAngle) * this.foreArmLength; attackHitbox = { x: attackEndX - currentRange / 2, y: attackEndY - currentRange / 2, width: currentRange, height: currentRange };}
+                if (attackHitbox.x < opponent.x + opponent.width && attackHitbox.x + attackHitbox.width > opponent.x && attackHitbox.y < opponent.y + opponent.height && attackHitbox.y + attackHitbox.height > opponent.y) {
                     opponent.takeDamage(currentDamage, this.facingRight);
-                    if (!isSuperMove) {
-                        this.gainPower(POWER_GAIN_PER_HIT);
-                    } else {
-                        this.power = 0; this.isSuperCharged = false; updatePowerBars();
-                        activeHitEffects.push({ text: "¡SÚPER!", x: opponent.x + opponent.width / 2, y: opponent.y + opponent.height / 2, color: "#FF00FF", alpha: 1.0, size: 50, rotation: (Math.random() - 0.5) * 0.8, lifetime: HIT_EFFECT_LIFETIME * 3 });
-                        screenShakeMagnitude = 15; screenShakeTimeLeft = 20;
-                    }
-                } else if (isSuperMove) {
-                    this.power = 0; this.isSuperCharged = false; updatePowerBars();
-                }
-            } else if (isSuperMove) { // Este es un superpoder de proyectil/efecto
-                this.power = 0; this.isSuperCharged = false; updatePowerBars();
-                screenShakeMagnitude = 10; screenShakeTimeLeft = 15;
-            }
+                    if (!isSuperMove) { this.gainPower(POWER_GAIN_PER_HIT); } 
+                    else { this.power = 0; this.isSuperCharged = false; updatePowerBars(); activeHitEffects.push({ text: "¡SÚPER!", x: opponent.x + opponent.width / 2, y: opponent.y + opponent.height / 2, color: "#FF00FF", alpha: 1.0, size: 50, rotation: (Math.random() - 0.5) * 0.8, lifetime: HIT_EFFECT_LIFETIME * 3 }); screenShakeMagnitude = 15; screenShakeTimeLeft = 20; }
+                } else if (isSuperMove) { this.power = 0; this.isSuperCharged = false; updatePowerBars(); }
+            } else if (isSuperMove) { this.power = 0; this.isSuperCharged = false; updatePowerBars(); screenShakeMagnitude = 10; screenShakeTimeLeft = 15; }
         }
 
         punch() { this._performAttack(false); }
@@ -1064,6 +1015,8 @@ document.addEventListener('DOMContentLoaded', () => {
             checkGameOver();
         }
     }
+
+    // --- El resto de las funciones (createCharacterSelectionUI, initGame, gameLoop, etc.) permanecen igual ---
 
     function createCharacterSelectionUI() {
         characterGrid.innerHTML = '';
@@ -1277,27 +1230,15 @@ document.addEventListener('DOMContentLoaded', () => {
         requestAnimationFrame(gameLoop);
     }
 
-    //================================================================
-    // INICIALIZACIÓN Y EVENT LISTENERS
-    //================================================================
     continueButton.addEventListener('click', () => {
         splashScreen.style.display = 'none';
         gameWrapper.style.display = 'block';
         gameHeader.style.display = 'block';
         document.body.style.overflow = 'auto';
     });
-
     restartButton.addEventListener('click', resetSelectionScreen);
     startButton.addEventListener('click', initGame);
-    
-    canvas.addEventListener('click', () => {
-        if (gameActive && players.length > 0 && !players[0].isPlayer1) {
-             players[1].chargePowerOnClick();
-        } else if (gameActive && players.length > 0) {
-             players[0].chargePowerOnClick();
-        }
-    });
-
+    canvas.addEventListener('click', () => { if (gameActive && players.length > 0) { players[0].chargePowerOnClick(); } });
     window.addEventListener('keydown', (event) => {
         if (event.code === 'Space' && gameActive && players.length > 0 && players[0].isSuperCharged) {
             event.preventDefault();
@@ -1305,7 +1246,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- INICIO ---
     createCharacterSelectionUI();
     resetSelectionScreen();
 });
