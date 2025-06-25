@@ -47,7 +47,7 @@ const ATTACK_LOGIC_DURATION = 200; // Duración de la lógica de detección de a
 const ATTACK_COOLDOWN = 550; // Original: 700. Reducido para un combate más rápido.
 const BASE_KNOCKBACK_STRENGTH = 12; // Original: 10. Aumentado para un mayor impacto.
 const HIT_EFFECT_LIFETIME = 30; // Duración de los efectos de golpe
-const POWER_GAIN_PER_CLICK = 4.5; // Original: 1. Reducido aún más para minimizar el impacto del clic.
+const POWER_GAIN_PER_CLICK = 0.5; // Original: 1. Reducido aún más para minimizar el impacto del clic.
 
 // Constantes de la IA
 const AI_ACTION_INTERVAL = 250; // Intervalo para que la IA tome decisiones (más rápido)
@@ -118,12 +118,10 @@ const JACKSON_INVISIBILITY_DURATION = 120; // 2 segundos a 60fps
 const JACKSON_CONFUSION_DURATION = 120;
 const SMOKE_PARTICLE_COUNT = 30;
 
-// Constantes específicas para el superpoder de Tía Cote
-const TIA_COTE_TEDDY_COUNT = 1;
-const TIA_COTE_TEDDY_WIDTH = 120;
-const TIA_COTE_TEDDY_HEIGHT = 150;
-const TIA_COTE_TEDDY_DAMAGE = 30;
-const TIA_COTE_TEDDY_INITIAL_Y = -TIA_COTE_TEDDY_HEIGHT - 50;
+// --- NUEVO SUPERPODER TÍA COTE: HAZ DE LUZ 'REY LEÓN' ---
+const TIA_COTE_BEAM_DURATION = 120; // El rayo dura 2 segundos (a 60fps)
+const TIA_COTE_BEAM_WIDTH = 90; // Ancho del rayo
+const TIA_COTE_BEAM_DAMAGE_PER_FRAME = 0.5; // Daño por cada frame que el oponente está en el rayo
 
 
 // Variables para el efecto de temblor de pantalla
@@ -388,7 +386,6 @@ class Player {
         this.activeCalculators = [];
         this.activePapers = [];
         this.activeKisses = [];
-        this.activeTeddies = [];
 
         // Estado del superpoder de Bolt
         this.isDashing = false;
@@ -411,6 +408,10 @@ class Player {
         this.crackTimer = 0;
         this.crackOpponentHit = false;
         this.crackCenterX = 0;
+
+        // --- NUEVO ESTADO PARA SUPERPODER TÍA COTE ---
+        this.isCastingBeam = false;
+        this.beamTimer = 0;
 
         // Estado de ser tragado o aturdido
         this.isSwallowed = false;
@@ -545,23 +546,32 @@ class Player {
         const shoulderY = baseShoulderY;
         ctx.translate(shoulderX, shoulderY);
         let finalUpperArmAngle, finalForeArmAngle;
-        const isPunchingThisArm = this.isPunching && this.attackVisualActive &&
-                                 ((isPlayerRightArmActual && this.attackArm === 'right') || (!isPlayerRightArmActual && this.attackArm === 'left'));
-        if (isPunchingThisArm) {
-            finalUpperArmAngle = this.facingRight ? ARM_PUNCH_UPPER_EXTEND_ANGLE : Math.PI - ARM_PUNCH_UPPER_EXTEND_ANGLE;
-            finalForeArmAngle = this.facingRight ? ARM_PUNCH_FOREARM_EXTEND_ANGLE : -ARM_PUNCH_FOREARM_EXTEND_ANGLE;
-        } else if (this.isPunching && this.attackVisualActive) {
-            finalUpperArmAngle = this.facingRight ? ARM_PUNCH_UPPER_RECOIL_ANGLE : Math.PI - ARM_PUNCH_UPPER_RECOIL_ANGLE;
-            finalForeArmAngle = this.facingRight ? ARM_PUNCH_FOREARM_RECOIL_ANGLE : -ARM_PUNCH_FOREARM_RECOIL_ANGLE;
+        
+        // --- LÓGICA DE POSE PARA SUPERPODER TÍA COTE ---
+        if (this.isCastingBeam) {
+            // Pose de "Rey León", ambos brazos hacia arriba
+            finalUpperArmAngle = -Math.PI / 2.5;
+            finalForeArmAngle = Math.PI / 3;
         } else {
-            finalUpperArmAngle = this.facingRight ? ARM_GUARD_UPPER_ANGLE : Math.PI - ARM_GUARD_UPPER_ANGLE;
-            finalForeArmAngle = this.facingRight ? ARM_GUARD_FOREARM_BEND : -ARM_GUARD_FOREARM_BEND;
-            const isVisuallyBackArm = (this.facingRight && !isPlayerRightArmActual) || (!this.facingRight && isPlayerRightArmActual);
-            if (isVisuallyBackArm) {
-                finalUpperArmAngle += this.facingRight ? 0.1 : -0.1;
-                finalForeArmAngle *= 0.9;
+            const isPunchingThisArm = this.isPunching && this.attackVisualActive &&
+                                     ((isPlayerRightArmActual && this.attackArm === 'right') || (!isPlayerRightArmActual && this.attackArm === 'left'));
+            if (isPunchingThisArm) {
+                finalUpperArmAngle = this.facingRight ? ARM_PUNCH_UPPER_EXTEND_ANGLE : Math.PI - ARM_PUNCH_UPPER_EXTEND_ANGLE;
+                finalForeArmAngle = this.facingRight ? ARM_PUNCH_FOREARM_EXTEND_ANGLE : -ARM_PUNCH_FOREARM_EXTEND_ANGLE;
+            } else if (this.isPunching && this.attackVisualActive) {
+                finalUpperArmAngle = this.facingRight ? ARM_PUNCH_UPPER_RECOIL_ANGLE : Math.PI - ARM_PUNCH_UPPER_RECOIL_ANGLE;
+                finalForeArmAngle = this.facingRight ? ARM_PUNCH_FOREARM_RECOIL_ANGLE : -ARM_PUNCH_FOREARM_RECOIL_ANGLE;
+            } else {
+                finalUpperArmAngle = this.facingRight ? ARM_GUARD_UPPER_ANGLE : Math.PI - ARM_GUARD_UPPER_ANGLE;
+                finalForeArmAngle = this.facingRight ? ARM_GUARD_FOREARM_BEND : -ARM_GUARD_FOREARM_BEND;
+                const isVisuallyBackArm = (this.facingRight && !isPlayerRightArmActual) || (!this.facingRight && isPlayerRightArmActual);
+                if (isVisuallyBackArm) {
+                    finalUpperArmAngle += this.facingRight ? 0.1 : -0.1;
+                    finalForeArmAngle *= 0.9;
+                }
             }
         }
+
         ctx.save();
         ctx.rotate(finalUpperArmAngle);
         this.drawPartWithTexture('arm_upper', 0, -this.armWidth / 2, this.upperArmLength, this.armWidth, false);
@@ -885,7 +895,6 @@ class Player {
             // Main color
             ctx.fillStyle = '#d90429'; // Strong red
             
-            // Manually draw the pixelated lips based on the reference
             const lipMap = [
                 "   xxx   ",
                 "  xxxxx  ",
@@ -895,17 +904,6 @@ class Player {
                 " xxxxxxx ",
                 "  xxxxx  ",
                 "   xxx   "
-            ];
-            
-            const lipMapWithSeparator = [
-                "   xxx   ",
-                "  xxxxx  ",
-                " xxxxxxx ",
-                "xxxxxxxxx",
-                "---------", // Separator line
-                "xxxxxxxxx",
-                " xxxxxxx ",
-                "  xxxxx  "
             ];
 
             ctx.fillStyle = '#ef233c'; // Brighter red for main part
@@ -925,73 +923,41 @@ class Player {
             ctx.restore();
         });
     }
+    
+    // --- NUEVO MÉTODO PARA DIBUJAR EL HAZ DE LUZ ---
+    drawTiaCoteBeam() {
+        if (!this.isCastingBeam) return;
 
-    drawTeddies() {
-        this.activeTeddies.forEach(teddy => {
-            ctx.save();
-            ctx.translate(teddy.x + teddy.width / 2, teddy.y + teddy.height / 2);
-            ctx.rotate(teddy.rotation);
-            const w = teddy.width;
-            const h = teddy.height;
-            
-            // Main color
-            ctx.fillStyle = '#ffc0cb'; // Pink
-            ctx.strokeStyle = '#e75480'; // Darker Pink
-            ctx.lineWidth = 3;
+        const beamProgress = 1 - (this.beamTimer / TIA_COTE_BEAM_DURATION);
+        const currentAlpha = 0.8 * Math.sin(beamProgress * Math.PI); // Efecto de fade-in y fade-out
 
-            // Body
-            ctx.beginPath();
-            ctx.ellipse(0, h * 0.1, w * 0.35, h * 0.4, 0, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.stroke();
+        ctx.save();
+        
+        const beamY = this.y + this.height * 0.3;
+        const beamStartX = this.facingRight ? this.x + this.width / 2 : 0;
+        const beamTotalWidth = this.facingRight ? CANVAS_WIDTH - beamStartX : this.x + this.width / 2;
 
-            // Head
-            ctx.beginPath();
-            ctx.arc(0, -h * 0.25, w * 0.25, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.stroke();
+        // Gradiente para el rayo
+        const gradient = ctx.createLinearGradient(beamStartX, beamY, beamStartX, beamY + TIA_COTE_BEAM_WIDTH);
+        gradient.addColorStop(0, `rgba(255, 255, 224, ${currentAlpha * 0.5})`); // Amarillo muy claro, casi blanco
+        gradient.addColorStop(0.5, `rgba(253, 224, 71, ${currentAlpha})`); // Amarillo dorado
+        gradient.addColorStop(1, `rgba(255, 255, 224, ${currentAlpha * 0.5})`);
+        
+        ctx.fillStyle = gradient;
+        ctx.fillRect(beamStartX, beamY, beamTotalWidth, TIA_COTE_BEAM_WIDTH);
 
-            // Ears (long ovals for a bunny)
-            const earWidth = w * 0.12;
-            const earHeight = h * 0.35;
-            ctx.beginPath();
-            ctx.ellipse(-w * 0.2, -h * 0.5, earWidth, earHeight, -0.2, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.stroke();
+        // Partículas de brillo dentro del rayo
+        for (let i = 0; i < 20; i++) {
+            ctx.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.9 * currentAlpha})`;
+            const particleX = beamStartX + Math.random() * beamTotalWidth;
+            const particleY = beamY + Math.random() * TIA_COTE_BEAM_WIDTH;
+            const particleSize = Math.random() * 3 + 1;
+            ctx.fillRect(particleX, particleY, particleSize, particleSize);
+        }
 
-            ctx.beginPath();
-            ctx.ellipse(w * 0.2, -h * 0.5, earWidth, earHeight, 0.2, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.stroke();
-            
-            // Snout
-            ctx.fillStyle = '#ffdae0'; // Lighter pink
-            ctx.beginPath();
-            ctx.ellipse(0, -h * 0.2, w * 0.12, w * 0.1, 0, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.stroke();
-
-            // Eyes and nose
-            ctx.fillStyle = 'black';
-            ctx.beginPath();
-            ctx.arc(-w * 0.08, -h * 0.25, w * 0.04, 0, Math.PI * 2); // Left eye
-            ctx.fill();
-
-            ctx.beginPath();
-            ctx.arc(w * 0.08, -h * 0.25, w * 0.04, 0, Math.PI * 2); // Right eye
-            ctx.fill();
-
-            // Nose
-            ctx.beginPath();
-            ctx.moveTo(0, -h * 0.22);
-            ctx.lineTo(-w * 0.04, -h * 0.18);
-            ctx.lineTo(w * 0.04, -h * 0.18);
-            ctx.closePath(); 
-            ctx.fill();
-            
-            ctx.restore();
-        });
+        ctx.restore();
     }
+
 
     drawZanjasCrack() {
         if (!this.isCastingCrack) return;
@@ -1058,7 +1024,7 @@ class Player {
         this.drawCalculatorProjectiles();
         this.drawPapers();
         this.drawKisses();
-        this.drawTeddies();
+        this.drawTiaCoteBeam(); // <-- LLAMADA AL NUEVO DIBUJO
         
         if (this.isCastingCrack) {
             this.drawZanjasCrack();
@@ -1099,7 +1065,7 @@ class Player {
 
         if (this.showBlurred) {
             ctx.filter = 'blur(4px)';
-        } else if (this.isPerformingSuperAttackAnimation && this.attackVisualActive) {
+        } else if ((this.isPerformingSuperAttackAnimation || this.isCastingBeam) && this.attackVisualActive) {
             ctx.filter = 'brightness(1.75) saturate(2.5)';
         }
 
@@ -1180,7 +1146,7 @@ class Player {
             return; // AI is confused, skip normal logic
          }
 
-         if (this.isDashing || this.isSwallowed || this.isCastingCrack || this.isStunned) {
+         if (this.isDashing || this.isSwallowed || this.isCastingCrack || this.isStunned || this.isCastingBeam) {
             return;
          }
         if (Date.now() - this.lastAIDecisionTime > AI_ACTION_INTERVAL) {
@@ -1419,33 +1385,37 @@ class Player {
             }
         }
     }
+    
+    // --- NUEVO MÉTODO PARA ACTUALIZAR LA LÓGICA DEL HAZ DE LUZ ---
+    updateTiaCoteBeam(opponent) {
+        if (!this.isCastingBeam) return;
+        
+        this.beamTimer--;
+        if (this.beamTimer <= 0) {
+            this.isCastingBeam = false;
+            this.isPerformingSuperAttackAnimation = false; // Termina la animación
+            this.attackVisualActive = false;
+            return;
+        }
 
-     updateTeddies(opponent) {
-        for (let i = this.activeTeddies.length - 1; i >= 0; i--) {
-            const teddy = this.activeTeddies[i];
-            teddy.velocityY += GRAVITY;
-            teddy.y += teddy.velocityY;
-            teddy.rotation += teddy.rotationSpeed;
+        const beamY = this.y + this.height * 0.3;
+        const beamHitbox = {
+            x: this.facingRight ? this.x + this.width / 2 : 0,
+            y: beamY,
+            width: CANVAS_WIDTH,
+            height: TIA_COTE_BEAM_WIDTH
+        };
+        
+        const opponentBox = { x: opponent.x, y: opponent.y, width: opponent.width, height: opponent.height };
 
-            if (teddy.y > CANVAS_HEIGHT) {
-                this.activeTeddies.splice(i, 1);
-                continue;
-            }
-
-            const opponentBox = { x: opponent.x, y: opponent.y, width: opponent.width, height: opponent.height };
-            const teddyBox = { x: teddy.x, y: teddy.y, width: teddy.width, height: teddy.height };
-
-            if (
-                !opponent.isSwallowed && !opponent.isStunned &&
-                teddyBox.x < opponentBox.x + opponentBox.width &&
-                teddyBox.x + teddyBox.width > opponentBox.x &&
-                teddyBox.y < opponentBox.y + opponentBox.height &&
-                teddyBox.y + teddyBox.height > opponentBox.y
-            ) {
-                opponent.takeDamage(teddy.damage, this.facingRight);
-                activeHitEffects.push({ text: "¡AWW!", x: teddy.x, y: teddy.y, color: "#9b59b6", alpha: 1.0, size: 40, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
-                this.activeTeddies.splice(i, 1);
-            }
+        if (
+            !opponent.isSwallowed && !opponent.isStunned &&
+            beamHitbox.x < opponentBox.x + opponentBox.width &&
+            beamHitbox.x + beamHitbox.width > opponentBox.x &&
+            beamHitbox.y < opponentBox.y + opponentBox.height &&
+            beamHitbox.y + beamHitbox.height > opponentBox.y
+        ) {
+            opponent.takeDamage(TIA_COTE_BEAM_DAMAGE_PER_FRAME, this.facingRight);
         }
     }
 
@@ -1550,6 +1520,11 @@ class Player {
             return; // Saltar actualización normal
         }
 
+        const opponent = players.find(p => p !== this);
+        if (opponent) {
+            this.updateTiaCoteBeam(opponent); // <-- LLAMADA A LA NUEVA LÓGICA
+        }
+
         // AI logic for both players
         this.updateAI();
         
@@ -1583,8 +1558,7 @@ class Player {
         this.x += this.velocityX;
         this.velocityY += GRAVITY;
         this.y += this.velocityY;
-
-        const opponent = players.find(p => p !== this);
+        
         if (opponent) {
             this.updatePiranhaProjectiles(opponent);
             this.updateMoneyWads(opponent);
@@ -1592,7 +1566,6 @@ class Player {
             this.updateCalculatorProjectiles(opponent);
             this.updatePapers(opponent);
             this.updateKisses(opponent);
-            this.updateTeddies(opponent);
         }
         
         if (this.isCastingCrack) {
@@ -1813,22 +1786,15 @@ class Player {
         this.x = -1000; // Mover fuera de la pantalla
     }
     
-    launchTiaCoteAttack() {
-        const opponent = players.find(p => p !== this);
-        if (!opponent) return;
-
-        for (let i = 0; i < TIA_COTE_TEDDY_COUNT; i++) {
-            this.activeTeddies.push({
-                x: opponent.x + (opponent.width / 2) - (TIA_COTE_TEDDY_WIDTH / 2),
-                y: TIA_COTE_TEDDY_INITIAL_Y - (Math.random() * 50),
-                width: TIA_COTE_TEDDY_WIDTH,
-                height: TIA_COTE_TEDDY_HEIGHT,
-                velocityY: 1.5,
-                rotation: (Math.random() - 0.5) * 0.1,
-                rotationSpeed: (Math.random() - 0.5) * 0.02,
-                damage: TIA_COTE_TEDDY_DAMAGE
-            });
-        }
+    // --- NUEVO MÉTODO PARA LANZAR EL ATAQUE DE TÍA COTE ---
+    launchTiaCoteBeamAttack() {
+        this.isCastingBeam = true;
+        this.beamTimer = TIA_COTE_BEAM_DURATION;
+        this.isPerformingSuperAttackAnimation = true; // Activa el brillo y la pose
+        this.attackVisualActive = true;
+        screenShakeMagnitude = 8; // Un buen temblor de pantalla
+        screenShakeTimeLeft = TIA_COTE_BEAM_DURATION;
+        new Audio('audio/angelic-choir.wav').play().catch(e => console.error("Error playing sound:", e)); // Necesitarás un sonido para esto
     }
 
     launchBoltDashAttack() {
@@ -1851,7 +1817,7 @@ class Player {
 
 
     _performAttack(isKickMove) {
-        if (this.isPunching || this.isKicking || (Date.now() - this.lastAttackTime < this.attackCooldown)) return;
+        if (this.isPunching || this.isKicking || this.isCastingBeam || (Date.now() - this.lastAttackTime < this.attackCooldown)) return;
 
         let currentDamage;
         let currentRange = isKickMove ? this.kickRange : this.punchRange;
@@ -1891,7 +1857,8 @@ class Player {
                 this.launchEscapeRoomJacksonAttack();
                 currentDamage = 0;
             } else if (this.name === "Tía Cote") {
-                this.launchTiaCoteAttack();
+                // --- LLAMADA AL NUEVO SUPERPODER ---
+                this.launchTiaCoteBeamAttack();
                 currentDamage = 0;
             } else {
                 // Sonido genérico para otros superataques
@@ -1914,10 +1881,10 @@ class Player {
             if (isKickMove) this.isKicking = false;
             else this.isPunching = false;
             this.attackArm = null;
-            if (isSuperMove) this.isPerformingSuperAttackAnimation = false;
+            if (isSuperMove && !this.isCastingBeam) this.isPerformingSuperAttackAnimation = false;
         }, ATTACK_LOGIC_DURATION);
         setTimeout(() => {
-            this.attackVisualActive = false;
+            if(!this.isCastingBeam) this.attackVisualActive = false;
         }, ATTACK_ANIMATION_DURATION);
 
         const opponent = players.find(p => p !== this);
@@ -2023,8 +1990,8 @@ class Player {
                 hitEffectText = "¡Salida de Emergencia!";
                 hitEffectColor = "#adb5bd";
             } else if (this.name === "Tía Cote") {
-                hitEffectText = "¡Cuidado con la ternura!";
-                hitEffectColor = "#9b59b6";
+                hitEffectText = "¡Bendiciones!";
+                hitEffectColor = "#e879f9";
             }
             activeHitEffects.push({ text: hitEffectText, x: this.x + this.width/2, y: this.y, color: hitEffectColor, size: 30, lifetime: HIT_EFFECT_LIFETIME * 1.5, rotation: (Math.random() - 0.5) * 0.2, alpha: 1});
             screenShakeMagnitude = 10;
@@ -2043,10 +2010,13 @@ class Player {
         new Audio('audio/2BH.wav').play().catch(e => console.error("Error playing sound:", e));
 
         if (!this.isSwallowed) {
-            this.x += attackerFacingRight ? this.knockbackStrength : -this.knockbackStrength;
-            if (this.x < 0) this.x = 0;
-            if (this.x + this.width > CANVAS_WIDTH) this.x = CANVAS_WIDTH - this.width;
-            this.velocityY = -this.knockbackStrength / 2;
+            this.velocityX = 0; // Detener el movimiento horizontal al ser golpeado por el rayo
+            if(!this.isCastingBeam) { // Solo aplicar knockback si no es el rayo el que golpea
+                this.x += attackerFacingRight ? this.knockbackStrength : -this.knockbackStrength;
+                if (this.x < 0) this.x = 0;
+                if (this.x + this.width > CANVAS_WIDTH) this.x = CANVAS_WIDTH - this.width;
+            }
+            this.velocityY = -this.knockbackStrength / 2.5;
         }
 
         const randomWord = hitWords[Math.floor(Math.random() * hitWords.length)];
@@ -2146,7 +2116,6 @@ function initGame() {
         p.activeCalculators = [];
         p.activePapers = [];
         p.activeKisses = [];
-        p.activeTeddies = [];
         p.isDashing = false;
         p.trail = [];
         p.isCastingCrack = false;
@@ -2156,6 +2125,8 @@ function initGame() {
         p.swallowedTimer = 0;
         p.isStunned = false;
         p.stunTimer = 0;
+        p.isCastingBeam = false;
+        p.beamTimer = 0;
     });
 
     player1NameDisplay.textContent = players[0].name;
@@ -2269,12 +2240,11 @@ function updatePowerBars() {
 
 function isAnySuperPowerActive() {
     for (const player of players) {
-        if (player.isDashing || player.isCastingCrack || player.isSwallowed || player.isStunned ||
+        if (player.isDashing || player.isCastingCrack || player.isSwallowed || player.isStunned || player.isCastingBeam ||
             player.activePiranhaProjectiles.length > 0 ||
             player.activeMoneyWads.length > 0 ||
             player.activeCalculators.length > 0 ||
             player.activeKisses.length > 0 ||
-            player.activeTeddies.length > 0 ||
             player.activePapers.length > 0) {
             return true; // Se encontró un superpoder activo
         }
