@@ -119,7 +119,6 @@ body {
     top: 25%;
 }
 
-/* ESTILOS CORREGIDOS */
 #start-message-text {
     font-size: 2.1rem;
     font-family: 'Arial Black', Gadget, sans-serif; 
@@ -129,7 +128,6 @@ body {
 #character-select-screen h2 {
     font-family: 'Arial Black', Gadget, sans-serif;
 }
-/* FIN DE ESTILOS CORREGIDOS */
 
 /* Estilos para los retratos de selección de personajes */
 .character-portrait {
