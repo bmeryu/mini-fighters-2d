@@ -47,7 +47,7 @@ const ATTACK_LOGIC_DURATION = 200; // Duración de la lógica de detección de a
 const ATTACK_COOLDOWN = 550; // Original: 700. Reducido para un combate más rápido.
 const BASE_KNOCKBACK_STRENGTH = 12; // Original: 10. Aumentado para un mayor impacto.
 const HIT_EFFECT_LIFETIME = 30; // Duración de los efectos de golpe
-const POWER_GAIN_PER_CLICK = 0.5; // Original: 1. Reducido aún más para minimizar el impacto del clic.
+const POWER_GAIN_PER_CLICK = 4.5; // Original: 1. Reducido aún más para minimizar el impacto del clic.
 
 // Constantes de la IA
 const AI_ACTION_INTERVAL = 250; // Intervalo para que la IA tome decisiones (más rápido)
