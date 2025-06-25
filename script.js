@@ -122,8 +122,6 @@ const SMOKE_PARTICLE_COUNT = 30;
 const TIA_COTE_BEAM_DURATION = 120; // El rayo dura 2 segundos (a 60fps)
 const TIA_COTE_BEAM_WIDTH = 90; // Ancho del rayo
 const TIA_COTE_BEAM_DAMAGE_PER_FRAME = 0.5; // Daño por cada frame que el oponente está en el rayo
-const TIA_COTE_HEART_COUNT = 15; // Cantidad de corazones en el rayo
-const TIA_COTE_HEART_SPEED = 6;   // Velocidad de los corazones
 
 
 // Variables para el efecto de temblor de pantalla
@@ -414,12 +412,6 @@ class Player {
         // --- NUEVO ESTADO PARA SUPERPODER TÍA COTE ---
         this.isCastingBeam = false;
         this.beamTimer = 0;
-this.isCastingBeam = false;
-this.beamTimer = 0;
-this.activeBeamHearts = []; // <-- AÑADE ESTA LÍNEA
-
-this.isSwallowed = false;
-// ... (el resto del código sigue igual)
 
         // Estado de ser tragado o aturdido
         this.isSwallowed = false;
@@ -1062,105 +1054,52 @@ this.isSwallowed = false;
         ctx.restore();
     }
 
-     // --- PEGA ESTE BLOQUE COMPLETO REEMPLAZANDO TU FUNCIÓN drawPlayerModel ---
+     drawPlayerModel(x, y) {
+        if (this.isSwallowed) {
+            return; // No dibujar si está tragado
+        }
+        const originalX = this.x;
+        const originalY = this.y;
+        this.x = x;
+        this.y = y;
 
-drawPlayerModel(x, y) {
-    if (this.isSwallowed) {
-        return; // No dibujar si está tragado
+        if (this.showBlurred) {
+            ctx.filter = 'blur(4px)';
+        } else if ((this.isPerformingSuperAttackAnimation || this.isCastingBeam) && this.attackVisualActive) {
+            ctx.filter = 'brightness(1.75) saturate(2.5)';
+        }
+
+        const totalLegSegmentsHeight = this.thighHeight + this.lowerLegHeight;
+        const torsoGlobalY = this.y + (this.height - this.torsoHeight - totalLegSegmentsHeight - this.shoeHeight);
+        const torsoGlobalX = this.x + (this.width - this.torsoWidth) / 2;
+        const headGlobalX = this.x + (this.width - this.headSize) / 2;
+        const headGlobalY = torsoGlobalY - this.headSize;
+        const visuallyBackArmIsRight = !this.facingRight;
+        const visuallyBackLegIsFront = !this.facingRight;
+        this.drawLeg(visuallyBackLegIsFront);
+        this.drawLeg(!visuallyBackLegIsFront);
+        if (this.facingRight) {
+            this.drawArm(false);
+            this.drawPartWithTexture('torso', torsoGlobalX, torsoGlobalY, this.torsoWidth, this.torsoHeight, !this.facingRight);
+            if (this.name === 'Matthei Bolt' && this.isDashing) {
+                this.drawVest(torsoGlobalX, torsoGlobalY);
+            }
+            this.drawPartWithTexture('head', headGlobalX, headGlobalY, this.headSize, this.headSize, !this.facingRight);
+            this.drawArm(true);
+        } else {
+            this.drawArm(true);
+            this.drawPartWithTexture('torso', torsoGlobalX, torsoGlobalY, this.torsoWidth, this.torsoHeight, !this.facingRight);
+            if (this.name === 'Matthei Bolt' && this.isDashing) {
+                this.drawVest(torsoGlobalX, torsoGlobalY);
+            }
+            this.drawPartWithTexture('head', headGlobalX, headGlobalY, this.headSize, this.headSize, !this.facingRight);
+            this.drawArm(false);
+        }
+
+        ctx.filter = 'none';
+        this.x = originalX;
+        this.y = originalY;
     }
-    const originalX = this.x;
-    const originalY = this.y;
-    this.x = x;
-    this.y = y;
-
-    if (this.showBlurred) {
-        ctx.filter = 'blur(4px)';
-    } else if ((this.isPerformingSuperAttackAnimation || this.isCastingBeam) && this.attackVisualActive) {
-        ctx.filter = 'brightness(1.75) saturate(2.5)';
-    }
-
-    const totalLegSegmentsHeight = this.thighHeight + this.lowerLegHeight;
-    const torsoGlobalY = this.y + (this.height - this.torsoHeight - totalLegSegmentsHeight - this.shoeHeight);
-    const torsoGlobalX = this.x + (this.width - this.torsoWidth) / 2;
-    const headGlobalX = this.x + (this.width - this.headSize) / 2;
-    const headGlobalY = torsoGlobalY - this.headSize;
-    const visuallyBackLegIsFront = !this.facingRight;
-    
-    this.drawLeg(visuallyBackLegIsFront);
-    this.drawLeg(!visuallyBackLegIsFront);
-    
-    if (this.facingRight) {
-        this.drawArm(false);
-        this.drawPartWithTexture('torso', torsoGlobalX, torsoGlobalY, this.torsoWidth, this.torsoHeight, !this.facingRight);
-
-        // --- CORAZÓN EN EL PECHO (AÑADIDO AQUÍ) ---
-        if (this.name === 'Tía Cote' && this.isCastingBeam) {
-            const heartSize = 15 + Math.sin(this.beamTimer * 0.2) * 5; // Corazón pulsante
-            const heartX = torsoGlobalX + this.torsoWidth / 2;
-            const heartY = torsoGlobalY + this.torsoHeight / 2;
-            ctx.save();
-            ctx.fillStyle = `rgba(255, 105, 180, ${0.5 + Math.sin(this.beamTimer * 0.2) * 0.5})`;
-            ctx.strokeStyle = 'white';
-            ctx.lineWidth = 2;
-            ctx.shadowColor = '#ff69b4';
-            ctx.shadowBlur = 15;
-            ctx.beginPath();
-            const d = heartSize;
-            ctx.moveTo(heartX, heartY - d / 4);
-            ctx.bezierCurveTo(heartX, heartY - (d * 5) / 4, heartX - d, heartY - d / 2, heartX - d, heartY);
-            ctx.bezierCurveTo(heartX - d, heartY + d / 2, heartX, heartY + d, heartX, heartY + d);
-            ctx.bezierCurveTo(heartX, heartY + d, heartX + d, heartY + d / 2, heartX + d, heartY);
-            ctx.bezierCurveTo(heartX + d, heartY - d / 2, heartX, heartY - (d * 5) / 4, heartX, heartY - d / 4);
-            ctx.fill();
-            ctx.stroke();
-            ctx.restore();
-        }
-        // --- FIN DEL CÓDIGO DEL CORAZÓN ---
-
-        if (this.name === 'Matthei Bolt' && this.isDashing) {
-            this.drawVest(torsoGlobalX, torsoGlobalY);
-        }
-        this.drawPartWithTexture('head', headGlobalX, headGlobalY, this.headSize, this.headSize, !this.facingRight);
-        this.drawArm(true);
-    } else {
-        this.drawArm(true);
-        this.drawPartWithTexture('torso', torsoGlobalX, torsoGlobalY, this.torsoWidth, this.torsoHeight, !this.facingRight);
-
-        // --- CORAZÓN EN EL PECHO (AÑADIDO AQUÍ TAMBIÉN) ---
-        if (this.name === 'Tía Cote' && this.isCastingBeam) {
-            const heartSize = 15 + Math.sin(this.beamTimer * 0.2) * 5; // Corazón pulsante
-            const heartX = torsoGlobalX + this.torsoWidth / 2;
-            const heartY = torsoGlobalY + this.torsoHeight / 2;
-            ctx.save();
-            ctx.fillStyle = `rgba(255, 105, 180, ${0.5 + Math.sin(this.beamTimer * 0.2) * 0.5})`;
-            ctx.strokeStyle = 'white';
-            ctx.lineWidth = 2;
-            ctx.shadowColor = '#ff69b4';
-            ctx.shadowBlur = 15;
-            ctx.beginPath();
-            const d = heartSize;
-            ctx.moveTo(heartX, heartY - d / 4);
-            ctx.bezierCurveTo(heartX, heartY - (d * 5) / 4, heartX - d, heartY - d / 2, heartX - d, heartY);
-            ctx.bezierCurveTo(heartX - d, heartY + d / 2, heartX, heartY + d, heartX, heartY + d);
-            ctx.bezierCurveTo(heartX, heartY + d, heartX + d, heartY + d / 2, heartX + d, heartY);
-            ctx.bezierCurveTo(heartX + d, heartY - d / 2, heartX, heartY - (d * 5) / 4, heartX, heartY - d / 4);
-            ctx.fill();
-            ctx.stroke();
-            ctx.restore();
-        }
-        // --- FIN DEL CÓDIGO DEL CORAZÓN ---
-
-        if (this.name === 'Matthei Bolt' && this.isDashing) {
-            this.drawVest(torsoGlobalX, torsoGlobalY);
-        }
-        this.drawPartWithTexture('head', headGlobalX, headGlobalY, this.headSize, this.headSize, !this.facingRight);
-        this.drawArm(false);
-    }
-
-    ctx.filter = 'none';
-    this.x = originalX;
-    this.y = originalY;
-}
 
     drawVest(torsoX, torsoY) {
         ctx.save();
@@ -1479,37 +1418,7 @@ drawPlayerModel(x, y) {
             opponent.takeDamage(TIA_COTE_BEAM_DAMAGE_PER_FRAME, this.facingRight);
         }
     }
-// --- PEGA ESTE BLOQUE DE CÓDIGO NUEVO ---
 
-    updateBeamHearts() {
-        for (let i = this.activeBeamHearts.length - 1; i >= 0; i--) {
-            const heart = this.activeBeamHearts[i];
-            heart.x += heart.speedX;
-            heart.alpha -= 0.015; // Hacemos que se desvanezcan un poco más rápido
-            if (heart.alpha <= 0) {
-                this.activeBeamHearts.splice(i, 1);
-            }
-        }
-    }
-
-    drawBeamHearts() {
-        if (!this.isCastingBeam) return;
-        this.activeBeamHearts.forEach(heart => {
-            ctx.save();
-            ctx.globalAlpha = heart.alpha;
-            ctx.fillStyle = '#ff69b4'; // Hot pink
-            ctx.beginPath();
-            const d = heart.size;
-            const k = heart.y;
-            ctx.moveTo(heart.x, k - d / 4);
-            ctx.bezierCurveTo(heart.x, k - (d * 5) / 4, heart.x - d, k - d / 2, heart.x - d, k);
-            ctx.bezierCurveTo(heart.x - d, k + d / 2, heart.x, k + d, heart.x, k + d);
-            ctx.bezierCurveTo(heart.x, k + d, heart.x + d, k + d / 2, heart.x + d, k);
-            ctx.bezierCurveTo(heart.x + d, k - d / 2, heart.x, k - (d * 5) / 4, heart.x, k - d / 4);
-            ctx.fill();
-            ctx.restore();
-        });
-    }
 
      updateBoltDash(opponent) {
         if (!this.isDashing) return;
@@ -1671,14 +1580,6 @@ drawPlayerModel(x, y) {
         }
         if (this.x < 0) this.x = 0;
         if (this.x + this.width > CANVAS_WIDTH) this.x = CANVAS_WIDTH - this.width;
-        // Dentro de update()
-// ...
-const opponent = players.find(p => p !== this);
-if (opponent) {
-    this.updateTiaCoteBeam(opponent);
-    this.updateBeamHearts(); // <-- AÑADE ESTA LÍNEA
-}
-// ...
     }
 
     chargePowerOnClick() {
@@ -1894,30 +1795,6 @@ if (opponent) {
         screenShakeMagnitude = 8; // Un buen temblor de pantalla
         screenShakeTimeLeft = TIA_COTE_BEAM_DURATION;
         new Audio('audio/angelic-choir.wav').play().catch(e => console.error("Error playing sound:", e)); // Necesitarás un sonido para esto
-    }
-    // --- Bloque a modificar ---
-
-    launchTiaCoteBeamAttack() {
-        this.isCastingBeam = true;
-        this.beamTimer = TIA_COTE_BEAM_DURATION;
-        this.isPerformingSuperAttackAnimation = true; 
-        this.attackVisualActive = true;
-        this.activeBeamHearts = []; // Limpiar corazones anteriores
-
-        // --- AÑADE ESTE BLOQUE ENTERO ---
-        for (let i = 0; i < TIA_COTE_HEART_COUNT; i++) {
-            this.activeBeamHearts.push({
-                x: this.x + this.width / 2,
-                y: this.y + this.height * 0.3 + Math.random() * TIA_COTE_BEAM_WIDTH,
-                size: Math.random() * 8 + 8,
-                speedX: (this.facingRight ? 1 : -1) * (TIA_COTE_HEART_SPEED + Math.random() * 2),
-                alpha: 0.5 + Math.random() * 0.5
-            });
-        }
-        // --- FIN DEL BLOQUE A AÑADIR ---
-
-        screenShakeMagnitude = 8; 
-        screenShakeTimeLeft = TIA_COTE_BEAM_DURATION;
     }
 
     launchBoltDashAttack() {
