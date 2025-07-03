@@ -3,10 +3,9 @@ const splashScreen = document.getElementById('splash-screen');
 const continueButton = document.getElementById('continue-button');
 const gameWrapper = document.getElementById('game-wrapper');
 const mainHeader = document.getElementById('main-header');
-const cornerLogo = document.getElementById('corner-logo');
+const gameHeader = document.getElementById('game-header');
 const mainTitle = document.getElementById('main-title');
 const gameUiTop = document.getElementById('game-ui-top');
-const battleFooter = document.getElementById('battle-footer');
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d'); // Contexto 2D para dibujar en el canvas
@@ -2291,7 +2290,7 @@ function initGame() {
     gameActive = true;
     gameOverModal.classList.add('hidden');
     controlsPanel.style.display = 'none';
-    mainHeader.style.display = 'none';
+    mainTitle.style.display = 'none';
 
     // Set canvas background for the fight
     const possibleBgs = [
@@ -2329,7 +2328,7 @@ function initGame() {
 function resetSelectionScreen() {
     gameOverModal.classList.add('hidden');
     controlsPanel.style.display = 'block';
-    mainHeader.style.display = 'block';
+    mainTitle.style.display = 'block';
     gameUiTop.style.visibility = 'hidden';
     
     // Detiene la ruleta del PC si se estaba ejecutando.
@@ -2537,7 +2536,7 @@ function gameLoop() {
 continueButton.addEventListener('click', () => {
     splashScreen.style.display = 'none';
     gameWrapper.style.display = 'flex';
-    mainHeader.style.display = 'block';
+    mainTitle.style.display = 'block';
     document.body.style.overflow = 'auto'; // Restaura el scroll si es necesario
 });
 
