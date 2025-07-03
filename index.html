@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Politic Kombat</title>
-    <link rel="icon" type="image/png" href="./favicon-32x32.png">
+    <title>Politic Kombat 2D</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,7 +14,7 @@
 <body>
     <!-- Pantalla de Bienvenida -->
     <div id="splash-screen">
-        <div class="max-w-2xl text-center p-4">
+        <div class="max-w-2xl">
             <h1 class="text-3xl font-bold text-yellow-400 mb-6">Advertencia</h1>
             <p class="text-lg mb-8 leading-relaxed">
                 <strong>Este videojuego es una obra de ficción cuyo propósito es la sátira. Las semejanzas con personas o eventos reales son representaciones caricaturescas no literales, creadas sin intención de injuriar. Al continuar, usted reconoce y acepta la naturaleza satírica de esta obra.</strong>
@@ -28,16 +27,11 @@
     
     <!-- Contenedor Principal del Juego -->
     <div id="game-wrapper" class="flex-col items-center p-4 w-full">
-         <!-- Encabezado para Pantalla de Selección con el nuevo título -->
-        <header id="main-header" class="w-full max-w-4xl mb-4">
-            <h1 id="main-title">Politic Kombat</h1>
-            <div id="corner-logo">
-                <p>MoleGames<sup>®</sup></p>
-            </div>
-        </header>
+        <!-- Título Principal (Visible en la selección de personajes) -->
+        <h1 id="main-title">Politic Kombat 2D</h1>
 
         <!-- Contenedor del Juego (UI Superior, Canvas, Panel de Controles) -->
-        <div id="game-container" class="w-full max-w-4xl relative">
+        <div id="game-container" class="w-full max-w-4xl">
             <!-- UI Superior: Barras de Vida y Poder -->
             <div id="game-ui-top" class="flex justify-between items-end mb-2 w-full">
                 <!-- Lado Izquierdo: Barras P1 -->
@@ -51,15 +45,20 @@
                     </div>
                 </div>
 
-                <!-- Lado Derecho: Barras P2 -->
-                <div class="w-2/5">
-                     <div id="player2NameDisplay" class="text-sm font-semibold mb-1 text-blue-400 text-right">PC</div>
-                     <div class="health-bar-container">
-                         <div id="player2HealthBar" class="health-bar player2-health" style="width: 100%;"></div>
-                     </div>
-                     <div class="power-bar-container mt-1">
-                         <div id="player2PowerBar" class="power-bar player2-power" style="width: 0%;"></div>
-                     </div>
+                <!-- Lado Derecho: Barras P2 y Logo -->
+                <div class="w-2/5 flex items-end justify-end">
+                     <div class="flex-grow mr-4">
+                        <div id="player2NameDisplay" class="text-sm font-semibold mb-1 text-blue-400 text-right">PC</div>
+                        <div class="health-bar-container">
+                            <div id="player2HealthBar" class="health-bar player2-health" style="width: 100%;"></div>
+                        </div>
+                        <div class="power-bar-container mt-1">
+                            <div id="player2PowerBar" class="power-bar player2-power" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <div id="game-header">
+                        <p>MoleGames<sup>®</sup></p>
+                    </div>
                 </div>
             </div>
 
