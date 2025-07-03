@@ -119,10 +119,16 @@ const JACKSON_INVISIBILITY_DURATION = 120; // 2 segundos a 60fps
 const JACKSON_CONFUSION_DURATION = 120;
 const SMOKE_PARTICLE_COUNT = 30;
 
-// --- NUEVO SUPERPODER TÍA COTE: HAZ DE LUZ 'REY LEÓN' ---
+// Constantes para el superpoder de Tía Cote
 const TIA_COTE_BEAM_DURATION = 120; // El rayo dura 2 segundos (a 60fps)
 const TIA_COTE_BEAM_WIDTH = 90; // Ancho del rayo
 const TIA_COTE_BEAM_DAMAGE_PER_FRAME = 0.5; // Daño por cada frame que el oponente está en el rayo
+const TIA_COTE_HEART_SPEED = 6;
+const TIA_COTE_HEART_LIFESPAN = 90;
+const TIA_COTE_HEART_WIDTH = 25;
+const TIA_COTE_HEART_HEIGHT = 22;
+const TIA_COTE_HEART_DAMAGE = 2;
+const TIA_COTE_HEART_COUNT = 5;
 
 
 // Variables para el efecto de temblor de pantalla
@@ -388,6 +394,7 @@ class Player {
         this.activeCalculators = [];
         this.activePapers = [];
         this.activeKisses = [];
+        this.activeHearts = []; // Array para los corazones de Tía Cote
 
         // Estado del superpoder de Bolt
         this.isDashing = false;
@@ -411,7 +418,7 @@ class Player {
         this.crackOpponentHit = false;
         this.crackCenterX = 0;
 
-        // --- NUEVO ESTADO PARA SUPERPODER TÍA COTE ---
+        // Estado para superpoder Tía Cote
         this.isCastingBeam = false;
         this.beamTimer = 0;
 
@@ -549,7 +556,7 @@ class Player {
         ctx.translate(shoulderX, shoulderY);
         let finalUpperArmAngle, finalForeArmAngle;
         
-        // --- LÓGICA DE POSE PARA SUPERPODER TÍA COTE ---
+        // Lógica de pose para superpoder Tía Cote
         if (this.isCastingBeam) {
             // Pose de "Rey León", ambos brazos hacia arriba
             finalUpperArmAngle = -Math.PI / 2.5;
@@ -925,8 +932,28 @@ class Player {
             ctx.restore();
         });
     }
+
+    drawHearts() {
+        this.activeHearts.forEach(heart => {
+            ctx.save();
+            ctx.translate(heart.x, heart.y);
+            ctx.fillStyle = '#ff69b4'; // HotPink
+            ctx.beginPath();
+            const w = heart.width;
+            const h = heart.height;
+            ctx.moveTo(w / 2, h / 4);
+            ctx.quadraticCurveTo(w / 2, 0, w / 4, 0);
+            ctx.quadraticCurveTo(0, 0, 0, h / 4);
+            ctx.quadraticCurveTo(0, h / 2, w / 2, h);
+            ctx.quadraticCurveTo(w, h / 2, w, h / 4);
+            ctx.quadraticCurveTo(w, 0, (w / 4) * 3, 0);
+            ctx.quadraticCurveTo(w/2, 0, w/2, h/4);
+            ctx.fill();
+            ctx.restore();
+        });
+    }
     
-    // --- NUEVO MÉTODO PARA DIBUJAR EL HAZ DE LUZ ---
+    // Método para dibujar el haz de luz de Tía Cote
     drawTiaCoteBeam() {
         if (!this.isCastingBeam) return;
 
@@ -1026,7 +1053,8 @@ class Player {
         this.drawCalculatorProjectiles();
         this.drawPapers();
         this.drawKisses();
-        this.drawTiaCoteBeam(); // <-- LLAMADA AL NUEVO DIBUJO
+        this.drawHearts();
+        this.drawTiaCoteBeam();
         
         if (this.isCastingCrack) {
             this.drawZanjasCrack();
@@ -1387,8 +1415,37 @@ class Player {
             }
         }
     }
+
+    updateHearts(opponent) {
+        for (let i = this.activeHearts.length - 1; i >= 0; i--) {
+            const heart = this.activeHearts[i];
+            heart.x += heart.velocityX * (heart.direction ? 1 : -1);
+            heart.y += heart.velocityY;
+            heart.lifespan--;
+
+            if (heart.lifespan <= 0 || heart.x > CANVAS_WIDTH || heart.x + heart.width < 0) {
+                this.activeHearts.splice(i, 1);
+                continue;
+            }
+
+            const opponentBox = { x: opponent.x, y: opponent.y, width: opponent.width, height: opponent.height };
+            const heartBox = { x: heart.x, y: heart.y, width: heart.width, height: heart.height };
+
+            if (
+                !opponent.isSwallowed && !opponent.isStunned &&
+                heartBox.x < opponentBox.x + opponentBox.width &&
+                heartBox.x + heartBox.width > opponentBox.x &&
+                heartBox.y < opponentBox.y + opponentBox.height &&
+                heartBox.y + heartBox.height > opponentBox.y
+            ) {
+                opponent.takeDamage(heart.damage, heart.direction);
+                activeHitEffects.push({ text: "♥", x: heart.x, y: heart.y, color: "#e879f9", alpha: 1.0, size: 25, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
+                this.activeHearts.splice(i, 1);
+            }
+        }
+    }
     
-    // --- NUEVO MÉTODO PARA ACTUALIZAR LA LÓGICA DEL HAZ DE LUZ ---
+    // Método para actualizar la lógica del haz de luz de Tía Cote
     updateTiaCoteBeam(opponent) {
         if (!this.isCastingBeam) return;
         
@@ -1524,7 +1581,8 @@ class Player {
 
         const opponent = players.find(p => p !== this);
         if (opponent) {
-            this.updateTiaCoteBeam(opponent); // <-- LLAMADA A LA NUEVA LÓGICA
+            this.updateTiaCoteBeam(opponent);
+            this.updateHearts(opponent);
         }
 
         // AI logic for both players
@@ -1788,7 +1846,7 @@ class Player {
         this.x = -1000; // Mover fuera de la pantalla
     }
     
-    // --- NUEVO MÉTODO PARA LANZAR EL ATAQUE DE TÍA COTE ---
+    // Método para lanzar el ataque de Tía Cote
     launchTiaCoteBeamAttack() {
         this.isCastingBeam = true;
         this.beamTimer = TIA_COTE_BEAM_DURATION;
@@ -1796,7 +1854,32 @@ class Player {
         this.attackVisualActive = true;
         screenShakeMagnitude = 8; // Un buen temblor de pantalla
         screenShakeTimeLeft = TIA_COTE_BEAM_DURATION;
-        new Audio('audio/angelic-choir.wav').play().catch(e => console.error("Error playing sound:", e)); // Necesitarás un sonido para esto
+        new Audio('audio/angelic-choir.wav').play().catch(e => console.error("Error playing sound:", e));
+
+        // Lanza los corazones
+        const totalLegSegmentsHeight = this.thighHeight + this.lowerLegHeight;
+        const shoulderX = this.x + (this.width - this.torsoWidth) / 2 + (this.facingRight ? this.torsoWidth * 0.70 : this.torsoWidth * 0.30);
+        const shoulderY = this.y + (this.height - this.torsoHeight - totalLegSegmentsHeight - this.shoeHeight) + this.torsoHeight * 0.20;
+        const armAngle = -Math.PI / 2.5; // Pose de Rey León
+        const forearmAngle = Math.PI / 3;
+        const elbowX = shoulderX + Math.cos(armAngle) * this.upperArmLength;
+        const elbowY = shoulderY + Math.sin(armAngle) * this.upperArmLength;
+        const handX = elbowX + Math.cos(armAngle + forearmAngle) * (this.foreArmLength + this.gloveSize * 0.25);
+        const handY = elbowY + Math.sin(armAngle + forearmAngle) * (this.foreArmLength + this.gloveSize * 0.25);
+
+        for (let i = 0; i < TIA_COTE_HEART_COUNT; i++) {
+            this.activeHearts.push({
+                x: handX,
+                y: handY,
+                width: TIA_COTE_HEART_WIDTH,
+                height: TIA_COTE_HEART_HEIGHT,
+                velocityX: TIA_COTE_HEART_SPEED + (Math.random() - 0.5) * 4, // Añade dispersión
+                velocityY: (Math.random() - 0.5) * 4,
+                direction: this.facingRight,
+                lifespan: TIA_COTE_HEART_LIFESPAN,
+                damage: TIA_COTE_HEART_DAMAGE
+            });
+        }
     }
 
     launchBoltDashAttack() {
@@ -1859,7 +1942,6 @@ class Player {
                 this.launchEscapeRoomJacksonAttack();
                 currentDamage = 0;
             } else if (this.name === "Tía Cote") {
-                // --- LLAMADA AL NUEVO SUPERPODER ---
                 this.launchTiaCoteBeamAttack();
                 currentDamage = 0;
             } else {
@@ -2060,7 +2142,6 @@ function createCharacterSelectionUI() {
     startButton.disabled = true;
 }
 
-// --- NUEVA FUNCIÓN ---
 // Inicia el efecto de ruleta para la selección del PC.
 function startPCSelectionRoulette() {
     // Desactiva los clics en los retratos durante la ruleta para evitar interferencias.
@@ -2137,7 +2218,6 @@ function startPCSelectionRoulette() {
 }
 
 
-// --- FUNCIÓN MODIFICADA ---
 // Gestiona la selección de personaje del jugador e inicia la del PC.
 function handleCharacterSelect(index) {
     // Si el jugador ya eligió, no hace nada.
@@ -2187,6 +2267,7 @@ function initGame() {
         p.activeCalculators = [];
         p.activePapers = [];
         p.activeKisses = [];
+        p.activeHearts = [];
         p.isDashing = false;
         p.trail = [];
         p.isCastingCrack = false;
@@ -2241,7 +2322,6 @@ function initGame() {
     gameLoop();
 }
 
-// --- FUNCIÓN MODIFICADA ---
 // Resetea la pantalla de selección a su estado inicial.
 function resetSelectionScreen() {
     gameOverModal.classList.add('hidden');
@@ -2327,6 +2407,7 @@ function isAnySuperPowerActive() {
             player.activeMoneyWads.length > 0 ||
             player.activeCalculators.length > 0 ||
             player.activeKisses.length > 0 ||
+            player.activeHearts.length > 0 ||
             player.activePapers.length > 0) {
             return true; // Se encontró un superpoder activo
         }
