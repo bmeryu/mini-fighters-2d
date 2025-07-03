@@ -3,6 +3,7 @@ const splashScreen = document.getElementById('splash-screen');
 const continueButton = document.getElementById('continue-button');
 const gameWrapper = document.getElementById('game-wrapper');
 const gameHeader = document.getElementById('game-header');
+const mainTitle = document.getElementById('main-title');
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d'); // Contexto 2D para dibujar en el canvas
@@ -63,7 +64,7 @@ const SUPER_PUNCH_DAMAGE = 30; // Daño del super golpe
 const SUPER_KICK_DAMAGE = 35; // Daño de la super patada
 
 // Constantes específicas para el superpoder de Piraña
-const PIRANHA_PROJECTILE_SPEED = 8;
+const PIRANHA_PROJECTILE_SPEED = 5; // Velocidad de las pirañas reducida (original: 8)
 const PIRANHA_PROJECTILE_LIFESPAN = 60;
 const PIRANHA_PROJECTILE_WIDTH = 30;
 const PIRANHA_PROJECTILE_HEIGHT = 20;
@@ -2206,6 +2207,7 @@ function initGame() {
     gameActive = true;
     gameOverModal.classList.add('hidden');
     controlsPanel.style.display = 'none';
+    mainTitle.style.display = 'none';
 
     // Set canvas background for the fight
     const possibleBgs = [
@@ -2244,6 +2246,7 @@ function initGame() {
 function resetSelectionScreen() {
     gameOverModal.classList.add('hidden');
     controlsPanel.style.display = 'block';
+    mainTitle.style.display = 'block';
     
     // Detiene la ruleta del PC si se estaba ejecutando.
     if (pcSelectionInterval) {
@@ -2452,6 +2455,7 @@ continueButton.addEventListener('click', () => {
     splashScreen.style.display = 'none';
     gameWrapper.style.display = 'block';
     gameHeader.style.display = 'block';
+    mainTitle.style.display = 'block';
     document.body.style.overflow = 'auto'; // Restaura el scroll si es necesario
 });
 
