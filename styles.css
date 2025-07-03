@@ -36,46 +36,27 @@ body {
     max-width: 1024px;
 }
 
-/* --- NUEVO LAYOUT HEADER --- */
-#main-header {
-    position: relative;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-
+/* --- ESTILOS DE TÍTULO Y HEADER --- */
 #main-title {
     font-family: 'Press Start 2P', cursive;
-    font-size: 2.5rem; /* Tamaño grande para el título */
+    font-size: 3rem; /* Tamaño grande para el título */
     color: #facc15; /* yellow-400 */
-    animation: arcade-glow 2s infinite ease-in-out;
+    text-shadow: 3px 3px 0 #e53e3e, -3px -3px 0 #3b82f6;
+    margin-bottom: 1.5rem;
     display: none; /* Se maneja con JS */
 }
 
 #game-header {
     font-family: 'Press Start 2P', cursive;
     color: #cbd5e1; /* slate-300 */
-    position: absolute;
-    top: 0;
-    left: 0;
     font-size: 0.8rem; /* Más pequeño */
     text-shadow: 1px 1px 0 #000;
-    display: none; /* Se maneja con JS */
 }
 
 #game-header sup {
     font-size: 0.5rem;
     vertical-align: super;
 }
-
-@keyframes arcade-glow {
-    0% { text-shadow: 3px 3px 0 #e53e3e, -3px -3px 0 #3b82f6, 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #facc15; }
-    50% { text-shadow: 3px 3px 0 #e53e3e, -3px -3px 0 #3b82f6, 0 0 10px #fff, 0 0 20px #fde047, 0 0 25px #fde047; }
-    100% { text-shadow: 3px 3px 0 #e53e3e, -3px -3px 0 #3b82f6, 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #facc15; }
-}
-
 /* ------------------------- */
 
 
@@ -104,6 +85,7 @@ body {
 #game-ui-top {
     max-width: 800px;
     margin: 0 auto 0.5rem auto;
+    visibility: hidden; /* Oculto por defecto */
 }
 
 /* Contenedores para las barras de salud y poder */
