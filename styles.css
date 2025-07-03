@@ -6,11 +6,11 @@ body {
     color: white;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* Alinea al inicio para el nuevo layout */
+    justify-content: center; /* Centra el contenido verticalmente */
     align-items: center;
     min-height: 100vh;
-    padding-top: 1rem;
-    overflow: hidden; /* Evita el scroll mientras el splash está activo */
+    padding: 1rem;
+    overflow-x: hidden; /* Evita el scroll horizontal */
 }
 
 /* Estilos para la pantalla de bienvenida (splash screen) */
@@ -30,34 +30,47 @@ body {
 }
 
 #game-wrapper {
-    position: relative;
-    z-index: 1;
-    display: none; /* Oculto por defecto */
+    display: none; /* Oculto por defecto, se muestra con JS */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
     max-width: 1024px;
 }
 
 /* --- ESTILOS DE TÍTULO Y HEADER --- */
 #main-header {
-    position: relative;
     width: 100%;
     text-align: center;
-    margin-bottom: 1rem;
+    margin-bottom: 1rem; /* Espacio antes del panel de selección */
+    position: relative; /* Para el logo de la esquina */
 }
 
+/* Título principal estilo Capcom */
 #main-title {
     font-family: 'Press Start 2P', cursive;
-    font-size: 3rem; /* Tamaño grande para el título */
-    color: #facc15; /* yellow-400 */
-    text-shadow: 3px 3px 0 #e53e3e, -3px -3px 0 #3b82f6;
-    display: none; /* Se maneja con JS */
+    font-size: clamp(2.5rem, 8vw, 4.5rem); /* Tamaño de fuente responsivo */
+    color: #fdd835; /* Amarillo vibrante */
+    -webkit-text-stroke: 2px #1e88e5; /* Borde azul */
+    text-stroke: 2px #1e88e5;
+    text-shadow:
+        4px 4px 0 #d81b60, /* Sombra rosa/magenta */
+        6px 6px 0 #1565c0, /* Sombra azul más oscura */
+        8px 8px 15px rgba(0,0,0,0.7); /* Sombra negra para profundidad */
+    transform: skewX(-8deg); /* Inclinación característica */
+    margin: 1rem 0 2rem 0; /* Margen superior e inferior */
+    display: inline-block; /* Para que la inclinación funcione bien */
+    padding: 0 1rem;
+    line-height: 1.1;
 }
+
 
 #corner-logo {
     font-family: 'Press Start 2P', cursive;
     color: #cbd5e1; /* slate-300 */
     position: absolute;
     top: 0.5rem;
-    right: 0;
+    right: 1rem;
     font-size: 1rem; 
     text-shadow: 1px 1px 0 #000;
 }
