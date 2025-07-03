@@ -6,11 +6,11 @@ body {
     color: white;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* Alinea al inicio para el nuevo layout */
+    justify-content: center; /* Centra el contenido verticalmente */
     align-items: center;
     min-height: 100vh;
-    padding-top: 1rem;
-    overflow: hidden; /* Evita el scroll mientras el splash está activo */
+    padding: 1rem;
+    overflow-x: hidden; /* Evita el scroll horizontal */
 }
 
 /* Estilos para la pantalla de bienvenida (splash screen) */
@@ -30,32 +30,44 @@ body {
 }
 
 #game-wrapper {
-    position: relative;
-    z-index: 1;
-    display: none; /* Oculto por defecto */
+    display: none; /* Oculto por defecto, se muestra con JS */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
     max-width: 1024px;
 }
 
 /* --- ESTILOS DE TÍTULO Y HEADER --- */
+#main-header {
+    /* Los estilos de layout ahora están en las clases de Tailwind en el HTML */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+/* Título principal más pequeño */
 #main-title {
     font-family: 'Press Start 2P', cursive;
-    font-size: 3rem; /* Tamaño grande para el título */
+    font-size: 2rem; /* Reducido para ser más pequeño */
     color: #facc15; /* yellow-400 */
-    text-shadow: 3px 3px 0 #e53e3e, -3px -3px 0 #3b82f6;
-    margin-bottom: 1.5rem;
-    display: none; /* Se maneja con JS */
+    text-shadow: 2px 2px 0 #d81b60, -2px -2px 0 #1e88e5; /* Sombra simplificada */
+    line-height: 1.1;
+    flex-grow: 1; /* Permite que el título ocupe el espacio central */
 }
 
-#game-header {
+
+#corner-logo {
     font-family: 'Press Start 2P', cursive;
     color: #cbd5e1; /* slate-300 */
-    font-size: 0.8rem; /* Más pequeño */
+    font-size: 1rem; 
     text-shadow: 1px 1px 0 #000;
+    /* Se eliminó position: absolute; el layout ahora lo maneja flexbox */
 }
 
-#game-header sup {
-    font-size: 0.5rem;
-    vertical-align: super;
+#corner-logo sup {
+    font-size: 0.6rem;
 }
 /* ------------------------- */
 
@@ -195,4 +207,3 @@ body {
     max-width: 800px;
     margin: 1rem auto 0 auto;
 }
- 
