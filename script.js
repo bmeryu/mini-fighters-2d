@@ -2292,7 +2292,6 @@ function initGame() {
     gameOverModal.classList.add('hidden');
     controlsPanel.style.display = 'none';
     mainHeader.style.display = 'none';
-    battleFooter.style.display = 'block';
 
     // Set canvas background for the fight
     const possibleBgs = [
@@ -2332,7 +2331,6 @@ function resetSelectionScreen() {
     controlsPanel.style.display = 'block';
     mainHeader.style.display = 'block';
     gameUiTop.style.visibility = 'hidden';
-    battleFooter.style.display = 'none';
     
     // Detiene la ruleta del PC si se estaba ejecutando.
     if (pcSelectionInterval) {
