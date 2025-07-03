@@ -1421,7 +1421,7 @@ class Player {
     updateHearts(opponent) {
         for (let i = this.activeHearts.length - 1; i >= 0; i--) {
             const heart = this.activeHearts[i];
-            heart.x += heart.velocityX * (heart.direction ? 1 : -1);
+            heart.x += heart.velocityX;
             heart.y += heart.velocityY;
             heart.lifespan--;
 
@@ -1440,7 +1440,7 @@ class Player {
                 heartBox.y < opponentBox.y + opponentBox.height &&
                 heartBox.y + heartBox.height > opponentBox.y
             ) {
-                opponent.takeDamage(heart.damage, heart.direction);
+                opponent.takeDamage(heart.damage, this.facingRight);
                 activeHitEffects.push({ text: "♥", x: heart.x, y: heart.y, color: "#e879f9", alpha: 1.0, size: 25, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
                 this.activeHearts.splice(i, 1);
             }
@@ -1858,19 +1858,26 @@ class Player {
         screenShakeTimeLeft = TIA_COTE_BEAM_DURATION;
         new Audio('audio/angelic-choir.wav').play().catch(e => console.error("Error playing sound:", e));
 
-        // Lanza los corazones desde el centro del personaje para un efecto de "aura"
-        const launchX = this.x + this.width / 2;
-        const launchY = this.y + this.height / 2;
+        // Lanza los corazones desde las manos
+        const totalLegSegmentsHeight = this.thighHeight + this.lowerLegHeight;
+        const shoulderX = this.x + (this.width - this.torsoWidth) / 2 + (this.facingRight ? this.torsoWidth * 0.70 : this.torsoWidth * 0.30);
+        const shoulderY = this.y + (this.height - this.torsoHeight - totalLegSegmentsHeight - this.shoeHeight) + this.torsoHeight * 0.20;
+        const armAngle = this.facingRight ? -Math.PI / 16 : Math.PI + Math.PI / 16;
+        const forearmAngle = 0;
+        const elbowX = shoulderX + Math.cos(armAngle) * this.upperArmLength;
+        const elbowY = shoulderY + Math.sin(armAngle) * this.upperArmLength;
+        const handX = elbowX + Math.cos(armAngle + forearmAngle) * (this.foreArmLength + this.gloveSize * 0.25);
+        const handY = elbowY + Math.sin(armAngle + forearmAngle) * (this.foreArmLength + this.gloveSize * 0.25);
+
 
         for (let i = 0; i < TIA_COTE_HEART_COUNT; i++) {
             this.activeHearts.push({
-                x: launchX,
-                y: launchY,
+                x: handX,
+                y: handY,
                 width: TIA_COTE_HEART_WIDTH,
                 height: TIA_COTE_HEART_HEIGHT,
                 velocityX: (this.facingRight ? 1 : -1) * TIA_COTE_HEART_SPEED + (Math.random() - 0.5) * 4, // Añade dispersión
                 velocityY: (Math.random() - 0.5) * 6, // Dispersión vertical
-                direction: this.facingRight,
                 lifespan: TIA_COTE_HEART_LIFESPAN,
                 damage: TIA_COTE_HEART_DAMAGE
             });
