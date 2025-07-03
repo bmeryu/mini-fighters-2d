@@ -2,8 +2,10 @@
 const splashScreen = document.getElementById('splash-screen');
 const continueButton = document.getElementById('continue-button');
 const gameWrapper = document.getElementById('game-wrapper');
+const mainHeader = document.getElementById('main-header');
 const gameHeader = document.getElementById('game-header');
 const mainTitle = document.getElementById('main-title');
+const gameUiTop = document.getElementById('game-ui-top');
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d'); // Contexto 2D para dibujar en el canvas
@@ -128,7 +130,7 @@ const TIA_COTE_HEART_LIFESPAN = 90;
 const TIA_COTE_HEART_WIDTH = 25;
 const TIA_COTE_HEART_HEIGHT = 22;
 const TIA_COTE_HEART_DAMAGE = 2;
-const TIA_COTE_HEART_COUNT = 5;
+const TIA_COTE_HEART_COUNT = 25; // Aumentado para efecto "cariñosito"
 
 
 // Variables para el efecto de temblor de pantalla
@@ -558,9 +560,9 @@ class Player {
         
         // Lógica de pose para superpoder Tía Cote
         if (this.isCastingBeam) {
-            // Pose de "Rey León", ambos brazos hacia arriba
-            finalUpperArmAngle = -Math.PI / 2.5;
-            finalForeArmAngle = Math.PI / 3;
+            // Brazos estirados hacia el frente
+            finalUpperArmAngle = this.facingRight ? -Math.PI / 16 : Math.PI + Math.PI / 16;
+            finalForeArmAngle = 0; // Brazo completamente estirado
         } else {
             const isPunchingThisArm = this.isPunching && this.attackVisualActive &&
                                      ((isPlayerRightArmActual && this.attackArm === 'right') || (!isPlayerRightArmActual && this.attackArm === 'left'));
@@ -1856,25 +1858,18 @@ class Player {
         screenShakeTimeLeft = TIA_COTE_BEAM_DURATION;
         new Audio('audio/angelic-choir.wav').play().catch(e => console.error("Error playing sound:", e));
 
-        // Lanza los corazones
-        const totalLegSegmentsHeight = this.thighHeight + this.lowerLegHeight;
-        const shoulderX = this.x + (this.width - this.torsoWidth) / 2 + (this.facingRight ? this.torsoWidth * 0.70 : this.torsoWidth * 0.30);
-        const shoulderY = this.y + (this.height - this.torsoHeight - totalLegSegmentsHeight - this.shoeHeight) + this.torsoHeight * 0.20;
-        const armAngle = -Math.PI / 2.5; // Pose de Rey León
-        const forearmAngle = Math.PI / 3;
-        const elbowX = shoulderX + Math.cos(armAngle) * this.upperArmLength;
-        const elbowY = shoulderY + Math.sin(armAngle) * this.upperArmLength;
-        const handX = elbowX + Math.cos(armAngle + forearmAngle) * (this.foreArmLength + this.gloveSize * 0.25);
-        const handY = elbowY + Math.sin(armAngle + forearmAngle) * (this.foreArmLength + this.gloveSize * 0.25);
+        // Lanza los corazones desde el centro del personaje para un efecto de "aura"
+        const launchX = this.x + this.width / 2;
+        const launchY = this.y + this.height / 2;
 
         for (let i = 0; i < TIA_COTE_HEART_COUNT; i++) {
             this.activeHearts.push({
-                x: handX,
-                y: handY,
+                x: launchX,
+                y: launchY,
                 width: TIA_COTE_HEART_WIDTH,
                 height: TIA_COTE_HEART_HEIGHT,
-                velocityX: TIA_COTE_HEART_SPEED + (Math.random() - 0.5) * 4, // Añade dispersión
-                velocityY: (Math.random() - 0.5) * 4,
+                velocityX: (this.facingRight ? 1 : -1) * TIA_COTE_HEART_SPEED + (Math.random() - 0.5) * 4, // Añade dispersión
+                velocityY: (Math.random() - 0.5) * 6, // Dispersión vertical
                 direction: this.facingRight,
                 lifespan: TIA_COTE_HEART_LIFESPAN,
                 damage: TIA_COTE_HEART_DAMAGE
@@ -2288,7 +2283,7 @@ function initGame() {
     gameActive = true;
     gameOverModal.classList.add('hidden');
     controlsPanel.style.display = 'none';
-    mainTitle.style.display = 'none';
+    mainHeader.style.display = 'none';
 
     // Set canvas background for the fight
     const possibleBgs = [
@@ -2317,8 +2312,8 @@ function initGame() {
         backgroundMusic.loop = true;
     }
     backgroundMusic.play().catch(error => console.warn("Error al reproducir música:", error));
-
-    gameHeader.style.display = 'none';
+    
+    gameUiTop.style.visibility = 'visible';
     gameLoop();
 }
 
@@ -2326,7 +2321,8 @@ function initGame() {
 function resetSelectionScreen() {
     gameOverModal.classList.add('hidden');
     controlsPanel.style.display = 'block';
-    mainTitle.style.display = 'block';
+    mainHeader.style.display = 'flex';
+    gameUiTop.style.visibility = 'hidden';
     
     // Detiene la ruleta del PC si se estaba ejecutando.
     if (pcSelectionInterval) {
@@ -2373,8 +2369,6 @@ function resetSelectionScreen() {
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     ctx.fillStyle = '#4a5568';
     ctx.fillRect(0, CANVAS_HEIGHT - 10, CANVAS_WIDTH, 10);
-    
-    gameHeader.style.display = 'block';
 }
 
 function updateHealthBars() {
@@ -2534,7 +2528,8 @@ function gameLoop() {
 // --- Lógica del Splash Screen ---
 continueButton.addEventListener('click', () => {
     splashScreen.style.display = 'none';
-    gameWrapper.style.display = 'block';
+    gameWrapper.style.display = 'flex';
+    mainHeader.style.display = 'flex';
     gameHeader.style.display = 'block';
     mainTitle.style.display = 'block';
     document.body.style.overflow = 'auto'; // Restaura el scroll si es necesario
