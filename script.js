@@ -335,6 +335,7 @@ const DEFAULT_SHOE_COLOR = '#4a5568';
 
 let playerSelectedCharIndex = -1;
 let pcSelectedCharIndex = -1;
+let pcSelectionInterval = null; // Variable para el intervalo de la ruleta del PC
 let smokeParticles = [];
 
 class Player {
@@ -2058,39 +2059,108 @@ function createCharacterSelectionUI() {
     startButton.disabled = true;
 }
 
-function handleCharacterSelect(index) {
-    if (playerSelectedCharIndex !== -1) return; // Player already selected
+// --- NUEVA FUNCIÓN ---
+// Inicia el efecto de ruleta para la selección del PC.
+function startPCSelectionRoulette() {
+    // Desactiva los clics en los retratos durante la ruleta para evitar interferencias.
+    characterGrid.style.pointerEvents = 'none';
 
-    new Audio('audio/20H.wav').play().catch(e => console.error("Error playing sound:", e));
+    // Crea una lista de índices de personajes disponibles (todos excepto el elegido por el jugador).
+    let availableChars = characterAssets.map((_, i) => i).filter(i => i !== playerSelectedCharIndex);
+    let rouletteIndex = 0;
+    let lastHighlightedIndex = -1;
 
-    // Player's selection
-    playerSelectedCharIndex = index;
-    const playerAsset = characterAssets[index];
-    p1SelectedCharImg.src = playerAsset.previewImage;
-    p1SelectedCharName.textContent = playerAsset.name;
-    document.querySelector(`[data-char-index='${index}']`).classList.add('selected-p1');
+    // Inicia un intervalo que se ejecuta rápidamente para simular el efecto de ruleta.
+    pcSelectionInterval = setInterval(() => {
+        // Quita el brillo del personaje anteriormente resaltado.
+        if (lastHighlightedIndex !== -1) {
+            document.querySelector(`[data-char-index='${lastHighlightedIndex}']`).classList.remove('selected-p2');
+        }
+
+        // Obtiene el índice del personaje a resaltar en esta iteración.
+        const charToHighlightIndex = availableChars[rouletteIndex];
+
+        // Aplica el brillo azul al retrato del personaje actual.
+        const portrait = document.querySelector(`[data-char-index='${charToHighlightIndex}']`);
+        if (portrait) {
+            portrait.classList.add('selected-p2');
+        }
+        // Reproduce el sonido de selección.
+        new Audio('audio/20H.wav').play().catch(e => console.error("Error playing sound:", e));
+
+        // Actualiza la imagen y el nombre en el display del PC en tiempo real.
+        const currentAsset = characterAssets[charToHighlightIndex];
+        p2SelectedCharImg.src = currentAsset.previewImage;
+        p2SelectedCharName.textContent = currentAsset.name;
+
+        lastHighlightedIndex = charToHighlightIndex;
+
+        // Pasa al siguiente personaje en la lista de disponibles.
+        rouletteIndex++;
+        if (rouletteIndex >= availableChars.length) {
+            rouletteIndex = 0; // Vuelve al inicio si llega al final.
+        }
+    }, 120); // Intervalo de 120ms para un efecto rápido.
+
+    // Define una duración aleatoria para la ruleta (entre 2 y 3 segundos).
+    const rouletteDuration = 2000 + Math.random() * 1000;
     
-    selectionPrompt.textContent = "El PC está eligiendo...";
-    
-    // PC's random selection after a delay
+    // Detiene la ruleta después del tiempo definido.
     setTimeout(() => {
-        let randomPcIndex;
-        do {
-            randomPcIndex = Math.floor(Math.random() * characterAssets.length);
-        } while (randomPcIndex === index); // Ensure PC is not the same as player
-        pcSelectedCharIndex = randomPcIndex;
+        clearInterval(pcSelectionInterval);
+
+        // El personaje final del PC es el último que fue resaltado.
+        pcSelectedCharIndex = lastHighlightedIndex;
         
         const pcAsset = characterAssets[pcSelectedCharIndex];
         p2SelectedCharImg.src = pcAsset.previewImage;
         p2SelectedCharName.textContent = pcAsset.name;
-        document.querySelector(`[data-char-index='${pcSelectedCharIndex}']`).classList.add('selected-p2');
 
+        // Se asegura de que solo el personaje final tenga el brillo.
+        document.querySelectorAll('.character-portrait.selected-p2').forEach(el => el.classList.remove('selected-p2'));
+        const finalPortrait = document.querySelector(`[data-char-index='${pcSelectedCharIndex}']`);
+        if (finalPortrait) {
+            finalPortrait.classList.add('selected-p2');
+        }
+
+        // Actualiza el mensaje y activa el botón de inicio.
         selectionPrompt.textContent = "¡Listo para luchar!";
         selectionPrompt.classList.remove('text-yellow-200');
         selectionPrompt.classList.add('text-green-400');
         startButton.disabled = false;
-    }, 1000); // 1-second delay
+        
+        // Reactiva los clics en los retratos.
+        characterGrid.style.pointerEvents = 'auto';
+
+    }, rouletteDuration);
 }
+
+
+// --- FUNCIÓN MODIFICADA ---
+// Gestiona la selección de personaje del jugador e inicia la del PC.
+function handleCharacterSelect(index) {
+    // Si el jugador ya eligió, no hace nada.
+    if (playerSelectedCharIndex !== -1) return;
+
+    // Reproduce el sonido de selección.
+    new Audio('audio/20H.wav').play().catch(e => console.error("Error playing sound:", e));
+
+    // Registra la selección del jugador y actualiza la UI.
+    playerSelectedCharIndex = index;
+    const playerAsset = characterAssets[index];
+    p1SelectedCharImg.src = playerAsset.previewImage;
+    p1SelectedCharName.textContent = playerAsset.name;
+    const playerPortrait = document.querySelector(`[data-char-index='${index}']`);
+    if (playerPortrait) {
+        playerPortrait.classList.add('selected-p1');
+    }
+    
+    selectionPrompt.textContent = "El PC está eligiendo...";
+    
+    // Inicia la ruleta de selección para el PC.
+    startPCSelectionRoulette();
+}
+
 
 function initGame() {
     if (playerSelectedCharIndex === -1 || pcSelectedCharIndex === -1) {
@@ -2169,10 +2239,19 @@ function initGame() {
     gameLoop();
 }
 
+// --- FUNCIÓN MODIFICADA ---
+// Resetea la pantalla de selección a su estado inicial.
 function resetSelectionScreen() {
     gameOverModal.classList.add('hidden');
     controlsPanel.style.display = 'block';
     
+    // Detiene la ruleta del PC si se estaba ejecutando.
+    if (pcSelectionInterval) {
+        clearInterval(pcSelectionInterval);
+    }
+    // Se asegura de que los retratos sean clickeables de nuevo.
+    characterGrid.style.pointerEvents = 'auto';
+
     playerSelectedCharIndex = -1;
     pcSelectedCharIndex = -1;
 
