@@ -96,25 +96,6 @@ body {
     visibility: hidden; /* Oculto por defecto */
 }
 
-#battle-footer {
-    display: none; /* Oculto por defecto */
-    font-family: 'Press Start 2P', cursive;
-    color: rgba(203, 213, 225, 0.7);
-    font-size: 1rem;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-    text-align: center;
-    width: 100%;
-    position: absolute;
-    bottom: 10px;
-    left: 0;
-    pointer-events: none;
-}
-
-#battle-footer sup {
-    font-size: 0.6rem;
-}
-
-
 /* Contenedores para las barras de salud y poder */
 .health-bar-container, .power-bar-container {
     width: 100%;
