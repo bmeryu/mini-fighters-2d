@@ -175,3 +175,11 @@ body {
     font-size: 0.7rem;
     vertical-align: super;
 }
+
+#main-title {
+    font-family: 'Press Start 2P', cursive;
+    color: #facc15; /* yellow-400 */
+    text-shadow: 2px 2px 0 #e53e3e, -2px -2px 0 #3b82f6;
+    margin-bottom: 2rem;
+    display: none; /* Oculto por defecto, se maneja con JS */
+}
