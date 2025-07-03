@@ -27,11 +27,16 @@
     
     <!-- Contenedor Principal del Juego -->
     <div id="game-wrapper" class="flex-col items-center p-4 w-full">
-        <!-- Título Principal (Visible en la selección de personajes) -->
-        <h1 id="main-title">Politic Kombat 2D</h1>
+         <!-- Encabezado para Pantalla de Selección -->
+        <header id="main-header" class="w-full max-w-4xl">
+            <h1 id="main-title">Politic Kombat 2D</h1>
+            <div id="corner-logo">
+                <p>MoleGames<sup>®</sup></p>
+            </div>
+        </header>
 
         <!-- Contenedor del Juego (UI Superior, Canvas, Panel de Controles) -->
-        <div id="game-container" class="w-full max-w-4xl">
+        <div id="game-container" class="w-full max-w-4xl relative">
             <!-- UI Superior: Barras de Vida y Poder -->
             <div id="game-ui-top" class="flex justify-between items-end mb-2 w-full">
                 <!-- Lado Izquierdo: Barras P1 -->
@@ -45,25 +50,25 @@
                     </div>
                 </div>
 
-                <!-- Lado Derecho: Barras P2 y Logo -->
-                <div class="w-2/5 flex items-end justify-end">
-                     <div class="flex-grow mr-4">
-                        <div id="player2NameDisplay" class="text-sm font-semibold mb-1 text-blue-400 text-right">PC</div>
-                        <div class="health-bar-container">
-                            <div id="player2HealthBar" class="health-bar player2-health" style="width: 100%;"></div>
-                        </div>
-                        <div class="power-bar-container mt-1">
-                            <div id="player2PowerBar" class="power-bar player2-power" style="width: 0%;"></div>
-                        </div>
-                    </div>
-                    <div id="game-header">
-                        <p>MoleGames<sup>®</sup></p>
-                    </div>
+                <!-- Lado Derecho: Barras P2 -->
+                <div class="w-2/5">
+                     <div id="player2NameDisplay" class="text-sm font-semibold mb-1 text-blue-400 text-right">PC</div>
+                     <div class="health-bar-container">
+                         <div id="player2HealthBar" class="health-bar player2-health" style="width: 100%;"></div>
+                     </div>
+                     <div class="power-bar-container mt-1">
+                         <div id="player2PowerBar" class="power-bar player2-power" style="width: 0%;"></div>
+                     </div>
                 </div>
             </div>
 
             <!-- Canvas del Juego -->
             <canvas id="gameCanvas"></canvas>
+
+            <!-- Logo centrado para la batalla -->
+            <footer id="battle-footer">
+                <p>MoleGames<sup>®</sup></p>
+            </footer>
 
             <!-- Mensaje de Inicio sobre el Canvas -->
             <div id="start-message-overlay" class="hidden absolute inset-0 flex justify-center items-center z-30 pointer-events-none">
