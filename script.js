@@ -50,7 +50,11 @@ const ATTACK_LOGIC_DURATION = 200; // Duración de la lógica de detección de a
 const ATTACK_COOLDOWN = 550; // Original: 700. Reducido para un combate más rápido.
 const BASE_KNOCKBACK_STRENGTH = 12; // Original: 10. Aumentado para un mayor impacto.
 const HIT_EFFECT_LIFETIME = 30; // Duración de los efectos de golpe
-const POWER_GAIN_PER_CLICK = 4; // Original: 1. Reducido aún más para minimizar el impacto del clic.
+
+// --- Constantes de Balance de Poder ---
+const POWER_GAIN_PER_CLICK = 5; // Poder ganado por cada clic válido.
+const CLICK_COOLDOWN = 100; // Enfriamiento de 100ms entre clics para evitar spam.
+const AI_PASSIVE_POWER_GAIN = 0.35; // Poder que el PC gana pasivamente por frame.
 
 // Constantes de la IA
 const AI_ACTION_INTERVAL = 250; // Intervalo para que la IA tome decisiones (más rápido)
@@ -389,6 +393,7 @@ class Player {
         this.power = 0;
         this.maxPower = MAX_POWER;
         this.isSuperCharged = false;
+        this.lastPowerClickTime = 0; // Para el enfriamiento de clics de poder
         this.isPerformingSuperAttackAnimation = false;
         this.activePiranhaProjectiles = [];
         this.activeMoneyWads = [];
@@ -1642,11 +1647,22 @@ class Player {
         }
         if (this.x < 0) this.x = 0;
         if (this.x + this.width > CANVAS_WIDTH) this.x = CANVAS_WIDTH - this.width;
+
+        // Carga de poder pasiva para la IA
+        if (!this.isPlayer1 && !this.isSuperCharged && gameActive) {
+            this.gainPower(AI_PASSIVE_POWER_GAIN);
+        }
     }
 
     chargePowerOnClick() {
         if (this.isSuperCharged || !gameActive) return;
         
+        const now = Date.now();
+        if (now - this.lastPowerClickTime < CLICK_COOLDOWN) {
+            return; // Enfriamiento activo, no hacer nada.
+        }
+        this.lastPowerClickTime = now;
+
         if (window.navigator && window.navigator.vibrate) {
             window.navigator.vibrate(15);
         }
@@ -1659,12 +1675,7 @@ class Player {
             powerBarContainer.classList.remove('power-bar-container-flash');
         }, 150);
 
-        this.power += POWER_GAIN_PER_CLICK;
-        if (this.power >= this.maxPower) {
-            this.power = this.maxPower;
-            this.isSuperCharged = true;
-        }
-        updatePowerBars();
+        this.gainPower(POWER_GAIN_PER_CLICK);
     }
 
 
@@ -1681,7 +1692,6 @@ class Player {
         if (this.power >= this.maxPower) {
             this.power = this.maxPower;
             this.isSuperCharged = true;
-            console.log((this.isPlayer1 ? "Player 1" : "Player 2") + " SUPER CARGADO!");
         }
         updatePowerBars();
     }
