@@ -48,19 +48,36 @@ body {
     font-size: 4.5rem;
     text-transform: uppercase;
     text-align: center;
-    line-height: 1.1;
+    line-height: 1;
     margin-bottom: 1.5rem;
     display: none; /* JS controla la visibilidad */
     position: relative;
-    color: #facc15; /* Color amarillo principal del texto */
+    color: #ffc107; /* Fallback color */
     
-    /* Efecto de sombra de pixel art inspirado en la imagen */
+    /* Gradient Fill */
+    background: linear-gradient(180deg, #f9d423 0%, #ff8c00 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    /* 3D Extrusion & Border effect */
     text-shadow: 
-        /* Sombra azul desplazada */
-        -4px 4px 0 #3b82f6,
+        /* Inner white highlight */
+        2px 2px 1px rgba(255,255,255,0.5),
         
-        /* Sombra roja más desplazada */
-        -8px 8px 0 #e53e3e;
+        /* Main blue border */
+        -2px -2px 0 #0d47a1,  
+         2px -2px 0 #0d47a1,
+        -2px  2px 0 #0d47a1,
+         2px  2px 0 #0d47a1,
+         
+        /* 3D Extrusion - stacking shadows */
+         4px 4px 0 #0d47a1,
+         5px 5px 0 #1565c0,
+         6px 6px 0 #1565c0,
+
+        /* Final dark drop shadow for separation */
+         7px 7px 5px rgba(0,0,0,0.5);
 }
 
 
@@ -162,4 +179,61 @@ body {
     top: 0;
     left: 0;
     width: 100%;
-    hei
+    height: 100%;
+    background-color: rgba(0,0,0,0.7); /* Fondo oscuro semi-transparente */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+#start-message-overlay {
+    top: 25%;
+}
+
+#start-message-text {
+    font-size: 2.1rem; /* Aproximadamente 15% más pequeño que 2.5rem */
+}
+
+/* Estilos para los retratos de selección de personajes */
+.character-portrait {
+    border: 2px solid #4a5568; /* Borde por defecto */
+    transition: all 0.2s ease-in-out; /* Transición suave en hover y selección */
+    cursor: pointer;
+    background-color: #2d3748; /* Fondo del retrato */
+}
+.character-portrait:hover {
+    border-color: #facc15; /* Borde amarillo al pasar el ratón */
+    transform: scale(1.05); /* Ligeramente más grande al pasar el ratón */
+}
+/* Estilos cuando el personaje es seleccionado por el Jugador 1 */
+.character-portrait.selected-p1 {
+    border-color: #e53e3e; /* Borde rojo */
+    box-shadow: 0 0 15px #e53e3e; /* Sombra roja */
+}
+/* Estilos cuando el personaje es seleccionado por el Jugador 2 */
+.character-portrait.selected-p2 {
+    border-color: #3b82f6; /* Borde azul */
+    box-shadow: 0 0 15px #3b82f6; /* Sombra azul */
+}
+.character-portrait img {
+    width: 100%;
+    height: 100px; /* Altura fija para los retratos */
+    object-fit: contain; /* Asegura que la imagen se ajuste dentro del contenedor */
+    image-rendering: pixelated; /* Mantiene el estilo pixel art */
+}
+.character-name-plate {
+    background-color: rgba(0,0,0,0.7);
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+    text-align: center;
+    color: #e2e8f0; /* Color de texto claro */
+}
+
+#controls-panel {
+    max-width: 800px;
+    margin: 1rem auto 0 auto;
+}
+
+/* --- Media Queries para Responsividad del Título --- */
+@media (max-width: 768px
