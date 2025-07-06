@@ -2547,9 +2547,12 @@ continueButton.addEventListener('click', () => {
     gameWrapper.style.display = 'flex';
     document.body.style.overflow = 'auto';
 
-    // Se asegura de que la UI se construya y reinicie en el momento correcto.
-    createCharacterSelectionUI();
-    resetSelectionScreen();
+    // **LA CORRECCIÓN**: Retrasar la configuración de la pantalla de selección
+    // para asegurar que el DOM se actualice primero.
+    setTimeout(() => {
+        createCharacterSelectionUI();
+        resetSelectionScreen();
+    }, 0);
 });
 
 restartButton.addEventListener('click', () => {
