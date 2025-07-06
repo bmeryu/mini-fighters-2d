@@ -5,6 +5,13 @@ body {
     background-color: #1a202c; /* Color de fondo oscuro */
     color: white;
     display: flex;
+    /* Estilos generales para el cuerpo de la página */
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    background-color: #1a202c; /* Color de fondo oscuro */
+    color: white;
+    display: flex;
     flex-direction: column;
     justify-content: flex-start; /* Alinea al inicio para el nuevo layout */
     align-items: center;
@@ -41,19 +48,24 @@ body {
 #main-header {
     position: relative; /* Necesario para posicionar el logo de la esquina */
     text-align: center;
-    margin-bottom: 1.5rem; /* Ajustar margen si es necesario */
 }
 
-/* --- NUEVO ESTILO DE TÍTULO IDÉNTICO A LA LANDING PAGE --- */
 #main-title {
-    font-family: 'Bangers', cursive;
-    letter-spacing: 0.05em; /* Equivalente a tracking-wider */
-    font-size: 7rem; /* Tamaño grande similar a la landing */
-    color: #facc15; /* text-yellow-400 */
-    text-shadow: 3px 3px 0 #e53e3e, -3px -3px 0 #3b82f6; /* Sombra de la landing page */
+    font-family: 'Bangers', cursive; /* Fuente 'Bangers' para el estilo de la landing */
+    font-size: 7rem; 
+    letter-spacing: 0.05em;
+    text-align: center;
     line-height: 1;
+    margin-bottom: 1.5rem;
     display: none; /* JS controla la visibilidad */
-    padding: 1rem 0;
+    position: relative;
+    color: #facc15; /* Color amarillo (text-yellow-400) */
+    
+    /* Sombra de texto replicada del landing page */
+    text-shadow: 
+        3px 3px 0 #e53e3e, /* Sombra roja */
+        -3px -3px 0 #3b82f6, /* Sombra azul */
+        5px 5px 5px rgba(0,0,0,0.5); /* Sombra oscura para profundidad */
 }
 
 
@@ -63,7 +75,7 @@ body {
     right: 0;
     font-family: 'Press Start 2P', cursive;
     color: #cbd5e1; /* slate-300 */
-    font-size: 0.8rem; /* Más pequeño */
+    font-size: 0.8rem;
     text-shadow: 1px 1px 0 #000;
     opacity: 0.7;
 }
@@ -77,36 +89,37 @@ body {
 
 /* Estilos del lienzo del juego */
 #gameCanvas {
-    background-color: transparent; /* El fondo del canvas ahora es transparente */
-    border-radius: 0.5rem; /* Bordes redondeados */
+    background-color: transparent;
+    border-radius: 0.5rem;
     display: block;
-    width: 100%; /* El lienzo se adapta al ancho del contenedor */
-    max-width: 800px; /* Ancho máximo para mantener la proporción */
-    height: 400px; /* Altura fija para el lienzo */
-    overflow: hidden; /* Evita que los efectos de estela se salgan del canvas */
+    width: 100%;
+    max-width: 800px;
+    height: 400px;
+    overflow: hidden;
     border: 2px solid rgba(255, 255, 255, 0.1);
     cursor: pointer;
-    margin: 0 auto; /* Centra el canvas */
+    margin: 0 auto;
 }
 
 /* Estilo para los paneles de UI (interfaz de usuario) */
 .ui-panel {
-    background-color: rgba(45, 55, 72, 0.9); /* Fondo semi-transparente */
+    background-color: rgba(45, 55, 72, 0.9);
     padding: 1rem;
     border-radius: 0.5rem;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
+/* Barras de vida y poder visibles por defecto */
 #game-ui-top {
     max-width: 800px;
     margin: 0 auto 0.5rem auto;
-    visibility: hidden; /* Oculto por defecto */
+    visibility: visible; /* CAMBIO: Ahora es visible por defecto */
 }
 
 /* Contenedores para las barras de salud y poder */
 .health-bar-container, .power-bar-container {
     width: 100%;
-    background-color: #4a5568; /* Color de fondo de la barra vacía */
+    background-color: #4a5568;
     border-radius: 0.25rem;
     overflow: hidden;
     border: 1px solid #718096;
@@ -118,7 +131,7 @@ body {
 /* Estilos para el relleno de las barras */
 .health-bar, .power-bar {
     height: 100%;
-    transition: width 0.3s ease-out; /* Animación de llenado/vaciado */
+    transition: width 0.3s ease-out;
 }
 
 /* Colores específicos para las barras de salud de cada jugador */
@@ -140,7 +153,7 @@ body {
 /* Keyframes para las animaciones */
 @keyframes pulse-yellow {
     0% { box-shadow: 0 0 5px #facc15, 0 0 10px #facc15; }
-    50% { box-shadow: 0 0 10px #fde047, 0 0 20px #fde047; } /* amarillo más claro */
+    50% { box-shadow: 0 0 10px #fde047, 0 0 20px #fde047; }
     100% { box-shadow: 0 0 5px #facc15, 0 0 10px #facc15; }
 }
 
@@ -156,7 +169,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0,0,0,0.7); /* Fondo oscuro semi-transparente */
+    background-color: rgba(0,0,0,0.7);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -168,42 +181,40 @@ body {
 }
 
 #start-message-text {
-    font-size: 2.1rem; /* Aproximadamente 15% más pequeño que 2.5rem */
+    font-size: 2.1rem;
 }
 
 /* Estilos para los retratos de selección de personajes */
 .character-portrait {
-    border: 2px solid #4a5568; /* Borde por defecto */
-    transition: all 0.2s ease-in-out; /* Transición suave en hover y selección */
+    border: 2px solid #4a5568;
+    transition: all 0.2s ease-in-out;
     cursor: pointer;
-    background-color: #2d3748; /* Fondo del retrato */
+    background-color: #2d3748;
 }
 .character-portrait:hover {
-    border-color: #facc15; /* Borde amarillo al pasar el ratón */
-    transform: scale(1.05); /* Ligeramente más grande al pasar el ratón */
+    border-color: #facc15;
+    transform: scale(1.05);
 }
-/* Estilos cuando el personaje es seleccionado por el Jugador 1 */
 .character-portrait.selected-p1 {
-    border-color: #e53e3e; /* Borde rojo */
-    box-shadow: 0 0 15px #e53e3e; /* Sombra roja */
+    border-color: #e53e3e;
+    box-shadow: 0 0 15px #e53e3e;
 }
-/* Estilos cuando el personaje es seleccionado por el Jugador 2 */
 .character-portrait.selected-p2 {
-    border-color: #3b82f6; /* Borde azul */
-    box-shadow: 0 0 15px #3b82f6; /* Sombra azul */
+    border-color: #3b82f6;
+    box-shadow: 0 0 15px #3b82f6;
 }
 .character-portrait img {
     width: 100%;
-    height: 100px; /* Altura fija para los retratos */
-    object-fit: contain; /* Asegura que la imagen se ajuste dentro del contenedor */
-    image-rendering: pixelated; /* Mantiene el estilo pixel art */
+    height: 100px;
+    object-fit: contain;
+    image-rendering: pixelated;
 }
 .character-name-plate {
     background-color: rgba(0,0,0,0.7);
     padding: 0.25rem 0.5rem;
     font-size: 0.8rem;
     text-align: center;
-    color: #e2e8f0; /* Color de texto claro */
+    color: #e2e8f0;
 }
 
 #controls-panel {
