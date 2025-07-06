@@ -8,7 +8,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- FUENTE ACTUALIZADA para incluir 'Bangers' -->
     <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Press+Start+2P&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="styles.css">
@@ -31,8 +30,7 @@
     <div id="game-wrapper" class="flex-col items-center p-4 w-full">
          <!-- Encabezado para Pantalla de Selección con el nuevo título -->
         <header id="main-header" class="w-full max-w-4xl mb-4 text-center">
-            <!-- TÍTULO MODIFICADO: Estructura simplificada para el nuevo estilo -->
-            <h1 id="main-title">Politic Kombat</h1>
+            <h1 id="main-title">Politic Kombat 2D</h1>
             <div id="corner-logo">
                 <p>MoleGames<sup>®</sup></p>
             </div>
@@ -40,7 +38,7 @@
 
         <!-- Contenedor del Juego (UI Superior, Canvas, Panel de Controles) -->
         <div id="game-container" class="w-full max-w-4xl relative">
-            <!-- UI Superior: Barras de Vida y Poder -->
+            <!-- UI Superior: Barras de Vida y Poder (Ahora visible en la selección) -->
             <div id="game-ui-top" class="flex justify-between items-end mb-2 w-full">
                 <!-- Lado Izquierdo: Barras P1 -->
                 <div class="w-2/5">
@@ -97,9 +95,9 @@
                 <button id="startButton" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg text-xl mt-2" disabled>
                     ¡A LUCHAR!
                 </button>
-                 <!-- INSTRUCCIÓN MODIFICADA -->
+                 <!-- Instrucciones de Superpoder mejoradas -->
                  <div class="mt-4 text-sm text-gray-300">
-                    <p>¡Acumula poder con cada clic! Cuando la barra esté llena, desata tu Superpoder con la barra espaciadora.</p>
+                    <p><strong>Mecánica de Superpoder:</strong> ¡Acumula energía haciendo clic en el ring! Cuando tu barra de poder amarilla esté al máximo, ¡desata tu ataque especial con la <strong>barra espaciadora</strong>!</p>
                 </div>
             </div>
 
