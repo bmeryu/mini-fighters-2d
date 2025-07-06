@@ -2330,7 +2330,7 @@ function initGame() {
     }
     backgroundMusic.play().catch(error => console.warn("Error al reproducir música:", error));
     
-    // La UI superior ya es visible, no es necesario cambiarla aquí.
+    gameUiTop.style.visibility = 'visible';
     gameLoop();
 }
 
@@ -2339,7 +2339,7 @@ function resetSelectionScreen() {
     gameOverModal.classList.add('hidden');
     controlsPanel.style.display = 'block';
     mainTitle.style.display = 'block';
-    gameUiTop.style.visibility = 'visible'; // CAMBIO: Asegura que la UI superior siga visible
+    gameUiTop.style.visibility = 'visible';
     
     if (pcSelectionInterval) {
         clearInterval(pcSelectionInterval);
@@ -2373,7 +2373,6 @@ function resetSelectionScreen() {
         backgroundMusic.currentTime = 0;
     }
     
-    // Resetea las barras para la nueva selección
     if (player1HealthBar) player1HealthBar.style.width = '100%';
     if (player2HealthBar) player2HealthBar.style.width = '100%';
     if (player1PowerBar) player1PowerBar.style.width = '0%';
@@ -2381,7 +2380,6 @@ function resetSelectionScreen() {
     if (player1PowerBar) player1PowerBar.classList.remove('super-charged');
     if (player2PowerBar) player2PowerBar.classList.remove('super-charged');
 
-    // Limpia el fondo del canvas
     canvas.style.backgroundImage = 'none';
     ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     ctx.fillStyle = 'rgba(45, 55, 72, 0.5)';
@@ -2543,12 +2541,19 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
-// --- Lógica del Splash Screen ---
+// --- Lógica del Splash Screen (CORREGIDA) ---
 continueButton.addEventListener('click', () => {
     splashScreen.style.display = 'none';
     gameWrapper.style.display = 'flex';
     mainTitle.style.display = 'block';
-    document.body.style.overflow = 'auto'; // Restaura el scroll si es necesario
+    
+    // **LA CORRECCIÓN**
+    // Se asegura de que el modal de fin de juego esté oculto
+    // y el panel de selección esté visible.
+    gameOverModal.classList.add('hidden');
+    controlsPanel.style.display = 'block';
+
+    document.body.style.overflow = 'auto';
 });
 
 restartButton.addEventListener('click', () => {
