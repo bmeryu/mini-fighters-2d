@@ -2545,15 +2545,11 @@ function gameLoop() {
 continueButton.addEventListener('click', () => {
     splashScreen.style.display = 'none';
     gameWrapper.style.display = 'flex';
-    mainTitle.style.display = 'block';
-    
-    // **LA CORRECCIÓN**
-    // Se asegura de que el modal de fin de juego esté oculto
-    // y el panel de selección esté visible.
-    gameOverModal.classList.add('hidden');
-    controlsPanel.style.display = 'block';
-
     document.body.style.overflow = 'auto';
+
+    // Se asegura de que la UI se construya y reinicie en el momento correcto.
+    createCharacterSelectionUI();
+    resetSelectionScreen();
 });
 
 restartButton.addEventListener('click', () => {
@@ -2577,9 +2573,8 @@ window.addEventListener('keydown', (event) => {
 });
 
 
-createCharacterSelectionUI();
-resetSelectionScreen();
-
+// Inicializa la música pero no la configuración de la pantalla, 
+// eso se hará después del splash.
 backgroundMusic = new Audio('audio/playbackbattle.mp3');
 backgroundMusic.loop = true;
 backgroundMusic.pause();
