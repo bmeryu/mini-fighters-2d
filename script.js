@@ -2330,7 +2330,7 @@ function initGame() {
     }
     backgroundMusic.play().catch(error => console.warn("Error al reproducir música:", error));
     
-    gameUiTop.style.visibility = 'visible';
+    // La UI superior ya es visible, no es necesario cambiarla aquí.
     gameLoop();
 }
 
@@ -2339,13 +2339,11 @@ function resetSelectionScreen() {
     gameOverModal.classList.add('hidden');
     controlsPanel.style.display = 'block';
     mainTitle.style.display = 'block';
-    gameUiTop.style.visibility = 'hidden';
+    gameUiTop.style.visibility = 'visible'; // CAMBIO: Asegura que la UI superior siga visible
     
-    // Detiene la ruleta del PC si se estaba ejecutando.
     if (pcSelectionInterval) {
         clearInterval(pcSelectionInterval);
     }
-    // Se asegura de que los retratos sean clickeables de nuevo.
     characterGrid.style.pointerEvents = 'auto';
 
     playerSelectedCharIndex = -1;
@@ -2374,12 +2372,16 @@ function resetSelectionScreen() {
         backgroundMusic.pause();
         backgroundMusic.currentTime = 0;
     }
+    
+    // Resetea las barras para la nueva selección
+    if (player1HealthBar) player1HealthBar.style.width = '100%';
+    if (player2HealthBar) player2HealthBar.style.width = '100%';
     if (player1PowerBar) player1PowerBar.style.width = '0%';
     if (player2PowerBar) player2PowerBar.style.width = '0%';
     if (player1PowerBar) player1PowerBar.classList.remove('super-charged');
     if (player2PowerBar) player2PowerBar.classList.remove('super-charged');
 
-    // Clear canvas background and redraw default
+    // Limpia el fondo del canvas
     canvas.style.backgroundImage = 'none';
     ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     ctx.fillStyle = 'rgba(45, 55, 72, 0.5)';
@@ -2429,7 +2431,6 @@ function isAnySuperPowerActive() {
 function checkGameOver() {
     if (players.length < 2) return;
     
-    // Si la vida de un jugador llega a cero, pero un superpoder está activo, no termines el juego todavía.
     if ((players[0].health <= 0 || players[1].health <= 0) && isAnySuperPowerActive()) {
         return;
     }
