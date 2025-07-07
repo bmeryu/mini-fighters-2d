@@ -39,7 +39,7 @@ body {
 
 /* --- ESTILOS DE TÍTULO Y HEADER --- */
 
-/* * CORRECCIÓN: Se cambió a 'display: grid' y 'place-items: center'.
+/* CORRECCIÓN: Se cambió a 'display: grid' y 'place-items: center'.
  * Esta es una forma moderna y más fiable de centrar el título,
  * evitando que otros elementos como el logo afecten su alineación.
  */
@@ -116,7 +116,7 @@ body {
 #game-ui-top {
     max-width: 800px;
     margin: 0 auto 0.5rem auto;
-    visibility: visible; /* CAMBIO: Ahora es visible por defecto */
+    visibility: visible;
 }
 
 /* Contenedores para las barras de salud y poder */
@@ -173,7 +173,9 @@ body {
     width: 100%;
     height: 100%;
     background-color: rgba(0,0,0,0.7);
-    display: flex;
+    /* CORRECCIÓN: Se cambia 'display: flex' a 'display: none' por defecto. 
+       El JS controlará cuándo mostrarlo. */
+    display: none;
     justify-content: center;
     align-items: center;
     z-index: 1000;
