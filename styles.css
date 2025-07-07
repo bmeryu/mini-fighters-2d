@@ -5,13 +5,6 @@ body {
     background-color: #1a202c; /* Color de fondo oscuro */
     color: white;
     display: flex;
-    /* Estilos generales para el cuerpo de la página */
-body {
-    font-family: 'Inter', sans-serif;
-    margin: 0;
-    background-color: #1a202c; /* Color de fondo oscuro */
-    color: white;
-    display: flex;
     flex-direction: column;
     justify-content: flex-start; /* Alinea al inicio para el nuevo layout */
     align-items: center;
@@ -45,13 +38,23 @@ body {
 }
 
 /* --- ESTILOS DE TÍTULO Y HEADER --- */
+
+/* * CORRECCIÓN: Se cambió a 'display: grid' y 'place-items: center'.
+ * Esta es una forma moderna y más fiable de centrar el título,
+ * evitando que otros elementos como el logo afecten su alineación.
+ */
 #main-header {
-    position: relative; /* Necesario para posicionar el logo de la esquina */
-    text-align: center;
+    position: relative; 
+    display: grid;
+    place-items: center;
 }
 
 #main-title {
-    font-family: 'Bangers', cursive; /* Fuente 'Bangers' para el estilo de la landing */
+    /* CORRECCIÓN: Se añade al grid para asegurar que se apile correctamente. */
+    grid-column: 1;
+    grid-row: 1;
+    
+    font-family: 'Bangers', cursive; 
     font-size: 7rem; 
     letter-spacing: 0.05em;
     text-align: center;
