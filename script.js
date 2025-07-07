@@ -2298,7 +2298,10 @@ function initGame() {
     updateHealthBars();
     updatePowerBars();
     gameActive = true;
-    gameOverModal.classList.add('hidden');
+    
+    // CORRECCIÓN: Se usa style.display = 'none' para asegurar que el modal esté oculto.
+    gameOverModal.style.display = 'none';
+    
     controlsPanel.style.display = 'none';
     mainTitle.style.display = 'none';
 
@@ -2336,7 +2339,10 @@ function initGame() {
 
 // Resetea la pantalla de selección a su estado inicial.
 function resetSelectionScreen() {
-    gameOverModal.classList.add('hidden');
+    // CORRECCIÓN: Se usa style.display = 'none' en lugar de classList.
+    // Esto es más directo y evita problemas de especificidad de CSS al cargar.
+    gameOverModal.style.display = 'none';
+    
     controlsPanel.style.display = 'block';
     mainTitle.style.display = 'block';
     gameUiTop.style.visibility = 'visible';
@@ -2449,7 +2455,11 @@ function checkGameOver() {
     if (winner || (players[0].health <= 0 && players[1].health <= 0)) {
         gameActive = false;
         new Audio('audio/9BH.wav').play().catch(e => console.error("Error playing sound:", e));
-        gameOverModal.classList.remove('hidden');
+        
+        // CORRECCIÓN: Se usa style.display = 'flex' para mostrar el modal.
+        // Esto coincide con la clase 'modal' que usa flexbox para centrar.
+        gameOverModal.style.display = 'flex';
+        
         document.getElementById('start-message-overlay').classList.add('hidden');
         gameOverMessage.textContent = "¡Fin del Combate!";
 
