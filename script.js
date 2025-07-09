@@ -2378,6 +2378,37 @@ function resetSelectionScreen() {
         backgroundMusic.pause();
         backgroundMusic.currentTime = 0;
     }
+    document.addEventListener('DOMContentLoaded', () => {
+    continueButton.addEventListener('click', () => {
+        splashScreen.style.display = 'none';
+        gameWrapper.style.display = 'flex';
+        document.body.style.overflow = 'auto';
+
+        setTimeout(() => {
+            createCharacterSelectionUI();
+            resetSelectionScreen();
+        }, 0);
+    });
+
+    restartButton.addEventListener('click', () => {
+        resetSelectionScreen();
+    });
+
+    startButton.addEventListener('click', initGame);
+
+    canvas.addEventListener('click', () => {
+        if (gameActive && players.length > 0) {
+            players[0].chargePowerOnClick();
+        }
+    });
+
+    window.addEventListener('keydown', (event) => {
+        if (event.code === 'Space' && gameActive && players.length > 0 && players[0].isSuperCharged) {
+            event.preventDefault(); 
+            players[0].punch(); 
+        }
+    });
+});
     
     if (player1HealthBar) player1HealthBar.style.width = '100%';
     if (player2HealthBar) player2HealthBar.style.width = '100%';
