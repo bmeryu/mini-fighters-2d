@@ -1,26 +1,29 @@
-//======================================================================
-// 1. OBTENCIÓN DE ELEMENTOS DEL DOM
-//======================================================================
+// Obtención de elementos del DOM
 const splashScreen = document.getElementById('splash-screen');
 const continueButton = document.getElementById('continue-button');
 const gameWrapper = document.getElementById('game-wrapper');
 const mainHeader = document.getElementById('main-header');
+const gameHeader = document.getElementById('game-header');
 const mainTitle = document.getElementById('main-title');
 const gameUiTop = document.getElementById('game-ui-top');
+
 const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
+const ctx = canvas.getContext('2d'); // Contexto 2D para dibujar en el canvas
+
 const player1HealthBar = document.getElementById('player1HealthBar');
 const player2HealthBar = document.getElementById('player2HealthBar');
 const player1PowerBar = document.getElementById('player1PowerBar');
 const player2PowerBar = document.getElementById('player2PowerBar');
 const player1NameDisplay = document.getElementById('player1NameDisplay');
 const player2NameDisplay = document.getElementById('player2NameDisplay');
+
 const startButton = document.getElementById('startButton');
 const restartButton = document.getElementById('restartButton');
 const gameOverModal = document.getElementById('gameOverModal');
 const winnerMessage = document.getElementById('winnerMessage');
 const gameOverMessage = document.getElementById('gameOverMessage');
 const controlsPanel = document.getElementById('controls-panel');
+
 const characterGrid = document.getElementById('character-grid');
 const p1SelectedCharImg = document.getElementById('p1-selected-char-img');
 const p1SelectedCharName = document.getElementById('p1-selected-char-name');
@@ -28,40 +31,308 @@ const p2SelectedCharImg = document.getElementById('p2-selected-char-img');
 const p2SelectedCharName = document.getElementById('p2-selected-char-name');
 const selectionPrompt = document.getElementById('selection-prompt');
 
-//======================================================================
-// 2. CONSTANTES Y CONFIGURACIÓN DEL JUEGO
-//======================================================================
+// Constantes del juego
 const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 400;
 canvas.width = CANVAS_WIDTH;
 canvas.height = CANVAS_HEIGHT;
-const GRAVITY = 0.7;
-const BASE_PLAYER_SPEED = 4;
-const BASE_JUMP_STRENGTH = 15;
-const MAX_HEALTH = 150;
-const PUNCH_DAMAGE = 10;
-const KICK_DAMAGE = 13;
-const SUPER_PUNCH_DAMAGE = 30;
-const SUPER_KICK_DAMAGE = 35;
-const PUNCH_RANGE = 50;
-const KICK_RANGE = 60;
-const ATTACK_ANIMATION_DURATION = 150;
-const ATTACK_LOGIC_DURATION = 200;
-const ATTACK_COOLDOWN = 550;
-const BASE_KNOCKBACK_STRENGTH = 12;
-const MAX_POWER = 150;
-const POWER_GAIN_PER_CLICK = 5;
-const CLICK_COOLDOWN = 100;
-const POWER_GAIN_PER_HIT = 25;
-const AI_PASSIVE_POWER_GAIN = 0.35;
-const AI_ACTION_INTERVAL = 250;
-const AI_MOVE_CHANCE = 0.7;
-const AI_JUMP_CHANCE = 0.15;
-const AI_ATTACK_CHANCE_IN_RANGE = 0.75;
-const AI_KICK_CHANCE = 0.4;
-const HIT_EFFECT_LIFETIME = 30;
+
+const GRAVITY = 0.7; // Gravedad que afecta a los jugadores
+const BASE_PLAYER_SPEED = 4; // Velocidad base de movimiento
+const BASE_JUMP_STRENGTH = 15; // Fuerza de salto
+const MAX_HEALTH = 150; // Salud máxima
+const PUNCH_DAMAGE = 10; // Daño del golpe
+const KICK_DAMAGE = 13; // Daño de la patada
+const PUNCH_RANGE = 50; // Rango del golpe
+const KICK_RANGE = 60; // Rango de la patada
+const ATTACK_ANIMATION_DURATION = 150; // Duración de la animación de ataque
+const ATTACK_LOGIC_DURATION = 200; // Duración de la lógica de detección de ataque
+const ATTACK_COOLDOWN = 550; // Original: 700. Reducido para un combate más rápido.
+const BASE_KNOCKBACK_STRENGTH = 12; // Original: 10. Aumentado para un mayor impacto.
+const HIT_EFFECT_LIFETIME = 30; // Duración de los efectos de golpe
+
+// --- Constantes de Balance de Poder ---
+const POWER_GAIN_PER_CLICK = 5; // Poder ganado por cada clic válido.
+const CLICK_COOLDOWN = 100; // Enfriamiento de 100ms entre clics para evitar spam.
+const AI_PASSIVE_POWER_GAIN = 0.35; // Poder que el PC gana pasivamente por frame.
+
+// Constantes de la IA
+const AI_ACTION_INTERVAL = 250; // Intervalo para que la IA tome decisiones (más rápido)
+const AI_MOVE_CHANCE = 0.7; // Probabilidad de que la IA se mueva
+const AI_JUMP_CHANCE = 0.15; // Probabilidad de que la IA salte (ligeramente mayor)
+const AI_ATTACK_CHANCE_IN_RANGE = 0.75; // Probabilidad de que la IA ataque si está cerca (mayor)
+const AI_KICK_CHANCE = 0.4; // Probabilidad de que la IA use una patada en lugar de un puñetazo
+
+// Constantes de poder y ataques especiales
+const MAX_POWER = 150; // Poder máximo
+const POWER_GAIN_PER_HIT = 25; // Poder ganado por cada golpe exitoso
+const SUPER_PUNCH_DAMAGE = 30; // Daño del super golpe
+const SUPER_KICK_DAMAGE = 35; // Daño de la super patada
+
+// Constantes específicas para el superpoder de Piraña
+const PIRANHA_PROJECTILE_SPEED = 5; // Velocidad de las pirañas reducida (original: 8)
+const PIRANHA_PROJECTILE_LIFESPAN = 60;
+const PIRANHA_PROJECTILE_WIDTH = 30;
+const PIRANHA_PROJECTILE_HEIGHT = 20;
+const PIRANHA_PROJECTILE_DAMAGE = 15;
+const PIRANHA_PROJECTILE_COUNT = 3;
+
+// Constantes específicas para el superpoder de La Ex (Lluvia de Billetes)
+const MONEY_RAIN_COUNT = 5; // Número de grupos de billetes
+const MONEY_RAIN_WAD_WIDTH = 30; // Ancho del fajo de billetes
+const MONEY_RAIN_WAD_HEIGHT = 20; // Alto del fajo de billetes
+const MONEY_RAIN_DAMAGE = 10;
+const MONEY_RAIN_INITIAL_Y = -MONEY_RAIN_WAD_HEIGHT;
+const COIN_RAIN_DAMAGE = 5;
+
+// Constantes específicas para el superpoder de Burric (Calculadoras)
+const CALCULATOR_PROJECTILE_LIFESPAN = 120; // Aumentar vida útil
+const CALCULATOR_PROJECTILE_WIDTH = 40;
+const CALCULATOR_PROJECTILE_HEIGHT = 50;
+const CALCULATOR_PROJECTILE_DAMAGE = 18;
+const CALCULATOR_PROJECTILE_COUNT = 5; // Más calculadoras
+const CALCULATOR_INITIAL_Y = -CALCULATOR_PROJECTILE_HEIGHT;
+
+// Constantes específicas para el superpoder de Matthei Bolt
+const BOLT_DASH_SPEED = 22.5; // Reducido un 10% de 25
+const BOLT_DASH_COUNT = 5;
+const BOLT_DASH_DAMAGE = 8;
+
+// Constantes específicas para el superpoder de El Zanjas
+const ZANJAS_CRACK_DAMAGE = 40;
+const ZANJAS_SWALLOWED_DURATION = 90; // Duración en frames
+const ZANJAS_CRACK_WIDTH = 150;
+const ZANJAS_CRACK_MAX_HEIGHT = 80;
+const ZANJAS_CRACK_LIFESPAN = 180; // Total de frames para animación
+
+// Constantes específicas para el superpoder de Carolina Papelucho
+const PAPELUCHO_STUN_DURATION = 180; // 3 segundos a 60fps
+const PAPELUCHO_PAPER_COUNT = 20;
+const PAPELUCHO_PAPER_WIDTH = 25;
+const PAPELUCHO_PAPER_HEIGHT = 35;
+const PAPELUCHO_PAPER_DAMAGE = 1;
+
+// Constantes específicas para el superpoder de Orsini Love
+const ORSINI_KISS_SPEED = 7;
+const ORSINI_KISS_LIFESPAN = 90;
+const ORSINI_KISS_WIDTH = 30;
+const ORSINI_KISS_HEIGHT = 25;
+const ORSINI_KISS_DAMAGE = 18;
+const ORSINI_KISS_COUNT = 2;
+
+// Constantes específicas para el superpoder de Escape Room Jackson
+const JACKSON_INVISIBILITY_DURATION = 120; // 2 segundos a 60fps
+const JACKSON_CONFUSION_DURATION = 120;
+const SMOKE_PARTICLE_COUNT = 30;
+
+// Constantes para el superpoder de Tía Cote
+const TIA_COTE_BEAM_DURATION = 120; // El rayo dura 2 segundos (a 60fps)
+const TIA_COTE_BEAM_WIDTH = 90; // Ancho del rayo
+const TIA_COTE_BEAM_DAMAGE_PER_FRAME = 0.5; // Daño por cada frame que el oponente está en el rayo
+const TIA_COTE_HEART_SPEED = 6;
+const TIA_COTE_HEART_LIFESPAN = 90;
+const TIA_COTE_HEART_WIDTH = 25;
+const TIA_COTE_HEART_HEIGHT = 22;
+const TIA_COTE_HEART_DAMAGE = 2;
+const TIA_COTE_HEART_COUNT = 25; // Aumentado para efecto "cariñosito"
+
+
+// Variables para el efecto de temblor de pantalla
+let screenShakeMagnitude = 0;
+let screenShakeTimeLeft = 0;
+
+let gameActive = false; // Estado del juego (activo o en pausa)
+let players = []; // Array para almacenar los objetos Player
+let activeHitEffects = []; // Array para los efectos visuales de golpe
 const hitWords = ["¡POW!", "¡BAM!", "¡CRASH!", "¡KAPOW!", "¡WHAM!", "¡SLAP!", "¡BOOM!", "¡BANG!", "¡PUFF!", "¡THWACK!"];
 const hitWordColors = ["#FFD700", "#FF4500", "#ADFF2F", "#00FFFF", "#FF69B4", "#FFFF00", "#FF1493"];
+
+let backgroundMusic; // Objeto de audio para la música de fondo
+
+const characterBackgrounds = {
+    "El Zanjas": ["img/lazanja.png"],
+    "Tía Cote": ["img/glitter.png"],
+    "Escape Room Jackson": ["img/happyhour.png"],
+    "Piraña": ["img/lamoneda.png"],
+    "La Ex": ["img/lamoneda.png"],
+    "Matthei Bolt": ["img/pasillomoneda.png"],
+    "Burric": ["img/pasillomoneda.png"],
+    "Orsini Love": ["img/pasillomoneda.png"],
+    "Carolina Papelucho": ["img/pasillomoneda.png"]
+};
+
+
+// Definición de los assets de los personajes (imágenes, colores, etc.)
+const characterAssets = [
+    {
+        name: "Piraña",
+        baseColor: '#e0e0e0',
+        previewImage: "img/personaje1-cabeza.png",
+        textures: {
+            head: "img/personaje1-cabeza.png",
+            torso: "img/personaje1-torso.png",
+            upperArm: "img/personaje1-brazos.png",
+            foreArm: "img/personaje1-antebrazos.png",
+            thigh: "img/personaje1-muslos.png",
+            lowerLeg: "img/personaje1-piernasbajas.png",
+            glove_r: "img/personaje1-guantes-d.png",
+            glove_l: "img/personaje1-guantes-i.png",
+            glove: null,
+            shoe: "img/personaje1-zapatos.png",
+            superEffectTexture: "img/personaje1-super-effect.png"
+        }
+    },
+    {
+        name: "La Ex",
+        baseColor: '#c0392b',
+        previewImage: "img/personaje2-cabeza.png",
+        textures: {
+            head: "img/personaje2-cabeza.png",
+            torso: "img/personaje2-torso.png",
+            upperArm: "img/personaje2-brazos.png",
+            foreArm: "img/personaje2-antebrazos.png",
+            thigh: "img/personaje2-muslos.png",
+            lowerLeg: "img/personaje2-piernasbajas.png",
+            glove_r: "img/personaje2-guantes-d.png",
+            glove_l: "img/personaje2-guantes-i.png",
+            glove: null,
+            shoe: "img/personaje2-zapatos.png",
+            superEffectTexture: "img/personaje2-super-effect.png"
+        }
+    },
+    {
+        name: "Burric",
+        baseColor: '#27ae60',
+        previewImage: "img/personaje3-cabeza.png",
+        textures: {
+            head: "img/personaje3-cabeza.png",
+            torso: "img/personaje3-torso.png",
+            upperArm: "img/personaje3-brazos.png",
+            foreArm: "img/personaje3-antebrazos.png",
+            thigh: "img/personaje3-muslos.png",
+            lowerLeg: "img/personaje3-piernasbajas.png",
+            glove_r: "img/personaje3-guantes-d.png",
+            glove_l: "img/personaje3-guantes-i.png",
+            glove: null,
+            shoe: "img/personaje3-zapatos.png",
+            superEffectTexture: "img/personaje3-super-effect.png"
+        }
+    },
+    {
+        name: "Matthei Bolt",
+        baseColor: '#f39c12',
+        previewImage: "img/personaje4-cabeza.png",
+        textures: {
+            head: "img/personaje4-cabeza.png",
+            torso: "img/personaje4-torso.png",
+            upperArm: "img/personaje4-brazos.png",
+            foreArm: "img/personaje4-antebrazos.png",
+            thigh: "img/personaje4-muslos.png",
+            lowerLeg: "img/personaje4-piernasbajas.png",
+            glove_r: "img/personaje4-guantes-d.png",
+            glove_l: "img/personaje4-guantes-i.png",
+            glove: null,
+            shoe: "img/personaje4-zapatos.png",
+            superEffectTexture: "img/personaje4-super-effect.png",
+            yellowVest: "img/matthei-chaleco.png" 
+        }
+    },
+    {
+        name: "Carolina Papelucho",
+        baseColor: '#d35400',
+        previewImage: "img/personaje5-cabeza.png",
+        textures: {
+            head: "img/personaje5-cabeza.png",
+            torso: "img/personaje5-torso.png",
+            upperArm: "img/personaje5-brazos.png",
+            foreArm: "img/personaje5-antebrazos.png",
+            thigh: "img/personaje5-muslos.png",
+            lowerLeg: "img/personaje5-piernasbajas.png",
+            glove_r: "img/personaje5-guantes-d.png",
+            glove_l: "img/personaje5-guantes-i.png",
+            glove: null,
+            shoe: "img/personaje5-zapatos.png",
+            superEffectTexture: "img/personaje5-super-effect.png"
+        }
+    },
+    {
+        name: "El Zanjas",
+        baseColor: '#7f8c8d',
+        previewImage: "img/personaje6-cabeza.png",
+        textures: {
+            head: "img/personaje6-cabeza.png",
+            torso: "img/personaje6-torso.png",
+            upperArm: "img/personaje6-brazos.png",
+            foreArm: "img/personaje6-antebrazos.png",
+            thigh: "img/personaje6-muslos.png",
+            lowerLeg: "img/personaje6-piernasbajas.png",
+            glove_r: "img/personaje6-guantes-d.png",
+            glove_l: "img/personaje6-guantes-i.png",
+            glove: null,
+            shoe: "img/personaje6-zapatos.png",
+            superEffectTexture: "img/personaje6-super-effect.png"
+        }
+    },
+    {
+        name: "Orsini Love",
+        baseColor: '#ff69b4', // HotPink
+        previewImage: "img/personaje7-cabeza.png",
+        textures: {
+            head: "img/personaje7-cabeza.png",
+            torso: "img/personaje7-torso.png",
+            upperArm: "img/personaje7-brazos.png",
+            foreArm: "img/personaje7-antebrazos.png",
+            thigh: "img/personaje7-muslos.png",
+            lowerLeg: "img/personaje7-piernasbajas.png",
+            glove_r: "img/personaje7-guantes-d.png",
+            glove_l: "img/personaje7-guantes-i.png",
+            glove: null,
+            shoe: "img/personaje7-zapatos.png",
+            superEffectTexture: "img/personaje7-super-effect.png"
+        }
+    },
+    {
+        name: "Escape Room Jackson",
+        baseColor: '#6c757d', // Gray
+        previewImage: "img/personaje8-cabeza.png",
+        textures: {
+            head: "img/personaje8-cabeza.png",
+            torso: "img/personaje8-torso.png",
+            upperArm: "img/personaje8-brazos.png",
+            foreArm: "img/personaje8-antebrazos.png",
+            thigh: "img/personaje8-muslos.png",
+            lowerLeg: "img/personaje8-piernasbajas.png",
+            glove_r: "img/personaje8-guantes-d.png",
+            glove_l: "img/personaje8-guantes-i.png",
+            glove: null,
+            shoe: "img/personaje8-zapatos.png",
+            superEffectTexture: "img/personaje8-super-effect.png"
+        }
+    },
+    {
+        name: "Tía Cote",
+        baseColor: '#9b59b6', // Amethyst
+        previewImage: "img/personaje9-cabeza.png",
+        textures: {
+            head: "img/personaje9-cabeza.png",
+            torso: "img/personaje9-torso.png",
+            upperArm: "img/personaje9-brazos.png",
+            foreArm: "img/personaje9-antebrazos.png",
+            thigh: "img/personaje9-muslos.png",
+            lowerLeg: "img/personaje9-piernasbajas.png",
+            glove_r: "img/personaje9-guantes-d.png",
+            glove_l: "img/personaje9-guantes-i.png",
+            glove: null,
+            shoe: "img/personaje9-zapatos.png",
+            superEffectTexture: "img/personaje9-super-effect.png"
+        }
+    }
+];
+
+const bodyTypeStats = {
+    normal: { width: 50, height: 100, speedMod: 1.0, damageMod: 1.0, rangeMod: 1.0, healthMod: 1.0 }
+};
+
 const ARM_GUARD_UPPER_ANGLE = Math.PI / 4.2;
 const ARM_GUARD_FOREARM_BEND = -Math.PI / 1.6;
 const ARM_PUNCH_UPPER_EXTEND_ANGLE = -Math.PI / 18;
@@ -72,77 +343,12 @@ const LEG_ANGLE_RESTING_FRONT = Math.PI / 2 - Math.PI / 20;
 const LEG_ANGLE_RESTING_BACK = Math.PI / 2 + Math.PI / 30;
 const LEG_ANGLE_KICK_STRIKE = -Math.PI / 18;
 const LEG_ANGLE_KICK_SUPPORT = Math.PI / 2 + Math.PI / 6;
-const bodyTypeStats = { normal: { width: 50, height: 100, speedMod: 1.0, damageMod: 1.0, rangeMod: 1.0, healthMod: 1.0 }};
 
-//======================================================================
-// 3. MEJORA: CONSTANTES DE SUPERPODERES AGRUPADAS
-//======================================================================
-const SUPER_STATS = {
-    PIRANHA: { SPEED: 5, LIFESPAN: 60, WIDTH: 30, HEIGHT: 20, DAMAGE: 15, COUNT: 3 },
-    LA_EX: { COUNT: 5, WAD_WIDTH: 30, WAD_HEIGHT: 20, DAMAGE: 10, INITIAL_Y: -20, COIN_DAMAGE: 5 },
-    BURRIC: { LIFESPAN: 120, WIDTH: 40, HEIGHT: 50, DAMAGE: 18, COUNT: 5, INITIAL_Y: -50 },
-    MATTHEI_BOLT: { SPEED: 22.5, COUNT: 5, DAMAGE: 8 },
-    EL_ZANJAS: { DAMAGE: 40, SWALLOWED_DURATION: 90, WIDTH: 150, MAX_HEIGHT: 80, LIFESPAN: 180 },
-    PAPELUCHO: { STUN_DURATION: 180, COUNT: 20, WIDTH: 25, HEIGHT: 35, DAMAGE: 1 },
-    ORSINI_LOVE: { SPEED: 7, LIFESPAN: 90, WIDTH: 30, HEIGHT: 25, DAMAGE: 18, COUNT: 2 },
-    JACKSON: { INVISIBILITY_DURATION: 120, CONFUSION_DURATION: 120, SMOKE_PARTICLE_COUNT: 30 },
-    TIA_COTE: { BEAM_DURATION: 120, BEAM_WIDTH: 90, BEAM_DAMAGE_PER_FRAME: 0.5, HEART_SPEED: 6, HEART_LIFESPAN: 90, HEART_WIDTH: 25, HEART_HEIGHT: 22, HEART_DAMAGE: 2, HEART_COUNT: 25 }
-};
-
-//======================================================================
-// 4. MEJORA: PRECARGA DE AUDIO
-//======================================================================
-const sounds = {
-    backgroundMusic: new Audio('audio/playbackbattle.mp3'),
-    hit: new Audio('audio/2BH.wav'),
-    gameOver: new Audio('audio/9BH.wav'),
-    select: new Audio('audio/20H.wav'),
-    superGeneric: new Audio('audio/38H.wav'),
-    superPiranha: new Audio('audio/hadouken.wav'),
-    superJackson: new Audio('audio/smoke-bomb.wav'),
-    superCote: new Audio('audio/angelic-choir.wav'),
-    jacksonConfused: new Audio('audio/pouf-bomb.wav')
-};
-sounds.backgroundMusic.loop = true;
-
-//======================================================================
-// 5. VARIABLES GLOBALES DEL JUEGO
-//======================================================================
-let gameActive = false;
-let players = [];
-let activeHitEffects = [];
-let smokeParticles = [];
-let screenShakeMagnitude = 0;
-let screenShakeTimeLeft = 0;
 let playerSelectedCharIndex = -1;
 let pcSelectedCharIndex = -1;
-let pcSelectionInterval = null;
-let animationFrameId;
+let pcSelectionInterval = null; // Variable para el intervalo de la ruleta del PC
+let smokeParticles = [];
 
-//======================================================================
-// 6. DATOS DE PERSONAJES (ASSETS Y FONDOS)
-//======================================================================
-const characterBackgrounds = {
-    "El Zanjas": ["img/lazanja.png"], "Tía Cote": ["img/glitter.png"], "Escape Room Jackson": ["img/happyhour.png"],
-    "Piraña": ["img/lamoneda.png"], "La Ex": ["img/lamoneda.png"], "Matthei Bolt": ["img/pasillomoneda.png"],
-    "Burric": ["img/pasillomoneda.png"], "Orsini Love": ["img/pasillomoneda.png"], "Carolina Papelucho": ["img/pasillomoneda.png"]
-};
-
-const characterAssets = [
-    { name: "Piraña", previewImage: "img/personaje1-cabeza.png", textures: { head: "img/personaje1-cabeza.png", torso: "img/personaje1-torso.png", upperArm: "img/personaje1-brazos.png", foreArm: "img/personaje1-antebrazos.png", thigh: "img/personaje1-muslos.png", lowerLeg: "img/personaje1-piernasbajas.png", glove_r: "img/personaje1-guantes-d.png", glove_l: "img/personaje1-guantes-i.png", shoe: "img/personaje1-zapatos.png", superEffectTexture: "img/personaje1-super-effect.png" }},
-    { name: "La Ex", previewImage: "img/personaje2-cabeza.png", textures: { head: "img/personaje2-cabeza.png", torso: "img/personaje2-torso.png", upperArm: "img/personaje2-brazos.png", foreArm: "img/personaje2-antebrazos.png", thigh: "img/personaje2-muslos.png", lowerLeg: "img/personaje2-piernasbajas.png", glove_r: "img/personaje2-guantes-d.png", glove_l: "img/personaje2-guantes-i.png", shoe: "img/personaje2-zapatos.png", superEffectTexture: "img/personaje2-super-effect.png" }},
-    { name: "Burric", previewImage: "img/personaje3-cabeza.png", textures: { head: "img/personaje3-cabeza.png", torso: "img/personaje3-torso.png", upperArm: "img/personaje3-brazos.png", foreArm: "img/personaje3-antebrazos.png", thigh: "img/personaje3-muslos.png", lowerLeg: "img/personaje3-piernasbajas.png", glove_r: "img/personaje3-guantes-d.png", glove_l: "img/personaje3-guantes-i.png", shoe: "img/personaje3-zapatos.png", superEffectTexture: "img/personaje3-super-effect.png" }},
-    { name: "Matthei Bolt", previewImage: "img/personaje4-cabeza.png", textures: { head: "img/personaje4-cabeza.png", torso: "img/personaje4-torso.png", upperArm: "img/personaje4-brazos.png", foreArm: "img/personaje4-antebrazos.png", thigh: "img/personaje4-muslos.png", lowerLeg: "img/personaje4-piernasbajas.png", glove_r: "img/personaje4-guantes-d.png", glove_l: "img/personaje4-guantes-i.png", shoe: "img/personaje4-zapatos.png", superEffectTexture: "img/personaje4-super-effect.png", yellowVest: "img/matthei-chaleco.png" }},
-    { name: "Carolina Papelucho", previewImage: "img/personaje5-cabeza.png", textures: { head: "img/personaje5-cabeza.png", torso: "img/personaje5-torso.png", upperArm: "img/personaje5-brazos.png", foreArm: "img/personaje5-antebrazos.png", thigh: "img/personaje5-muslos.png", lowerLeg: "img/personaje5-piernasbajas.png", glove_r: "img/personaje5-guantes-d.png", glove_l: "img/personaje5-guantes-i.png", shoe: "img/personaje5-zapatos.png", superEffectTexture: "img/personaje5-super-effect.png" }},
-    { name: "El Zanjas", previewImage: "img/personaje6-cabeza.png", textures: { head: "img/personaje6-cabeza.png", torso: "img/personaje6-torso.png", upperArm: "img/personaje6-brazos.png", foreArm: "img/personaje6-antebrazos.png", thigh: "img/personaje6-muslos.png", lowerLeg: "img/personaje6-piernasbajas.png", glove_r: "img/personaje6-guantes-d.png", glove_l: "img/personaje6-guantes-i.png", shoe: "img/personaje6-zapatos.png", superEffectTexture: "img/personaje6-super-effect.png" }},
-    { name: "Orsini Love", previewImage: "img/personaje7-cabeza.png", textures: { head: "img/personaje7-cabeza.png", torso: "img/personaje7-torso.png", upperArm: "img/personaje7-brazos.png", foreArm: "img/personaje7-antebrazos.png", thigh: "img/personaje7-muslos.png", lowerLeg: "img/personaje7-piernasbajas.png", glove_r: "img/personaje7-guantes-d.png", glove_l: "img/personaje7-guantes-i.png", shoe: "img/personaje7-zapatos.png", superEffectTexture: "img/personaje7-super-effect.png" }},
-    { name: "Escape Room Jackson", previewImage: "img/personaje8-cabeza.png", textures: { head: "img/personaje8-cabeza.png", torso: "img/personaje8-torso.png", upperArm: "img/personaje8-brazos.png", foreArm: "img/personaje8-antebrazos.png", thigh: "img/personaje8-muslos.png", lowerLeg: "img/personaje8-piernasbajas.png", glove_r: "img/personaje8-guantes-d.png", glove_l: "img/personaje8-guantes-i.png", shoe: "img/personaje8-zapatos.png", superEffectTexture: "img/personaje8-super-effect.png" }},
-    { name: "Tía Cote", previewImage: "img/personaje9-cabeza.png", textures: { head: "img/personaje9-cabeza.png", torso: "img/personaje9-torso.png", upperArm: "img/personaje9-brazos.png", foreArm: "img/personaje9-antebrazos.png", thigh: "img/personaje9-muslos.png", lowerLeg: "img/personaje9-piernasbajas.png", glove_r: "img/personaje9-guantes-d.png", glove_l: "img/personaje9-guantes-i.png", shoe: "img/personaje9-zapatos.png", superEffectTexture: "img/personaje9-super-effect.png" }}
-];
-
-//======================================================================
-// 7. CLASE PLAYER (LÓGICA DEL LUCHADOR)
-//======================================================================
 class Player {
     constructor(x, initialY, characterAsset, isPlayer1 = true, facingRight = true) {
         this.name = characterAsset.name;
@@ -753,7 +959,6 @@ function initGame() {
     sounds.backgroundMusic.play().catch(error => console.warn("Error al reproducir música:", error));
     
     gameUiTop.style.visibility = 'visible';
-    gameLoop();
 }
 
 function resetSelectionScreen() {
@@ -886,38 +1091,44 @@ function gameLoop() {
 //======================================================================
 // 9. MEJORA: PUNTO DE ENTRADA Y CONFIGURACIÓN DE EVENTOS
 //======================================================================
-function setupEventListeners() {
+document.addEventListener('DOMContentLoaded', () => {
+    // Listener para el botón principal de la pantalla de bienvenida
     continueButton.addEventListener('click', () => {
         splashScreen.style.display = 'none';
         gameWrapper.style.display = 'flex';
         document.body.style.overflow = 'auto';
+        
+        // Se asegura de que la UI se cree después de que la pantalla sea visible
         setTimeout(() => {
             createCharacterSelectionUI();
             resetSelectionScreen();
         }, 0);
     });
 
+    // Listener para el botón de reiniciar en la pantalla de Game Over
     restartButton.addEventListener('click', () => {
         resetSelectionScreen();
-        createCharacterSelectionUI();
+        createCharacterSelectionUI(); // Recrea la UI para asegurar listeners en los retratos
     });
 
+    // Listener para el botón de empezar combate
     startButton.addEventListener('click', initGame);
 
+    // Listener para cargar poder en el canvas
     canvas.addEventListener('click', () => {
-        if (gameActive && players.length > 0) players[0].chargePowerOnClick();
+        if (gameActive && players.length > 0) {
+            players[0].chargePowerOnClick();
+        }
     });
 
+    // Listener global para la barra espaciadora (superpoder)
     window.addEventListener('keydown', (event) => {
         if (event.code === 'Space' && gameActive && players.length > 0 && players[0].isSuperCharged) {
             event.preventDefault();
-            players[0].punch();
+            players[0].punch(); // Llama al método de ataque que contiene la lógica del super
         }
     });
-}
 
-// Inicia el bucle de animación una vez y la configuración de eventos.
-document.addEventListener('DOMContentLoaded', () => {
-    setupEventListeners();
+    // Inicia el bucle de animación una sola vez
     gameLoop();
 });
