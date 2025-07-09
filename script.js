@@ -72,6 +72,7 @@ const LEG_ANGLE_RESTING_FRONT = Math.PI / 2 - Math.PI / 20;
 const LEG_ANGLE_RESTING_BACK = Math.PI / 2 + Math.PI / 30;
 const LEG_ANGLE_KICK_STRIKE = -Math.PI / 18;
 const LEG_ANGLE_KICK_SUPPORT = Math.PI / 2 + Math.PI / 6;
+const bodyTypeStats = { normal: { width: 50, height: 100, speedMod: 1.0, damageMod: 1.0, rangeMod: 1.0, healthMod: 1.0 }};
 
 //======================================================================
 // 3. MEJORA: CONSTANTES DE SUPERPODERES AGRUPADAS
@@ -752,6 +753,7 @@ function initGame() {
     sounds.backgroundMusic.play().catch(error => console.warn("Error al reproducir música:", error));
     
     gameUiTop.style.visibility = 'visible';
+    gameLoop();
 }
 
 function resetSelectionScreen() {
@@ -857,28 +859,28 @@ function drawSmoke() {
 }
 
 function gameLoop() {
-    animationFrameId = requestAnimationFrame(gameLoop);
-    if (!gameActive) return;
+    if (gameActive) {
+        ctx.save();
+        let offsetX = 0, offsetY = 0;
+        if (screenShakeTimeLeft > 0) {
+            offsetX = (Math.random() - 0.5) * 2 * screenShakeMagnitude;
+            offsetY = (Math.random() - 0.5) * 2 * screenShakeMagnitude;
+            ctx.translate(offsetX, offsetY);
+            screenShakeTimeLeft--;
+            if(screenShakeTimeLeft <= 0) screenShakeMagnitude = 0;
+        }
 
-    ctx.save();
-    let offsetX = 0, offsetY = 0;
-    if (screenShakeTimeLeft > 0) {
-        offsetX = (Math.random() - 0.5) * 2 * screenShakeMagnitude;
-        offsetY = (Math.random() - 0.5) * 2 * screenShakeMagnitude;
-        ctx.translate(offsetX, offsetY);
-        screenShakeTimeLeft--;
-        if(screenShakeTimeLeft <= 0) screenShakeMagnitude = 0;
+        ctx.clearRect(-CANVAS_WIDTH, -CANVAS_HEIGHT, CANVAS_WIDTH * 2, CANVAS_HEIGHT * 2);
+        ctx.fillStyle = '#4a5568';
+        ctx.fillRect(0, CANVAS_HEIGHT - 10, CANVAS_WIDTH, 10);
+        
+        players.forEach(player => { player.update(); player.draw(); });
+        drawHitEffects(); drawSmoke();
+        checkGameOver();
+
+        ctx.restore();
     }
-
-    ctx.clearRect(-CANVAS_WIDTH, -CANVAS_HEIGHT, CANVAS_WIDTH * 2, CANVAS_HEIGHT * 2);
-    ctx.fillStyle = '#4a5568';
-    ctx.fillRect(0, CANVAS_HEIGHT - 10, CANVAS_WIDTH, 10);
-    
-    players.forEach(player => { player.update(); player.draw(); });
-    drawHitEffects(); drawSmoke();
-    checkGameOver();
-
-    ctx.restore();
+    animationFrameId = requestAnimationFrame(gameLoop);
 }
 
 //======================================================================
@@ -889,11 +891,10 @@ function setupEventListeners() {
         splashScreen.style.display = 'none';
         gameWrapper.style.display = 'flex';
         document.body.style.overflow = 'auto';
-        createCharacterSelectionUI();
-        resetSelectionScreen();
-        if (!animationFrameId) { // Evita iniciar múltiples bucles
-            gameLoop();
-        }
+        setTimeout(() => {
+            createCharacterSelectionUI();
+            resetSelectionScreen();
+        }, 0);
     });
 
     restartButton.addEventListener('click', () => {
@@ -915,4 +916,8 @@ function setupEventListeners() {
     });
 }
 
-document.addEventListener('DOMContentLoaded', setupEventListeners);
+// Inicia el bucle de animación una vez y la configuración de eventos.
+document.addEventListener('DOMContentLoaded', () => {
+    setupEventListeners();
+    gameLoop();
+});
