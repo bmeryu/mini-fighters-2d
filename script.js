@@ -31,15 +31,11 @@ const selectionPrompt = document.getElementById('selection-prompt');
 //======================================================================
 // 2. CONSTANTES Y CONFIGURACIÓN DEL JUEGO
 //======================================================================
-
-// --- Constantes del Canvas y Física ---
 const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 400;
 canvas.width = CANVAS_WIDTH;
 canvas.height = CANVAS_HEIGHT;
 const GRAVITY = 0.7;
-
-// --- Constantes de Jugador y Combate ---
 const BASE_PLAYER_SPEED = 4;
 const BASE_JUMP_STRENGTH = 15;
 const MAX_HEALTH = 150;
@@ -53,27 +49,19 @@ const ATTACK_ANIMATION_DURATION = 150;
 const ATTACK_LOGIC_DURATION = 200;
 const ATTACK_COOLDOWN = 550;
 const BASE_KNOCKBACK_STRENGTH = 12;
-
-// --- Constantes de Poder ---
 const MAX_POWER = 150;
 const POWER_GAIN_PER_CLICK = 5;
 const CLICK_COOLDOWN = 100;
 const POWER_GAIN_PER_HIT = 25;
-
-// --- Constantes de la IA ---
 const AI_PASSIVE_POWER_GAIN = 0.35;
 const AI_ACTION_INTERVAL = 250;
 const AI_MOVE_CHANCE = 0.7;
 const AI_JUMP_CHANCE = 0.15;
 const AI_ATTACK_CHANCE_IN_RANGE = 0.75;
 const AI_KICK_CHANCE = 0.4;
-
-// --- Efectos Visuales ---
 const HIT_EFFECT_LIFETIME = 30;
 const hitWords = ["¡POW!", "¡BAM!", "¡CRASH!", "¡KAPOW!", "¡WHAM!", "¡SLAP!", "¡BOOM!", "¡BANG!", "¡PUFF!", "¡THWACK!"];
 const hitWordColors = ["#FFD700", "#FF4500", "#ADFF2F", "#00FFFF", "#FF69B4", "#FFFF00", "#FF1493"];
-
-// --- Constantes de Pose del Personaje ---
 const ARM_GUARD_UPPER_ANGLE = Math.PI / 4.2;
 const ARM_GUARD_FOREARM_BEND = -Math.PI / 1.6;
 const ARM_PUNCH_UPPER_EXTEND_ANGLE = -Math.PI / 18;
@@ -84,8 +72,6 @@ const LEG_ANGLE_RESTING_FRONT = Math.PI / 2 - Math.PI / 20;
 const LEG_ANGLE_RESTING_BACK = Math.PI / 2 + Math.PI / 30;
 const LEG_ANGLE_KICK_STRIKE = -Math.PI / 18;
 const LEG_ANGLE_KICK_SUPPORT = Math.PI / 2 + Math.PI / 6;
-const BOXING_GLOVE_COLOR = '#c00000';
-const DEFAULT_SHOE_COLOR = '#4a5568';
 
 //======================================================================
 // 3. MEJORA: CONSTANTES DE SUPERPODERES AGRUPADAS
