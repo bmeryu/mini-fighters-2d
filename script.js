@@ -161,7 +161,6 @@ class Player {
         this.isPlayer1 = isPlayer1;
         this.facingRight = facingRight;
 
-        // Carga de texturas
         this.textures = {};
         for(const key in characterAsset.textures){
             this.textures[key] = this.loadTexture(characterAsset.textures[key]);
@@ -173,23 +172,18 @@ class Player {
         this.health = MAX_HEALTH; this.maxHealth = MAX_HEALTH;
         this.power = 0; this.maxPower = MAX_POWER; this.isSuperCharged = false; this.lastPowerClickTime = 0;
         
-        // Estados de ataque
         this.isPunching = false; this.isKicking = false; this.attackVisualActive = false; this.lastAttackTime = 0;
         this.attackArm = null; this.nextPunchArm = 'right';
         
-        // Estados de la IA
         this.lastAIDecisionTime = 0; this.currentAction = null;
 
-        // Estados de superpoderes y efectos
         this.isPerformingSuperAttackAnimation = false; this.isDashing = false; this.isCastingCrack = false;
         this.isCastingBeam = false; this.isSwallowed = false; this.isStunned = false; this.isInvisible = false;
         this.isConfused = false; this.showBlurred = false;
 
-        // Contadores y temporizadores
         this.dashCount = 0; this.crackTimer = 0; this.beamTimer = 0; this.swallowedTimer = 0;
         this.stunTimer = 0; this.invisibilityTimer = 0; this.confusionTimer = 0; this.confusionBlinkTimer = 0;
 
-        // Arrays de proyectiles y efectos
         this.activeProjectiles = []; this.trail = [];
     }
 
@@ -302,7 +296,7 @@ class Player {
     }
     
     drawProjectiles() {
-        this.activeProjectiles.forEach(p => p.draw(ctx));
+        this.activeProjectiles.forEach(p => p.draw(ctx, this.textures));
     }
     
     drawTiaCoteBeam() {
@@ -419,6 +413,254 @@ class Player {
             ctx.drawImage(this.textures.superEffectTexture, this.x + (this.width - effectWidth) / 2, this.y + (this.height - effectHeight) / 2, effectWidth, effectHeight);
         }
         ctx.restore();
+    }
+
+    update() {
+        if (this.isSwallowed) {
+            this.swallowedTimer--;
+            if (this.swallowedTimer <= 0) {
+                this.isSwallowed = false;
+                this.x = Math.random() * (CANVAS_WIDTH - this.width);
+                this.y = -this.height;
+                this.velocityY = 0;
+            }
+            return;
+        }
+        
+        if (this.isStunned) {
+            this.stunTimer--;
+            if (this.stunTimer <= 0) this.isStunned = false;
+            return;
+        }
+
+        if (this.isInvisible) {
+            this.invisibilityTimer--;
+            if (this.invisibilityTimer <= 0) {
+                this.isInvisible = false;
+                const opponent = players.find(p => p !== this);
+                if (opponent) {
+                    this.x = opponent.x + (opponent.facingRight ? opponent.width + 20 : -this.width - 20);
+                    this.y = opponent.y;
+                    if (this.x < 0) this.x = 10;
+                    if (this.x + this.width > CANVAS_WIDTH) this.x = CANVAS_WIDTH - this.width - 10;
+                }
+            }
+            return;
+        }
+        
+        if (this.isConfused) {
+            this.confusionTimer--;
+            this.confusionBlinkTimer--;
+            if(this.confusionTimer <= 0) {
+                this.isConfused = false;
+                this.showBlurred = false;
+            }
+            if(this.confusionBlinkTimer <= 0) {
+                this.showBlurred = !this.showBlurred;
+                this.confusionBlinkTimer = 15;
+                sounds.jacksonConfused.play().catch(e => console.error("Error playing sound:", e));
+            }
+        }
+        
+        if (this.isDashing) {
+            this.updateBoltDash();
+            this.trail.push({ x: this.x, y: this.y });
+            if (this.trail.length > 5) this.trail.shift();
+            return;
+        }
+
+        if (!this.isPlayer1) this.updateAI();
+
+        this.x += this.velocityX;
+        this.velocityY += GRAVITY;
+        this.y += this.velocityY;
+        
+        this.updateProjectiles();
+        if (this.isCastingCrack) this.updateZanjasCrack();
+        if (this.isCastingBeam) this.updateTiaCoteBeam();
+
+        const groundY = CANVAS_HEIGHT - 10;
+        if (this.y + this.height > groundY) {
+            this.y = groundY - this.height;
+            this.velocityY = 0;
+            this.isJumping = false;
+        }
+        if (this.x < 0) this.x = 0;
+        if (this.x + this.width > CANVAS_WIDTH) this.x = CANVAS_WIDTH - this.width;
+
+        if (!this.isPlayer1 && !this.isSuperCharged && gameActive) this.gainPower(AI_PASSIVE_POWER_GAIN);
+    }
+    
+    updateAI() {
+        if (this.isDashing || this.isSwallowed || this.isCastingCrack || this.isStunned || this.isCastingBeam || this.isConfused) return;
+        if (Date.now() - this.lastAIDecisionTime > AI_ACTION_INTERVAL) {
+            this.lastAIDecisionTime = Date.now();
+            const opponent = players.find(p => p !== this);
+            if (!opponent || opponent.isInvisible) {
+                this.currentAction = 'stand';
+                return;
+            }
+            const distanceToOpponent = Math.abs((this.x + this.width / 2) - (opponent.x + opponent.width / 2)) - (this.width/2 + opponent.width/2);
+            const opponentIsToTheRight = (opponent.x + opponent.width / 2) > (this.x + this.width / 2);
+            if (distanceToOpponent < Math.max(this.punchRange, this.kickRange) * 1.5) {
+                this.facingRight = opponentIsToTheRight;
+            }
+            const canAttack = !(this.isPunching || this.isKicking) && (Date.now() - this.lastAttackTime > this.attackCooldown);
+            let decidedToAttack = false;
+            let attackType = 'punch';
+            if (this.facingRight === opponentIsToTheRight) {
+                if (distanceToOpponent < this.kickRange && Math.random() < AI_ATTACK_CHANCE_IN_RANGE) {
+                    decidedToAttack = true;
+                    attackType = (Math.random() < AI_KICK_CHANCE || distanceToOpponent >= this.punchRange) ? 'kick' : 'punch';
+                } else if (distanceToOpponent < this.punchRange && Math.random() < AI_ATTACK_CHANCE_IN_RANGE) {
+                    decidedToAttack = true;
+                    attackType = 'punch';
+                }
+            }
+            if (canAttack && decidedToAttack) {
+                if (this.isSuperCharged && Math.random() < 0.8) {
+                    if (attackType === 'kick') this.kick(); else this.punch();
+                } else if (attackType === 'kick') {
+                    this.kick();
+                } else {
+                    this.punch();
+                }
+                this.currentAction = 'attack';
+            } else {
+                if (Math.random() < AI_MOVE_CHANCE) {
+                    if (distanceToOpponent > this.punchRange * 0.5) {
+                        this.currentAction = opponentIsToTheRight ? 'moveRight' : 'moveLeft';
+                        this.facingRight = opponentIsToTheRight;
+                    } else {
+                        this.currentAction = (Math.random() < 0.3) ? (opponentIsToTheRight ? 'moveLeft' : 'moveRight') : 'stand';
+                    }
+                    if (Math.random() < AI_JUMP_CHANCE && !this.isJumping) this.jump();
+                } else {
+                    this.currentAction = 'stand';
+                }
+            }
+        }
+        this.velocityX = 0;
+        if (this.currentAction === 'moveLeft') this.velocityX = -this.speed;
+        else if (this.currentAction === 'moveRight') this.velocityX = this.speed;
+    }
+    
+    updateProjectiles() {
+        const opponent = players.find(p => p !== this);
+        if(!opponent) return;
+
+        for (let i = this.activeProjectiles.length - 1; i >= 0; i--) {
+            const p = this.activeProjectiles[i];
+            p.update();
+
+            if (p.isOffScreen()) {
+                this.activeProjectiles.splice(i, 1);
+                continue;
+            }
+            
+            if (!opponent.isSwallowed && !opponent.isStunned && p.collidesWith(opponent)) {
+                opponent.takeDamage(p.damage, p.direction > 0);
+                p.onHit(opponent);
+                this.activeProjectiles.splice(i, 1);
+            }
+        }
+    }
+    
+    updateBoltDash() {
+        if (!this.isDashing) return;
+        const opponent = players.find(p => p !== this);
+        const moveDirection = Math.sign(this.dashTargetX - this.x);
+        this.x += moveDirection * SUPER_STATS.MATTHEI_BOLT.SPEED;
+        this.facingRight = moveDirection > 0;
+
+        if (!this.dashDamageApplied && opponent && !opponent.isSwallowed && !opponent.isStunned && this.collidesWith(opponent)) {
+            opponent.takeDamage(SUPER_STATS.MATTHEI_BOLT.DAMAGE, moveDirection > 0);
+            this.dashDamageApplied = true;
+            screenShakeMagnitude = 5; screenShakeTimeLeft = 5;
+            activeHitEffects.push({ text: "¡ZAS!", x: opponent.x + opponent.width/2, y: opponent.y + opponent.height/2, color: "#f39c12", alpha: 1.0, size: 25, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
+        }
+
+        if (Math.abs(this.x - this.dashTargetX) < SUPER_STATS.MATTHEI_BOLT.SPEED) {
+            this.x = this.dashTargetX;
+            this.dashCount--;
+            if (this.dashCount <= 0) {
+                this.isDashing = false; this.trail = [];
+            } else {
+                this.dashTargetX = this.dashTargetX === 0 ? CANVAS_WIDTH - this.width : 0;
+                this.dashDamageApplied = false;
+            }
+        }
+    }
+    
+    updateZanjasCrack() {
+        if (!this.isCastingCrack) return;
+        this.crackTimer--;
+        if (this.crackTimer <= 0) {
+            this.isCastingCrack = false;
+            return;
+        }
+        const opponent = players.find(p => p !== this);
+        if (!opponent || this.crackOpponentHit || opponent.isSwallowed) return;
+        
+        const crackActiveStart = SUPER_STATS.EL_ZANJAS.LIFESPAN * 0.7;
+        const crackActiveEnd = SUPER_STATS.EL_ZANJAS.LIFESPAN * 0.2;
+        if (this.crackTimer < crackActiveStart && this.crackTimer > crackActiveEnd) {
+            const opponentCenterX = opponent.x + opponent.width / 2;
+            if (Math.abs(opponentCenterX - this.crackCenterX) < SUPER_STATS.EL_ZANJAS.WIDTH / 2 && (opponent.y + opponent.height) >= (CANVAS_HEIGHT - 10)) {
+                opponent.takeDamage(SUPER_STATS.EL_ZANJAS.DAMAGE, this.facingRight);
+                opponent.isSwallowed = true;
+                opponent.swallowedTimer = SUPER_STATS.EL_ZANJAS.SWALLOWED_DURATION;
+                this.crackOpponentHit = true;
+                activeHitEffects.push({ text: "¡TRAGADO!", x: opponent.x + opponent.width / 2, y: opponent.y + opponent.height / 2, color: "#8B4513", alpha: 1.0, size: 40, rotation: (Math.random() - 0.5) * 0.3, lifetime: HIT_EFFECT_LIFETIME * 2 });
+                screenShakeMagnitude = 20; screenShakeTimeLeft = 30;
+            }
+        }
+    }
+    
+    updateTiaCoteBeam() {
+        if (!this.isCastingBeam) return;
+        this.beamTimer--;
+        if (this.beamTimer <= 0) {
+            this.isCastingBeam = false; this.isPerformingSuperAttackAnimation = false; this.attackVisualActive = false;
+            return;
+        }
+        const opponent = players.find(p => p !== this);
+        if (!opponent || opponent.isSwallowed || opponent.isStunned) return;
+
+        const beamY = this.y + this.height * 0.3;
+        const beamHitbox = { x: this.facingRight ? this.x + this.width / 2 : 0, y: beamY, width: CANVAS_WIDTH, height: SUPER_STATS.TIA_COTE.BEAM_WIDTH };
+        if (beamHitbox.x < opponent.x + opponent.width && beamHitbox.x + beamHitbox.width > opponent.x && beamHitbox.y < opponent.y + opponent.height && beamHitbox.y + beamHitbox.height > opponent.y) {
+            opponent.takeDamage(SUPER_STATS.TIA_COTE.BEAM_DAMAGE_PER_FRAME, this.facingRight);
+        }
+    }
+
+    chargePowerOnClick() {
+        if (this.isSuperCharged || !gameActive) return;
+        const now = Date.now();
+        if (now - this.lastPowerClickTime < CLICK_COOLDOWN) return;
+        this.lastPowerClickTime = now;
+        if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(15);
+        const powerBarContainer = document.getElementById('player1PowerBarContainer');
+        powerBarContainer.classList.add('power-bar-container-flash');
+        setTimeout(() => powerBarContainer.classList.remove('power-bar-container-flash'), 150);
+        this.gainPower(POWER_GAIN_PER_CLICK);
+    }
+
+    jump() {
+        if (!this.isJumping) {
+            this.velocityY = -this.jumpStrength;
+            this.isJumping = true;
+        }
+    }
+
+    gainPower(amount) {
+        if (this.isSuperCharged) return;
+        this.power += amount;
+        if (this.power >= this.maxPower) {
+            this.power = this.maxPower;
+            this.isSuperCharged = true;
+        }
+        updatePowerBars();
     }
     
     // ... (El resto de la clase Player se omite por brevedad en este ejemplo, pero estaría aquí)
