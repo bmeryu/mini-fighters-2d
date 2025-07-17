@@ -14,7 +14,7 @@
 </head>
 <body>
     <!-- Pantalla de Bienvenida -->
-    <div id="splash-screen">
+    <div id="splash-screen" class="overlay">
         <div class="max-w-2xl text-center p-4">
             <h1 class="text-3xl font-bold text-yellow-400 mb-6">Advertencia</h1>
             <p class="text-lg mb-8 leading-relaxed">
@@ -102,7 +102,7 @@
             </div>
 
             <!-- Modal de Fin de Juego -->
-            <div id="gameOverModal" class="modal hidden">
+            <div id="gameOverModal" class="modal hidden overlay">
                 <div class="ui-panel text-center p-8 rounded-lg">
                     <h2 id="gameOverMessage" class="text-4xl font-bold mb-4">¡Fin del Combate!</h2>
                     <div id="winnerMessage" class="text-xl mb-6"></div>
