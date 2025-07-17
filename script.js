@@ -265,7 +265,7 @@ const characterAssets = [
             upperArm: "img/personaje6-brazos.png",
             foreArm: "img/personaje6-antebrazos.png",
             thigh: "img/personaje6-muslos.png",
-            lowerLeg: "img/personaje6-piernasbajas.png",
+            lowerLeg: "img/personage6-piernasbajas.png",
             glove_r: "img/personaje6-guantes-d.png",
             glove_l: "img/personaje6-guantes-i.png",
             glove: null,
@@ -401,7 +401,7 @@ class Player {
         this.activeCalculators = [];
         this.activePapers = [];
         this.activeKisses = [];
-        this.activeHearts = []; // Array para los corazones de Tía Cote
+        this.activeHearts = [];
 
         // Estado del superpoder de Bolt
         this.isDashing = false;
@@ -1326,7 +1326,7 @@ class Player {
                 coinBox.y < opponentBox.y + opponentBox.height &&
                 coinBox.y + coinBox.height > opponentBox.y
             ) {
-                opponent.takeDamage(coin.damage, coin.x > opponent.x + opponent.width / 2);
+                opponent.takeDamage(COIN_RAIN_DAMAGE, coin.x > opponent.x + opponent.width / 2);
                 activeHitEffects.push({ text: "$", x: coin.x, y: coin.y, color: "#facc15", alpha: 1.0, size: 20, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
                 this.activeCoins.splice(i, 1);
             }
@@ -1445,7 +1445,7 @@ class Player {
                 heartBox.y < opponentBox.y + opponentBox.height &&
                 heartBox.y + heartBox.height > opponentBox.y
             ) {
-                opponent.takeDamage(heart.damage, this.facingRight);
+                opponent.takeDamage(TIA_COTE_HEART_DAMAGE, this.facingRight);
                 activeHitEffects.push({ text: "♥", x: heart.x, y: heart.y, color: "#e879f9", alpha: 1.0, size: 25, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
                 this.activeHearts.splice(i, 1);
             }
@@ -2299,7 +2299,7 @@ function initGame() {
     updatePowerBars();
     gameActive = true;
     
-    // CORRECCIÓN: Se usa style.display = 'none' para asegurar que el modal esté oculto.
+    // Ensure game over modal is hidden
     gameOverModal.style.display = 'none';
     
     controlsPanel.style.display = 'none';
@@ -2321,10 +2321,12 @@ function initGame() {
     const startMessageOverlay = document.getElementById('start-message-overlay');
     const startMessageText = document.getElementById('start-message-text');
     startMessageText.textContent = "¡Haz tus clicks para recargar Superpoder!";
-    startMessageOverlay.classList.remove('hidden');
+    // Show the overlay explicitly, it will now be positioned correctly by its CSS
+    startMessageOverlay.style.display = 'flex'; 
 
     setTimeout(() => {
-        startMessageOverlay.classList.add('hidden');
+        // Hide the overlay after the duration
+        startMessageOverlay.style.display = 'none'; 
     }, 3000); 
 
     if (!backgroundMusic) {
@@ -2339,8 +2341,7 @@ function initGame() {
 
 // Resetea la pantalla de selección a su estado inicial.
 function resetSelectionScreen() {
-    // CORRECCIÓN: Se usa style.display = 'none' en lugar de classList.
-    // Esto es más directo y evita problemas de especificidad de CSS al cargar.
+    // Ensure game over modal is hidden
     gameOverModal.style.display = 'none';
     
     controlsPanel.style.display = 'block';
@@ -2378,37 +2379,8 @@ function resetSelectionScreen() {
         backgroundMusic.pause();
         backgroundMusic.currentTime = 0;
     }
-    document.addEventListener('DOMContentLoaded', () => {
-    continueButton.addEventListener('click', () => {
-        splashScreen.style.display = 'none';
-        gameWrapper.style.display = 'flex';
-        document.body.style.overflow = 'auto';
-
-        setTimeout(() => {
-            createCharacterSelectionUI();
-            resetSelectionScreen();
-        }, 0);
-    });
-
-    restartButton.addEventListener('click', () => {
-        resetSelectionScreen();
-    });
-
-    startButton.addEventListener('click', initGame);
-
-    canvas.addEventListener('click', () => {
-        if (gameActive && players.length > 0) {
-            players[0].chargePowerOnClick();
-        }
-    });
-
-    window.addEventListener('keydown', (event) => {
-        if (event.code === 'Space' && gameActive && players.length > 0 && players[0].isSuperCharged) {
-            event.preventDefault(); 
-            players[0].punch(); 
-        }
-    });
-});
+    // Scroll to top on restart/reset
+    window.scrollTo(0, 0); 
     
     if (player1HealthBar) player1HealthBar.style.width = '100%';
     if (player2HealthBar) player2HealthBar.style.width = '100%';
@@ -2424,6 +2396,51 @@ function resetSelectionScreen() {
     ctx.fillStyle = '#4a5568';
     ctx.fillRect(0, CANVAS_HEIGHT - 10, CANVAS_WIDTH, 10);
 }
+
+// --- Lógica del Splash Screen (CORREGIDA) ---
+continueButton.addEventListener('click', () => {
+    splashScreen.style.display = 'none'; // Hide splash screen
+    gameWrapper.style.display = 'flex'; // Show game wrapper
+    document.body.style.overflow = 'auto'; // Allow scrolling on body
+
+    // **LA CORRECCIÓN**: Retrasar la configuración de la pantalla de selección
+    // para asegurar que el DOM se actualice primero.
+    setTimeout(() => {
+        createCharacterSelectionUI();
+        resetSelectionScreen();
+        window.scrollTo(0, 0); // Scroll to top on game start
+    }, 0);
+});
+
+restartButton.addEventListener('click', () => {
+    resetSelectionScreen();
+    window.scrollTo(0, 0); // Scroll to top on restart
+});
+
+startButton.addEventListener('click', initGame);
+
+canvas.addEventListener('click', () => {
+    if (gameActive && players.length > 0) {
+        players[0].chargePowerOnClick();
+    }
+});
+
+
+window.addEventListener('keydown', (event) => {
+    if (event.code === 'Space' && gameActive && players.length > 0 && players[0].isSuperCharged) {
+        event.preventDefault(); // Evita que la página se desplace al presionar espacio
+        players[0].punch(); // Usa punch() para activar la lógica del superpoder
+    }
+});
+
+
+// Inicializa la música pero no la configuración de la pantalla, 
+// eso se hará después del splash.
+backgroundMusic = new Audio('audio/playbackbattle.mp3');
+backgroundMusic.loop = true;
+backgroundMusic.pause();
+backgroundMusic.currentTime = 0;
+
 
 function updateHealthBars() {
     if (players.length < 2) return;
@@ -2491,7 +2508,8 @@ function checkGameOver() {
         // Esto coincide con la clase 'modal' que usa flexbox para centrar.
         gameOverModal.style.display = 'flex';
         
-        document.getElementById('start-message-overlay').classList.add('hidden');
+        // Ensure start message overlay is hidden on game over
+        document.getElementById('start-message-overlay').style.display = 'none'; 
         gameOverMessage.textContent = "¡Fin del Combate!";
 
         if (winner && winnerAsset) {
@@ -2506,6 +2524,7 @@ function checkGameOver() {
             backgroundMusic.pause();
             backgroundMusic.currentTime = 0;
         }
+        window.scrollTo(0, 0); // Scroll to top on game over
     }
 }
 
@@ -2582,44 +2601,28 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
-// --- Lógica del Splash Screen (CORREGIDA) ---
-continueButton.addEventListener('click', () => {
-    splashScreen.style.display = 'none';
-    gameWrapper.style.display = 'flex';
-    document.body.style.overflow = 'auto';
-
-    // **LA CORRECCIÓN**: Retrasar la configuración de la pantalla de selección
-    // para asegurar que el DOM se actualice primero.
-    setTimeout(() => {
-        createCharacterSelectionUI();
-        resetSelectionScreen();
-    }, 0);
+// Initial setup on page load
+// This ensures that the splash screen is shown correctly when the page loads
+// and the game wrapper is hidden.
+document.addEventListener('DOMContentLoaded', () => {
+    splashScreen.style.display = 'flex'; // Ensure splash screen is visible on load
+    gameWrapper.style.display = 'none'; // Ensure game wrapper is hidden on load
+    document.body.style.overflow = 'hidden'; // Prevent scrolling while splash is active
+    window.scrollTo(0, 0); // Ensure page is at the top on initial load
+    document.getElementById('start-message-overlay').style.display = 'none'; // Ensure start message is hidden on load
 });
 
-restartButton.addEventListener('click', () => {
-    resetSelectionScreen();
-});
+// The event listeners are already defined outside DOMContentLoaded in your original code,
+// so they will attach once the script is parsed.
+// No need to wrap them in DOMContentLoaded again.
+// continueButton.addEventListener('click', ...);
+// restartButton.addEventListener('click', ...);
+// startButton.addEventListener('click', initGame);
+// canvas.addEventListener('click', ...);
+// window.addEventListener('keydown', ...);
 
-startButton.addEventListener('click', initGame);
-
-canvas.addEventListener('click', () => {
-    if (gameActive && players.length > 0) {
-        players[0].chargePowerOnClick();
-    }
-});
-
-
-window.addEventListener('keydown', (event) => {
-    if (event.code === 'Space' && gameActive && players.length > 0 && players[0].isSuperCharged) {
-        event.preventDefault(); // Evita que la página se desplace al presionar espacio
-        players[0].punch(); // Usa punch() para activar la lógica del superpoder
-    }
-});
-
-
-// Inicializa la música pero no la configuración de la pantalla, 
-// eso se hará después del splash.
-backgroundMusic = new Audio('audio/playbackbattle.mp3');
-backgroundMusic.loop = true;
-backgroundMusic.pause();
-backgroundMusic.currentTime = 0;
+// Initial music setup (already correct)
+// backgroundMusic = new Audio('audio/playbackbattle.mp3');
+// backgroundMusic.loop = true;
+// backgroundMusic.pause();
+// backgroundMusic.currentTime = 0;
