@@ -14,7 +14,7 @@
 </head>
 <body>
     <!-- Pantalla de Bienvenida -->
-    <div id="splash-screen" class="overlay">
+    <div id="splash-screen">
         <div class="max-w-2xl text-center p-4">
             <h1 class="text-3xl font-bold text-yellow-400 mb-6">Advertencia</h1>
             <p class="text-lg mb-8 leading-relaxed">
@@ -67,6 +67,7 @@
             <canvas id="gameCanvas"></canvas>
 
             <!-- Mensaje de Inicio sobre el Canvas -->
+            <!-- Consider adding .overlay to this if you want it to be centrally aligned like the others -->
             <div id="start-message-overlay" class="hidden absolute inset-0 flex justify-center items-center z-30 pointer-events-none">
                  <p id="start-message-text" class="text-4xl font-black text-white text-center p-4 rounded-lg" style="font-family: 'Arial Black', Gadget, sans-serif; text-shadow: 3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;"></p>
             </div>
@@ -102,7 +103,7 @@
             </div>
 
             <!-- Modal de Fin de Juego -->
-            <div id="gameOverModal" class="modal hidden overlay">
+            <div id="gameOverModal" class="overlay"> <!-- CHANGED CLASS FROM 'modal hidden' TO 'overlay' -->
                 <div class="ui-panel text-center p-8 rounded-lg">
                     <h2 id="gameOverMessage" class="text-4xl font-bold mb-4">¡Fin del Combate!</h2>
                     <div id="winnerMessage" class="text-xl mb-6"></div>
