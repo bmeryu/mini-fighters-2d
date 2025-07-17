@@ -20,22 +20,20 @@ body {
 }
 
 /* Estilos para la pantalla de bienvenida (splash screen) */
-/* This will now use .overlay-top for positioning */
+/* Reverted to original fixed positioning for full screen coverage */
 #splash-screen {
-    /* Removed fixed positioning and centering from here, now handled by .overlay-top */
-    /* Kept flex for inner content alignment */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #111827; /* Un fondo oscuro casi negro */
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 2000; /* Asegura que esté por encima de todo */
     text-align: center;
     padding: 2rem;
-    /* Added background and z-index to ensure it looks correct when overlay-top is applied */
-    background-color: #111827; /* Un fondo oscuro casi negro */
-    z-index: 2000; /* Asegura que esté por encima de todo */
-    width: 80%; /* Inherit from overlay-top max-width */
-    max-width: 600px; /* Inherit from overlay-top max-width */
-    border-radius: 12px; /* Match overlay style */
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Match overlay style */
 }
 
 
@@ -152,22 +150,10 @@ body {
 
 /* The original .modal class is now replaced by .overlay and .overlay-top */
 
-#start-message-overlay {
-    /* Removed specific positioning, now handled by .overlay-top */
-    /* Kept flex for inner content alignment */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 2rem;
-    /* Added background and z-index to ensure it looks correct when overlay-top is applied */
-    background-color: rgba(45, 55, 72, 0.9); /* Use a similar background to ui-panel */
-    z-index: 30; /* Keep original z-index */
-    width: 80%; /* Inherit from overlay-top max-width */
-    max-width: 600px; /* Inherit from overlay-top max-width */
-    border-radius: 12px; /* Match overlay style */
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Match overlay style */
-}
+/* Removed specific styling for start-message-overlay as it will no longer use .overlay-top */
+/* #start-message-overlay {
+    top: 25%;
+} */
 
 #start-message-text {
     font-size: 2.1rem;
@@ -216,8 +202,7 @@ body {
     }
 }
 
-/* ===== Overlays centrados - MOVED TO END ===== */
-/* This class is for general centered overlays, not used for top-aligned ones now */
+/* ===== Overlays (general purpose, centered) ===== */
 .overlay{
     position: fixed;               /* los saca del flujo y los pega a la ventana */
     top: 50%;
@@ -245,10 +230,12 @@ body {
     display: none; /* Hidden by default */
     width: 80%;
     max-width: 600px; /* Consistent max-width */
-    padding: 0; /* Padding is handled by inner div */
-    background: transparent; /* Background handled by inner div */
-    border-radius: 0; /* Border-radius handled by inner div */
+    padding: 2rem; /* Padding applied here for consistency */
+    background:#293044; /* Background applied here for consistency */
+    border-radius: 12px; /* Border-radius applied here for consistency */
     text-align:center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    color: white;
 }
 
 /* Apply common styles to both overlay types for consistency */
