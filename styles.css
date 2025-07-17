@@ -3,15 +3,10 @@ html, body {
     height: 100%; /* Ensure full viewport height */
     margin: 0;
     padding: 0;
-    /* For body, if you intend to have scrollable content once game is visible,
-       change 'overflow: hidden;' to 'overflow: auto;' or remove it.
-       For the splash screen problem, this line might be the culprit if body's height isn't correctly computed.
-    */
 }
 
 body {
     font-family: 'Inter', sans-serif;
-    /* margin: 0;  -- removed, handled by html, body */
     background-color: #1a202c; /* Color de fondo oscuro */
     color: white;
     display: flex;
@@ -20,24 +15,29 @@ body {
     align-items: center;
     min-height: 100vh; /* Important for full height */
     padding-top: 1rem;
-    overflow: hidden; /* <--- REVISE THIS: If this hides content, change to 'auto' or remove. */
+    overflow-y: auto; /* Changed to auto to allow vertical scrolling */
+    overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
 /* Estilos para la pantalla de bienvenida (splash screen) */
+/* This will now use .overlay-top for positioning */
 #splash-screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: #111827; /* Un fondo oscuro casi negro */
+    /* Removed fixed positioning and centering from here, now handled by .overlay-top */
+    /* Kept flex for inner content alignment */
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 2000; /* Asegura que esté por encima de todo */
     text-align: center;
     padding: 2rem;
+    /* Added background and z-index to ensure it looks correct when overlay-top is applied */
+    background-color: #111827; /* Un fondo oscuro casi negro */
+    z-index: 2000; /* Asegura que esté por encima de todo */
+    width: 80%; /* Inherit from overlay-top max-width */
+    max-width: 600px; /* Inherit from overlay-top max-width */
+    border-radius: 12px; /* Match overlay style */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Match overlay style */
 }
+
 
 #game-wrapper {
     position: relative;
@@ -150,23 +150,23 @@ body {
     100% { box-shadow: none; }
 }
 
-/* REPLACED .modal WITH .overlay */
-/* .modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.7);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-} */
+/* The original .modal class is now replaced by .overlay and .overlay-top */
 
 #start-message-overlay {
-    /* top: 25%;  -- This specific override for start-message-overlay should be removed
-                     if you want it to be centrally positioned by .overlay class */
+    /* Removed specific positioning, now handled by .overlay-top */
+    /* Kept flex for inner content alignment */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+    /* Added background and z-index to ensure it looks correct when overlay-top is applied */
+    background-color: rgba(45, 55, 72, 0.9); /* Use a similar background to ui-panel */
+    z-index: 30; /* Keep original z-index */
+    width: 80%; /* Inherit from overlay-top max-width */
+    max-width: 600px; /* Inherit from overlay-top max-width */
+    border-radius: 12px; /* Match overlay style */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Match overlay style */
 }
 
 #start-message-text {
@@ -217,6 +217,7 @@ body {
 }
 
 /* ===== Overlays centrados - MOVED TO END ===== */
+/* This class is for general centered overlays, not used for top-aligned ones now */
 .overlay{
     position: fixed;               /* los saca del flujo y los pega a la ventana */
     top: 50%;
@@ -233,23 +234,42 @@ body {
     box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Added for better visibility */
     color: white; /* Ensure text color */
 }
-.overlay h1, .overlay h2, .overlay p {
+
+/* Nueva clase para overlays en la parte superior */
+.overlay-top {
+    position: fixed;
+    top: 20px; /* Ajusta este valor para la distancia desde la parte superior */
+    left: 50%;
+    transform: translateX(-50%); /* Centra horizontalmente */
+    z-index: 999; /* Higher than game elements, lower than splash */
+    display: none; /* Hidden by default */
+    width: 80%;
+    max-width: 600px; /* Consistent max-width */
+    padding: 0; /* Padding is handled by inner div */
+    background: transparent; /* Background handled by inner div */
+    border-radius: 0; /* Border-radius handled by inner div */
+    text-align:center;
+}
+
+/* Apply common styles to both overlay types for consistency */
+.overlay h1, .overlay h2, .overlay p,
+.overlay-top h1, .overlay-top h2, .overlay-top p {
     margin-top:0;
     color:#fff;
 }
-.overlay h1 {
+.overlay h1, .overlay-top h1 { /* For warning title */
     font-size:2.2rem;
     font-weight: bold;
     margin-bottom: 1rem;
     color: #facc15; /* Using your existing yellow-400 */
 }
-.overlay h2 {
+.overlay h2, .overlay-top h2 { /* For game over title */
     font-size:2.5rem;
     font-weight: bold;
     margin-bottom: 1rem;
     color: #facc15; /* Using your existing yellow-400 */
 }
-.overlay button {
+.overlay button, .overlay-top button { /* Styles for buttons in overlays */
     margin-top: 1.5rem;
     padding: 0.75rem 2rem;
     font-size: 1.125rem;
