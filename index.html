@@ -14,9 +14,9 @@
 </head>
 <body>
     <!-- Pantalla de Bienvenida -->
-    <!-- Changed class to overlay-top for top positioning -->
-    <div id="splash-screen" class="overlay-top">
-        <div class="max-w-2xl text-center p-4 ui-panel"> <!-- Added ui-panel for consistent styling -->
+    <!-- Reverted to original fixed positioning for full screen coverage, removed overlay-top class -->
+    <div id="splash-screen">
+        <div class="max-w-2xl text-center p-4"> <!-- Removed ui-panel as splash screen has its own background -->
             <h1 class="text-3xl font-bold text-yellow-400 mb-6">Advertencia</h1>
             <p class="text-lg mb-8 leading-relaxed">
                 <strong>Este videojuego es una obra de ficción cuyo propósito es la sátira. Las semejanzas con personas o eventos reales son representaciones caricaturescas no literales, creadas sin intención de injuriar. Al continuar, usted reconoce y acepta la naturaleza satírica de esta obra.</strong>
@@ -68,8 +68,8 @@
             <canvas id="gameCanvas"></canvas>
 
             <!-- Mensaje de Inicio sobre el Canvas -->
-            <!-- Changed class to overlay-top for top positioning -->
-            <div id="start-message-overlay" class="overlay-top">
+            <!-- Reverted to original positioning for an overlay *within* the canvas area -->
+            <div id="start-message-overlay" class="hidden absolute inset-0 flex justify-center items-center z-30 pointer-events-none">
                  <p id="start-message-text" class="text-4xl font-black text-white text-center p-4 rounded-lg" style="font-family: 'Arial Black', Gadget, sans-serif; text-shadow: 3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;"></p>
             </div>
 
@@ -104,11 +104,11 @@
             </div>
 
             <!-- Modal de Fin de Juego -->
-            <!-- Changed class to overlay-top for top positioning -->
             <div id="gameOverModal" class="overlay-top">
                 <div class="ui-panel text-center p-8 rounded-lg">
                     <h2 id="gameOverMessage" class="text-4xl font-bold mb-4">¡Fin del Combate!</h2>
-                    <div id="winnerMessage" class="text-xl mb-6"></div>
+                    <!-- Added flex and items-center for winner message alignment -->
+                    <div id="winnerMessage" class="text-xl mb-6 flex flex-col items-center"></div>
                     <button id="restartButton" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-8 rounded-lg text-xl">
                         JUGAR DE NUEVO
                     </button>
