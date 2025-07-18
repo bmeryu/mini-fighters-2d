@@ -401,7 +401,7 @@ class Player {
         this.activeCalculators = [];
         this.activePapers = [];
         this.activeKisses = [];
-        this.activeHearts = []; // Array para los corazones de Tía Cote
+        this.activeHearts = [];
 
         // Estado del superpoder de Bolt
         this.isDashing = false;
@@ -2321,11 +2321,19 @@ function initGame() {
     const startMessageOverlay = document.getElementById('start-message-overlay');
     const startMessageText = document.getElementById('start-message-text');
     startMessageText.textContent = "¡Haz tus clicks para recargar Superpoder!";
-    startMessageOverlay.classList.remove('hidden');
+    
+    // Asegura que el overlay esté visible y sin clases de fade-out/hidden al inicio
+    startMessageOverlay.classList.remove('hidden', 'fade-out');
+    startMessageOverlay.style.opacity = '1'; // Fuerza la opacidad a 1 para asegurar la visibilidad
 
+    // Después de 3 segundos, añade la clase 'fade-out' para iniciar la transición
     setTimeout(() => {
-        startMessageOverlay.classList.add('hidden');
-    }, 3000); 
+        startMessageOverlay.classList.add('fade-out');
+        // Después de la duración de la transición (1 segundo en CSS), oculta completamente el elemento
+        setTimeout(() => {
+            startMessageOverlay.classList.add('hidden');
+        }, 1000); // Coincide con la duración de la transición CSS
+    }, 3000); // El mensaje se muestra durante 3 segundos antes de empezar a desvanecerse
 
     if (!backgroundMusic) {
         backgroundMusic = new Audio('audio/playbackbattle.mp3');
