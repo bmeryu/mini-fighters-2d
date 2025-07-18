@@ -1,26 +1,19 @@
-/* ADD THIS AT THE TOP */
-html, body {
-    height: 100%; /* Ensure full viewport height */
-    margin: 0;
-    padding: 0;
-}
-
+/* Estilos generales para el cuerpo de la página */
 body {
     font-family: 'Inter', sans-serif;
+    margin: 0;
     background-color: #1a202c; /* Color de fondo oscuro */
     color: white;
     display: flex;
     flex-direction: column;
     justify-content: flex-start; /* Alinea al inicio para el nuevo layout */
     align-items: center;
-    min-height: 100vh; /* Important for full height */
+    min-height: 100vh;
     padding-top: 1rem;
-    overflow-y: auto; /* Changed to auto to allow vertical scrolling */
-    overflow-x: hidden; /* Prevent horizontal scrolling */
+    overflow: hidden; /* Evita el scroll mientras el splash está activo */
 }
 
 /* Estilos para la pantalla de bienvenida (splash screen) */
-/* Reverted to original fixed positioning for full screen coverage */
 #splash-screen {
     position: fixed;
     top: 0;
@@ -36,7 +29,6 @@ body {
     padding: 2rem;
 }
 
-
 #game-wrapper {
     position: relative;
     z-index: 1;
@@ -46,6 +38,11 @@ body {
 }
 
 /* --- ESTILOS DE TÍTULO Y HEADER --- */
+
+/* CORRECCIÓN: Se cambió a 'display: grid' y 'place-items: center'.
+ * Esta es una forma moderna y más fiable de centrar el título,
+ * evitando que otros elementos como el logo afecten su alineación.
+ */
 #main-header {
     position: relative; 
     display: grid;
@@ -53,8 +50,10 @@ body {
 }
 
 #main-title {
+    /* CORRECCIÓN: Se añade al grid para asegurar que se apile correctamente. */
     grid-column: 1;
     grid-row: 1;
+    
     font-family: 'Bangers', cursive; 
     font-size: 7rem; 
     letter-spacing: 0.05em;
@@ -63,25 +62,35 @@ body {
     margin-bottom: 1.5rem;
     display: none; /* JS controla la visibilidad */
     position: relative;
-    color: #facc15; 
+    color: #facc15; /* Color amarillo (text-yellow-400) */
+    
+    /* Sombra de texto replicada del landing page */
     text-shadow: 
-        3px 3px 0 #e53e3e, 
-        -3px -3px 0 #3b82f6, 
-        5px 5px 5px rgba(0,0,0,0.5); 
+        3px 3px 0 #e53e3e, /* Sombra roja */
+        -3px -3px 0 #3b82f6, /* Sombra azul */
+        5px 5px 5px rgba(0,0,0,0.5); /* Sombra oscura para profundidad */
 }
+
 
 #corner-logo {
     position: absolute;
     bottom: 0;
     right: 0;
     font-family: 'Press Start 2P', cursive;
-    color: #cbd5e1; 
+    color: #cbd5e1; /* slate-300 */
     font-size: 0.8rem;
     text-shadow: 1px 1px 0 #000;
     opacity: 0.7;
 }
 
+#corner-logo sup {
+    font-size: 0.5rem;
+    vertical-align: super;
+}
 /* ------------------------- */
+
+
+/* Estilos del lienzo del juego */
 #gameCanvas {
     background-color: transparent;
     border-radius: 0.5rem;
@@ -95,6 +104,7 @@ body {
     margin: 0 auto;
 }
 
+/* Estilo para los paneles de UI (interfaz de usuario) */
 .ui-panel {
     background-color: rgba(45, 55, 72, 0.9);
     padding: 1rem;
@@ -102,12 +112,14 @@ body {
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
+/* Barras de vida y poder visibles por defecto */
 #game-ui-top {
     max-width: 800px;
     margin: 0 auto 0.5rem auto;
     visibility: visible;
 }
 
+/* Contenedores para las barras de salud y poder */
 .health-bar-container, .power-bar-container {
     width: 100%;
     background-color: #4a5568;
@@ -119,16 +131,20 @@ body {
 .health-bar-container { height: 20px; margin-bottom: 4px;}
 .power-bar-container { height: 15px; }
 
+/* Estilos para el relleno de las barras */
 .health-bar, .power-bar {
     height: 100%;
     transition: width 0.3s ease-out;
 }
 
-.player1-health { background-color: #e53e3e; }
-.player2-health { background-color: #3b82f6; }
-.player1-power { background-color: #facc15; }
-.player2-power { background-color: #facc15; }
+/* Colores específicos para las barras de salud de cada jugador */
+.player1-health { background-color: #e53e3e; /* rojo */ }
+.player2-health { background-color: #3b82f6; /* azul */ }
+/* Color para las barras de poder */
+.player1-power { background-color: #facc15; /* amarillo */ }
+.player2-power { background-color: #facc15; /* amarillo */ }
 
+/* Animación para el estado "super-charged" de la barra de poder */
 .power-bar.super-charged {
     animation: pulse-yellow 1s infinite;
 }
@@ -137,6 +153,7 @@ body {
     animation: power-flash 0.15s ease-out;
 }
 
+/* Keyframes para las animaciones */
 @keyframes pulse-yellow {
     0% { box-shadow: 0 0 5px #facc15, 0 0 10px #facc15; }
     50% { box-shadow: 0 0 10px #fde047, 0 0 20px #fde047; }
@@ -148,17 +165,31 @@ body {
     100% { box-shadow: none; }
 }
 
-/* The original .modal class is now replaced by .overlay and .overlay-top */
+/* Estilos para la ventana modal (Game Over) */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+    /* CORRECCIÓN: Se cambia 'display: flex' a 'display: none' por defecto. 
+       El JS controlará cuándo mostrarlo. */
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
 
-/* Removed specific styling for start-message-overlay as it will no longer use .overlay-top */
-/* #start-message-overlay {
+#start-message-overlay {
     top: 25%;
-} */
+}
 
 #start-message-text {
     font-size: 2.1rem;
 }
 
+/* Estilos para los retratos de selección de personajes */
 .character-portrait {
     border: 2px solid #4a5568;
     transition: all 0.2s ease-in-out;
@@ -196,70 +227,9 @@ body {
     margin: 1rem auto 0 auto;
 }
 
+/* --- Media Queries para Responsividad del Título --- */
 @media (max-width: 768px) {
     #main-title {
         font-size: 5rem;
     }
-}
-
-/* ===== Overlays (general purpose, centered) ===== */
-.overlay{
-    position: fixed;               /* los saca del flujo y los pega a la ventana */
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);   /* centra exactamente */
-    z-index: 999;                  /* por encima de canvas y HUD */
-    display: none;                 /* oculto por defecto; lo muestras con JS */
-    width: 80%;                    /* opcional: ajusta tamaño */
-    max-width: 600px;              /* ... */
-    padding: 2rem;
-    background:#293044;            /* mismo fondo que usas */
-    border-radius: 12px;
-    text-align:center;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Added for better visibility */
-    color: white; /* Ensure text color */
-}
-
-/* Nueva clase para overlays en la parte superior */
-.overlay-top {
-    position: fixed;
-    top: 20px; /* Ajusta este valor para la distancia desde la parte superior */
-    left: 50%;
-    transform: translateX(-50%); /* Centra horizontalmente */
-    z-index: 999; /* Higher than game elements, lower than splash */
-    display: none; /* Hidden by default */
-    width: 80%;
-    max-width: 600px; /* Consistent max-width */
-    padding: 2rem; /* Padding applied here for consistency */
-    background:#293044; /* Background applied here for consistency */
-    border-radius: 12px; /* Border-radius applied here for consistency */
-    text-align:center;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    color: white;
-}
-
-/* Apply common styles to both overlay types for consistency */
-.overlay h1, .overlay h2, .overlay p,
-.overlay-top h1, .overlay-top h2, .overlay-top p {
-    margin-top:0;
-    color:#fff;
-}
-.overlay h1, .overlay-top h1 { /* For warning title */
-    font-size:2.2rem;
-    font-weight: bold;
-    margin-bottom: 1rem;
-    color: #facc15; /* Using your existing yellow-400 */
-}
-.overlay h2, .overlay-top h2 { /* For game over title */
-    font-size:2.5rem;
-    font-weight: bold;
-    margin-bottom: 1rem;
-    color: #facc15; /* Using your existing yellow-400 */
-}
-.overlay button, .overlay-top button { /* Styles for buttons in overlays */
-    margin-top: 1.5rem;
-    padding: 0.75rem 2rem;
-    font-size: 1.125rem;
-    border-radius: 0.5rem;
-    cursor: pointer;
 }
