@@ -193,7 +193,16 @@ body {
     justify-content: center;
     align-items: center;
     z-index: 30;
-    pointer-events: none;
+    pointer-events: none; /* Evita que el mensaje interfiera con clics en el canvas */
+
+    /* Nuevos estilos para el desvanecimiento */
+    opacity: 1; /* Inicia completamente visible */
+    transition: opacity 1s ease-out; /* Transición suave de 1 segundo para la opacidad */
+}
+
+/* Clase para activar el desvanecimiento */
+#start-message-overlay.fade-out {
+    opacity: 0;
 }
 
 #start-message-text {
