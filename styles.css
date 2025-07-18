@@ -9,7 +9,7 @@ body {
     justify-content: flex-start; /* Alinea al inicio para el nuevo layout */
     align-items: center;
     min-height: 100vh;
-    padding-top: 1rem;
+    padding-top: 0; /* Elimina el padding superior para que empiece justo arriba */
     overflow: hidden; /* Evita el scroll mientras el splash está activo */
 }
 
@@ -35,6 +35,8 @@ body {
     display: none; /* Oculto por defecto */
     max-width: 1024px;
     width: 100%;
+    margin-top: 0; /* Asegura que no haya un margen superior indeseado */
+    padding-top: 1rem; /* Puedes mantener un padding interno si lo deseas */
 }
 
 /* --- ESTILOS DE TÍTULO Y HEADER --- */
@@ -182,7 +184,16 @@ body {
 }
 
 #start-message-overlay {
-    top: 25%;
+    position: absolute; /* Debe ser absoluto respecto al game-container */
+    top: 25%; /* Esto lo desplaza al 25% del alto del padre */
+    left: 0;
+    width: 100%;
+    height: 100%; /* Cubre todo el canvas para el mensaje */
+    display: flex; /* Asegura centrado interno */
+    justify-content: center;
+    align-items: center;
+    z-index: 30;
+    pointer-events: none;
 }
 
 #start-message-text {
