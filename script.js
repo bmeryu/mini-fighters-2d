@@ -2317,22 +2317,20 @@ function initGame() {
         canvas.style.backgroundSize = 'cover';
         canvas.style.backgroundPosition = 'center';
     }
-    
     const startMessageOverlay = document.getElementById('start-message-overlay');
     const startMessageText = document.getElementById('start-message-text');
     startMessageText.textContent = "¡Haz tus clicks para recargar Superpoder!";
-    startMessageOverlay.classList.remove('hidden');
-    startMessageOverlay.classList.remove('fade-out'); // Ensure starting state
+    startMessageOverlay.classList.remove('hidden','fade-out');
 
-    // Fade out after 3 seconds
     setTimeout(() => {
         startMessageOverlay.classList.add('fade-out');
-        // After fade transition ends, hide completely
-        setTimeout(() => {
+        const onFadeEnd = () => {
             startMessageOverlay.classList.add('hidden');
-            startMessageOverlay.classList.remove('fade-out');
-        }, 600); // match CSS transition duration
-    }, 3000); 
+            startMessageOverlay.removeEventListener('transitionend', onFadeEnd);
+        };
+        startMessageOverlay.addEventListener('transitionend', onFadeEnd);
+    }, 3000);
+
 
     if (!backgroundMusic) {
         backgroundMusic = new Audio('audio/playbackbattle.mp3');
