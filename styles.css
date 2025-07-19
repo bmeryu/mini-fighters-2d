@@ -1,30 +1,37 @@
-/* Estilos generales para el cuerpo de la página */
+
+/* ADD THIS AT THE TOP */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
 body {
     font-family: 'Inter', sans-serif;
-    margin: 0;
-    background-color: #1a202c; /* Color de fondo oscuro */
+    background-color: #1a202c;
     color: white;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* Alinea al inicio para el nuevo layout */
+    justify-content: flex-start;
     align-items: center;
     min-height: 100vh;
-    padding-top: 0; /* Elimina el padding superior para que empiece justo arriba */
-    overflow: hidden; /* Evita el scroll mientras el splash está activo */
+    padding-top: 1rem;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
-/* Estilos para la pantalla de bienvenida (splash screen) */
+/* ----- Splash screen ----- */
 #splash-screen {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #111827; /* Un fondo oscuro casi negro */
+    background-color: #111827;
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 2000; /* Asegura que esté por encima de todo */
+    z-index: 2000;
     text-align: center;
     padding: 2rem;
 }
@@ -32,67 +39,48 @@ body {
 #game-wrapper {
     position: relative;
     z-index: 1;
-    display: none; /* Oculto por defecto */
+    display: none;
     max-width: 1024px;
     width: 100%;
-    margin-top: 0; /* Asegura que no haya un margen superior indeseado */
-    padding-top: 1rem; /* Puedes mantener un padding interno si lo deseas */
 }
 
-/* --- ESTILOS DE TÍTULO Y HEADER --- */
-
-/* CORRECCIÓN: Se cambió a 'display: grid' y 'place-items: center'.
- * Esta es una forma moderna y más fiable de centrar el título,
- * evitando que otros elementos como el logo afecten su alineación.
- */
+/* --- TITLE & HEADER --- */
 #main-header {
-    position: relative; 
+    position: relative;
     display: grid;
     place-items: center;
 }
 
 #main-title {
-    /* CORRECCIÓN: Se añade al grid para asegurar que se apile correctamente. */
     grid-column: 1;
     grid-row: 1;
-    
     font-family: 'Bangers', cursive; 
     font-size: 7rem; 
     letter-spacing: 0.05em;
     text-align: center;
     line-height: 1;
     margin-bottom: 1.5rem;
-    display: none; /* JS controla la visibilidad */
+    display: none;
     position: relative;
-    color: #facc15; /* Color amarillo (text-yellow-400) */
-    
-    /* Sombra de texto replicada del landing page */
+    color: #facc15; 
     text-shadow: 
-        3px 3px 0 #e53e3e, /* Sombra roja */
-        -3px -3px 0 #3b82f6, /* Sombra azul */
-        5px 5px 5px rgba(0,0,0,0.5); /* Sombra oscura para profundidad */
+        3px 3px 0 #e53e3e, 
+        -3px -3px 0 #3b82f6, 
+        5px 5px 5px rgba(0,0,0,0.5); 
 }
-
 
 #corner-logo {
     position: absolute;
     bottom: 0;
     right: 0;
     font-family: 'Press Start 2P', cursive;
-    color: #cbd5e1; /* slate-300 */
+    color: #cbd5e1;
     font-size: 0.8rem;
     text-shadow: 1px 1px 0 #000;
     opacity: 0.7;
 }
 
-#corner-logo sup {
-    font-size: 0.5rem;
-    vertical-align: super;
-}
-/* ------------------------- */
-
-
-/* Estilos del lienzo del juego */
+/* Canvas */
 #gameCanvas {
     background-color: transparent;
     border-radius: 0.5rem;
@@ -106,7 +94,6 @@ body {
     margin: 0 auto;
 }
 
-/* Estilo para los paneles de UI (interfaz de usuario) */
 .ui-panel {
     background-color: rgba(45, 55, 72, 0.9);
     padding: 1rem;
@@ -114,14 +101,13 @@ body {
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
-/* Barras de vida y poder visibles por defecto */
 #game-ui-top {
     max-width: 800px;
     margin: 0 auto 0.5rem auto;
     visibility: visible;
 }
 
-/* Contenedores para las barras de salud y poder */
+/* Health & Power bars */
 .health-bar-container, .power-bar-container {
     width: 100%;
     background-color: #4a5568;
@@ -133,20 +119,16 @@ body {
 .health-bar-container { height: 20px; margin-bottom: 4px;}
 .power-bar-container { height: 15px; }
 
-/* Estilos para el relleno de las barras */
 .health-bar, .power-bar {
     height: 100%;
     transition: width 0.3s ease-out;
 }
 
-/* Colores específicos para las barras de salud de cada jugador */
-.player1-health { background-color: #e53e3e; /* rojo */ }
-.player2-health { background-color: #3b82f6; /* azul */ }
-/* Color para las barras de poder */
-.player1-power { background-color: #facc15; /* amarillo */ }
-.player2-power { background-color: #facc15; /* amarillo */ }
+.player1-health { background-color: #e53e3e; }
+.player2-health { background-color: #3b82f6; }
+.player1-power  { background-color: #facc15; }
+.player2-power  { background-color: #facc15; }
 
-/* Animación para el estado "super-charged" de la barra de poder */
 .power-bar.super-charged {
     animation: pulse-yellow 1s infinite;
 }
@@ -155,61 +137,18 @@ body {
     animation: power-flash 0.15s ease-out;
 }
 
-/* Keyframes para las animaciones */
 @keyframes pulse-yellow {
-    0% { box-shadow: 0 0 5px #facc15, 0 0 10px #facc15; }
-    50% { box-shadow: 0 0 10px #fde047, 0 0 20px #fde047; }
+    0%   { box-shadow: 0 0 5px #facc15, 0 0 10px #facc15; }
+    50%  { box-shadow: 0 0 10px #fde047, 0 0 20px #fde047; }
     100% { box-shadow: 0 0 5px #facc15, 0 0 10px #facc15; }
 }
 
 @keyframes power-flash {
-    0% { box-shadow: 0 0 8px 2px rgba(255, 255, 255, 0.9), 0 0 12px 4px rgba(253, 224, 71, 0.7); }
+    0%   { box-shadow: 0 0 8px 2px rgba(255,255,255,.9), 0 0 12px 4px rgba(253,224,71,.7); }
     100% { box-shadow: none; }
 }
 
-/* Estilos para la ventana modal (Game Over) */
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.7);
-    /* CORRECCIÓN: Se cambia 'display: flex' a 'display: none' por defecto. 
-       El JS controlará cuándo mostrarlo. */
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-#start-message-overlay {
-    position: absolute; /* Debe ser absoluto respecto al game-container */
-    top: 25%; /* Esto lo desplaza al 25% del alto del padre */
-    left: 0;
-    width: 100%;
-    height: 100%; /* Cubre todo el canvas para el mensaje */
-    display: flex; /* Asegura centrado interno */
-    justify-content: center;
-    align-items: center;
-    z-index: 30;
-    pointer-events: none; /* Evita que el mensaje interfiera con clics en el canvas */
-
-    /* Nuevos estilos para el desvanecimiento */
-    opacity: 1; /* Inicia completamente visible */
-    transition: opacity 1s ease-out; /* Transición suave de 1 segundo para la opacidad */
-}
-
-/* Clase para activar el desvanecimiento */
-#start-message-overlay.fade-out {
-    opacity: 0;
-}
-
-#start-message-text {
-    font-size: 2.1rem;
-}
-
-/* Estilos para los retratos de selección de personajes */
+/* Character portraits */
 .character-portrait {
     border: 2px solid #4a5568;
     transition: all 0.2s ease-in-out;
@@ -246,23 +185,78 @@ body {
     max-width: 800px;
     margin: 1rem auto 0 auto;
 }
+
+@media (max-width: 768px) {
+    #main-title { font-size: 5rem; }
+}
+
+/* ===== Overlays (general purpose) ===== */
+.overlay{
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 999;
+    display: none;
+    width: 80%;
+    max-width: 600px;
+    padding: 2rem;
+    background:#293044;
+    border-radius: 12px;
+    text-align:center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    color: white;
+}
+
+/* Overlays top */
+.overlay-top{
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 999;
+    display: none;
+    width: 80%;
+    max-width: 600px;
+    padding: 2rem;
+    background:#293044;
+    border-radius: 12px;
+    text-align:center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    color: white;
+}
+
+.overlay h1, .overlay h2, .overlay p,
+.overlay-top h1, .overlay-top h2, .overlay-top p {
+    margin-top:0;
+    color:#fff;
+}
+.overlay h1, .overlay-top h1{
+    font-size:2.2rem;
+    font-weight:bold;
+    margin-bottom:1rem;
+    color:#facc15;
+}
+.overlay h2, .overlay-top h2{
+    font-size:2.5rem;
+    font-weight:bold;
+    margin-bottom:1rem;
+    color:#facc15;
+}
+.overlay button, .overlay-top button{
+    margin-top:1.5rem;
+    padding:.75rem 2rem;
+    font-size:1.125rem;
+    border-radius:.5rem;
+    cursor:pointer;
+}
+
 /* === Fade‑in / Fade‑out para el mensaje “Haz tus clicks…” === */
 #start-message-overlay{
-    /* visible cuando JS quita la clase `hidden`               */
-    opacity: 1;
-    transition: opacity .6s ease-in-out;
+    opacity:1;
+    transition:opacity .6s ease-in-out;
 }
-
-/* Se le añade vía JS a los 3 s ➜ hace el fade‑out */
 #start-message-overlay.fade-out{
-    opacity: 0;              /* se vuelve transparente          */
-    pointer-events: none;    /* evita bloquear el canvas        */
+    opacity:0;
+    pointer-events:none;
 }
-
-/* --- Media Queries para Responsividad del Título --- */
-@media (max-width: 768px) {
-    #main-title {
-        font-size: 5rem;
-    }
-}
-
