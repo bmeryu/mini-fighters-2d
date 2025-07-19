@@ -262,17 +262,8 @@ body {
 }
 
 
-}
-/* --- Posición fija del modal de ganador --------------------------------- */
+/* Override winner modal position */
 #gameOverModal{
-    position: fixed !important;   /* fuera del flujo, pegado a la ventana   */
-    top: 0 !important;            /* toca el borde superior                 */
-    left: 50% !important;         /* centro horizontal                      */
-    transform: translateX(-50%) !important; /* compensa el 50 % de left     */
-
-    /* Opcional: ajusta anchura, sombra, etc. */
-    width: 90%;
-    max-width: 600px;
-    margin: 0;                    /* evita márgenes que puedan empujarlo    */
-    z-index: 9999;                /* por encima de todo (canvas, HUD, etc.)*/
+    top: 20px !important;          /* stick near the top */
+    transform: translateX(-50%) !important; /* center horizontally only */
 }
