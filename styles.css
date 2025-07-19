@@ -259,3 +259,9 @@ body {
     opacity:0;
     pointer-events:none;
 }
+
+/* Override winner modal position to ensure centering */
+#gameOverModal {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+}
