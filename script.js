@@ -249,7 +249,7 @@ const characterAssets = [
             thigh: "img/personaje5-muslos.png",
             lowerLeg: "img/personaje5-piernasbajas.png",
             glove_r: "img/personaje5-guantes-d.png",
-            glove_l: "img/personaje5-guantes-i.png",
+            glove_l: "img/personage5-guantes-i.png",
             glove: null,
             shoe: "img/personaje5-zapatos.png",
             superEffectTexture: "img/personaje5-super-effect.png"
@@ -2996,4 +2996,852 @@ class Player {
         ctx.strokeStyle = '#4a2a0a';
         ctx.lineWidth = 3;
         for (let s = -1; s <= 1; s += 2) {
+            ctx.beginPath();
+            ctx.moveTo(this.crackCenterX + (s * currentCrackWidth / 2), groundY);
+            for (let i = 0; i <= 10; i++) {
+                const p = i / 10;
+                const x = this.crackCenterX + (s * (currentCrackWidth / 2) * (1 - p));
+                const y = groundY + (Math.random() - 0.5) * 8 * progress;
+                ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+        }
+        ctx.restore();
+    }
+
+    draw() {
+        if(this.isInvisible) return; // No dibujar si es invisible
+        ctx.save();
+
+         if (this.isDashing) {
+            this.trail.forEach((pos, index) => {
+                ctx.globalAlpha = (index / this.trail.length) * 0.5;
+                 this.drawPlayerModel(pos.x, pos.y);
+            });
+            ctx.globalAlpha = 1;
+        }
+        this.drawPlayerModel(this.x, this.y);
+
+        this.drawPiranhaProjectiles();
+        this.drawMoneyWads();
+        this.drawCoins();
+        this.drawCalculatorProjectiles();
+        this.drawPapers();
+        this.drawKisses();
+        this.drawHearts();
+        this.drawTiaCoteBeam();
+        
+        if (this.isCastingCrack) {
+            this.drawZanjasCrack();
+        }
+        
+        if (this.isConfused) {
+            ctx.font = `bold 24px 'Comic Sans MS'`;
+            ctx.fillStyle = 'yellow';
+            ctx.textAlign = 'center';
+            ctx.fillText('???', this.x + this.width / 2, this.y - 20);
+        } else if (this.isStunned) {
+            ctx.font = `bold 24px 'Comic Sans MS'`;
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center';
+            ctx.fillText('!!!', this.x + this.width / 2, this.y - 20);
+        }
+
+        if (this.isPerformingSuperAttackAnimation && this.attackVisualActive && this.superEffectTextureImage && this.superEffectTextureImage.complete && this.name !== "Piraña") {
+            const effectWidth = this.width * 1.5;
+            const effectHeight = this.height * 1.5;
+            const effectX = this.x + (this.width - effectWidth) / 2;
+            const effectY = this.y + (this.height - effectHeight) / 2;
+            ctx.globalAlpha = 0.7;
+            ctx.drawImage(this.superEffectTextureImage, effectX, effectY, effectWidth, effectHeight);
+            ctx.globalAlpha = 1.0;
+        }
+        ctx.restore();
+    }
+
+     drawPlayerModel(x, y) {
+        if (this.isSwallowed) {
+            return; // No dibujar si está tragado
+        }
+        const originalX = this.x;
+        const originalY = this.y;
+        this.x = x;
+        this.y = y;
+
+        if (this.showBlurred) {
+            ctx.filter = 'blur(4px)';
+        } else if ((this.isPerformingSuperAttackAnimation || this.isCastingBeam) && this.attackVisualActive) {
+            ctx.filter = 'brightness(1.75) saturate(2.5)';
+        }
+
+        const totalLegSegmentsHeight = this.thighHeight + this.lowerLegHeight;
+        const torsoGlobalY = this.y + (this.height - this.torsoHeight - totalLegSegmentsHeight - this.shoeHeight);
+        const torsoGlobalX = this.x + (this.width - this.torsoWidth) / 2;
+        const headGlobalX = this.x + (this.width - this.headSize) / 2;
+        const headGlobalY = torsoGlobalY - this.headSize;
+        const visuallyBackArmIsRight = !this.facingRight;
+        const visuallyBackLegIsFront = !this.facingRight;
+        this.drawLeg(visuallyBackLegIsFront);
+        this.drawLeg(!visuallyBackLegIsFront);
+        if (this.facingRight) {
+            this.drawArm(false);
+            this.drawPartWithTexture('torso', torsoGlobalX, torsoGlobalY, this.torsoWidth, this.torsoHeight, !this.facingRight);
+            if (this.name === 'Matthei Bolt' && this.isDashing) {
+                this.drawVest(torsoGlobalX, torsoGlobalY);
+            }
+            this.drawPartWithTexture('head', headGlobalX, headGlobalY, this.headSize, this.headSize, !this.facingRight);
+            this.drawArm(true);
+        } else {
+            this.drawArm(true);
+            this.drawPartWithTexture('torso', torsoGlobalX, torsoGlobalY, this.torsoWidth, this.torsoHeight, !this.facingRight);
+            if (this.name === 'Matthei Bolt' && this.isDashing) {
+                this.drawVest(torsoGlobalX, torsoGlobalY);
+            }
+            this.drawPartWithTexture('head', headGlobalX, headGlobalY, this.headSize, this.headSize, !this.facingRight);
+            this.drawArm(false);
+        }
+
+        ctx.filter = 'none';
+        this.x = originalX;
+        this.y = originalY;
+    }
+
+    drawVest(torsoX, torsoY) {
+        ctx.save();
+        if (!this.facingRight) {
+             ctx.translate(this.x + this.width/2, 0);
+             ctx.scale(-1,1);
+             ctx.translate(-(this.x + this.width/2), 0);
+        }
+
+        if (this.yellowVestTextureImage && this.yellowVestTextureImage.complete && this.yellowVestTextureImage.width > 0) {
+                ctx.drawImage(this.yellowVestTextureImage, torsoX, torsoY, this.torsoWidth, this.torsoHeight);
+        } else {
+            // Fallback si la textura no carga
+            ctx.fillStyle = '#eab308'; // Amarillo-600 de Tailwind
+            ctx.fillRect(torsoX, torsoY, this.torsoWidth, this.torsoHeight);
+
+            // Bandas grises reflectantes
+            const stripeHeight = this.torsoHeight / 6;
+            ctx.fillStyle = '#a1a1aa'; // Zinc-400
             
+            const stripe1Y = torsoY + this.torsoHeight * 0.4 - stripeHeight / 2;
+            ctx.fillRect(torsoX, stripe1Y, this.torsoWidth, stripeHeight);
+            
+            const stripe2Y = torsoY + this.torsoHeight * 0.65 - stripeHeight / 2;
+            ctx.fillRect(torsoX, stripe2Y, this.torsoWidth, stripeHeight);
+        }
+        ctx.restore();
+    }
+
+
+    updateAI() {
+        if (this.isConfused) {
+            this.confusionTimer--;
+            this.confusionBlinkTimer--;
+            if(this.confusionTimer <= 0) {
+                this.isConfused = false;
+                this.showBlurred = false;
+            }
+            if(this.confusionBlinkTimer <= 0) {
+                this.showBlurred = !this.showBlurred;
+                new Audio('audio/pouf-bomb.wav').play().catch(e => console.error("Error playing sound:", e));
+                this.confusionBlinkTimer = 15; // Blink every 15 frames
+            }
+            return; // AI is confused, skip normal logic
+         }
+
+         if (this.isDashing || this.isSwallowed || this.isCastingCrack || this.isStunned || this.isCastingBeam) {
+            return;
+         }
+        if (Date.now() - this.lastAIDecisionTime > AI_ACTION_INTERVAL) {
+            this.lastAIDecisionTime = Date.now();
+            const opponent = players.find(p => p !== this);
+            if (!opponent || opponent.isInvisible) { // No hacer nada si el oponente es invisible
+                this.currentAction = 'stand';
+                return;
+            }
+            const distanceToOpponent = Math.abs((this.x + this.width / 2) - (opponent.x + opponent.width / 2)) - (this.width/2 + opponent.width/2);
+            const opponentIsToTheRight = (opponent.x + opponent.width / 2) > (this.x + this.width / 2);
+            if (distanceToOpponent < Math.max(this.punchRange, this.kickRange) * 1.5) {
+                this.facingRight = opponentIsToTheRight;
+            }
+            const canAttack = !(this.isPunching || this.isKicking) && (Date.now() - this.lastAttackTime > this.attackCooldown);
+            let decidedToAttack = false;
+            let attackType = 'punch';
+            if (this.facingRight === opponentIsToTheRight) {
+                if (distanceToOpponent < this.kickRange && Math.random() < AI_ATTACK_CHANCE_IN_RANGE) {
+                    decidedToAttack = true;
+                    if (Math.random() < AI_KICK_CHANCE) {
+                        attackType = 'kick';
+                    } else if (distanceToOpponent >= this.punchRange) {
+                        attackType = 'kick';
+                    } else {
+                        attackType = 'punch';
+                    }
+                } else if (distanceToOpponent < this.punchRange && Math.random() < AI_ATTACK_CHANCE_IN_RANGE) {
+                    decidedToAttack = true;
+                    attackType = 'punch';
+                }
+            }
+            if (canAttack && decidedToAttack) {
+                if (this.isSuperCharged && Math.random() < 0.8) {
+                    if (attackType === 'kick') this.kick(); else this.punch();
+                } else if (attackType === 'kick') {
+                    this.kick();
+                } else {
+                    this.punch();
+                }
+                this.currentAction = 'attack';
+            } else {
+                if (Math.random() < AI_MOVE_CHANCE) {
+                    const randomMove = Math.random();
+                    if (distanceToOpponent > this.punchRange * 0.5) {
+                        this.currentAction = opponentIsToTheRight ? 'moveRight' : 'moveLeft';
+                        this.facingRight = opponentIsToTheRight;
+                    } else if (randomMove < 0.3) {
+                        this.currentAction = opponentIsToTheRight ? 'moveLeft' : 'moveRight';
+                    } else {
+                        this.currentAction = 'stand';
+                    }
+                    if (Math.random() < AI_JUMP_CHANCE && !this.isJumping) this.jump();
+                } else {
+                    this.currentAction = 'stand';
+                }
+            }
+        }
+        this.velocityX = 0;
+        if (this.currentAction === 'moveLeft') this.velocityX = -this.speed;
+        else if (this.currentAction === 'moveRight') this.velocityX = this.speed;
+    }
+
+    updatePiranhaProjectiles(opponent) {
+        for (let i = this.activePiranhaProjectiles.length - 1; i >= 0; i--) {
+            const p = this.activePiranhaProjectiles[i];
+            p.x += p.velocityX * (p.direction ? 1 : -1);
+            p.lifespan--;
+
+            if (p.lifespan <= 0 || p.x > CANVAS_WIDTH || p.x + p.width < 0) {
+                this.activePiranhaProjectiles.splice(i, 1);
+                continue;
+            }
+
+            const opponentBox = { x: opponent.x, y: opponent.y, width: opponent.width, height: opponent.height };
+            const projectileBox = { x: p.x, y: p.y, width: p.width, height: p.height };
+
+            if (
+                !opponent.isSwallowed && !opponent.isStunned &&
+                projectileBox.x < opponentBox.x + opponentBox.width &&
+                projectileBox.x + projectileBox.width > opponentBox.x &&
+                projectileBox.y < opponentBox.y + opponentBox.height &&
+                projectileBox.y + projectileBox.height > opponentBox.y
+            ) {
+                opponent.takeDamage(p.damage, p.direction);
+                activeHitEffects.push({ text: "¡ÑAM!", x: p.x, y: p.y, color: "#ff6347", alpha: 1.0, size: 20, rotation: 0, lifetime: HIT_EFFECT_LIFETIME / 2 });
+                this.activePiranhaProjectiles.splice(i, 1);
+            }
+        }
+    }
+
+    updateMoneyWads(opponent) {
+        for (let i = this.activeMoneyWads.length - 1; i >= 0; i--) {
+            const wad = this.activeMoneyWads[i];
+            wad.velocityY += GRAVITY * 0.5;
+            wad.y += wad.velocityY;
+            wad.x += wad.velocityX;
+            wad.rotation += wad.rotationSpeed;
+
+            if (wad.y > CANVAS_HEIGHT) {
+                this.activeMoneyWads.splice(i, 1);
+                continue;
+            }
+
+            const opponentBox = { x: opponent.x, y: opponent.y, width: opponent.width, height: opponent.height };
+            const wadBox = { x: wad.x, y: wad.y, width: wad.width, height: wad.height };
+
+            if (
+                !opponent.isSwallowed && !opponent.isStunned &&
+                wadBox.x < opponentBox.x + opponentBox.width &&
+                wadBox.x + wadBox.width > opponentBox.x &&
+                wadBox.y < opponentBox.y + opponentBox.height &&
+                wadBox.y + wadBox.height > opponentBox.y
+            ) {
+                opponent.takeDamage(wad.damage, wad.x > opponent.x + opponent.width / 2);
+                activeHitEffects.push({ text: "$$$", x: wad.x, y: wad.y, color: "#22c55e", alpha: 1.0, size: 30, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
+                this.activeMoneyWads.splice(i, 1);
+            }
+        }
+    }
+    
+    updateCoins(opponent) {
+        for (let i = this.activeCoins.length - 1; i >= 0; i--) {
+            const coin = this.activeCoins[i];
+            coin.velocityY += GRAVITY * 0.6; // Coins are a bit heavier
+            coin.y += coin.velocityY;
+            
+            if (coin.y > CANVAS_HEIGHT) {
+                this.activeCoins.splice(i, 1);
+                continue;
+            }
+
+            const opponentBox = { x: opponent.x, y: opponent.y, width: opponent.width, height: opponent.height };
+            const coinBox = { x: coin.x - coin.radius, y: coin.y - coin.radius, width: coin.radius * 2, height: coin.radius * 2 };
+            
+            if (
+                !opponent.isSwallowed && !opponent.isStunned &&
+                coinBox.x < opponentBox.x + opponentBox.width &&
+                coinBox.x + coinBox.width > opponentBox.x &&
+                coinBox.y < opponentBox.y + opponentBox.height &&
+                coinBox.y + coinBox.height > opponentBox.y
+            ) {
+                opponent.takeDamage(COIN_RAIN_DAMAGE, coin.x > opponent.x + opponent.width / 2);
+                activeHitEffects.push({ text: "$", x: coin.x, y: coin.y, color: "#facc15", alpha: 1.0, size: 20, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
+                this.activeCoins.splice(i, 1);
+            }
+        }
+    }
+
+    updateCalculatorProjectiles(opponent) {
+        for (let i = this.activeCalculators.length - 1; i >= 0; i--) {
+            const calc = this.activeCalculators[i];
+            calc.x += calc.velocityX;
+            calc.y += calc.velocityY;
+            calc.velocityY += GRAVITY * 0.4; // Las calculadoras son pesadas
+            calc.rotation += calc.rotationSpeed;
+            calc.lifespan--;
+
+            if (calc.lifespan <= 0 || calc.y > CANVAS_HEIGHT) {
+                this.activeCalculators.splice(i, 1);
+                continue;
+            }
+
+            const opponentBox = { x: opponent.x, y: opponent.y, width: opponent.width, height: opponent.height };
+            const calcBox = { x: calc.x, y: calc.y, width: calc.width, height: calc.height };
+
+            if (
+                !opponent.isSwallowed && !opponent.isStunned &&
+                calcBox.x < opponentBox.x + opponentBox.width &&
+                calcBox.x + calcBox.width > opponentBox.x &&
+                calcBox.y < opponentBox.y + opponentBox.height &&
+                calcBox.y + calcBox.height > opponentBox.y
+            ) {
+                opponent.takeDamage(CALCULATOR_PROJECTILE_DAMAGE, calc.velocityX > 0);
+                activeHitEffects.push({ text: "ERROR", x: calc.x, y: calc.y, color: "#e53e3e", alpha: 1.0, size: 25, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
+                this.activeCalculators.splice(i, 1);
+            }
+        }
+    }
+
+    updatePapers(opponent) {
+        for (let i = this.activePapers.length - 1; i >= 0; i--) {
+            const paper = this.activePapers[i];
+            paper.velocityY += GRAVITY * 0.3;
+            paper.y += paper.velocityY;
+            paper.x += paper.velocityX;
+            paper.rotation += paper.rotationSpeed;
+
+            if (paper.y > CANVAS_HEIGHT) {
+                this.activePapers.splice(i, 1);
+                continue;
+            }
+
+            const opponentBox = { x: opponent.x, y: opponent.y, width: opponent.width, height: opponent.height };
+            const paperBox = { x: paper.x, y: paper.y, width: paper.width, height: paper.height };
+            
+            if (
+                !opponent.isSwallowed && !opponent.isStunned &&
+                paperBox.x < opponentBox.x + opponentBox.width &&
+                paperBox.x + paperBox.width > opponentBox.x &&
+                paperBox.y < opponentBox.y + opponentBox.height &&
+                paperBox.y + paperBox.height > opponentBox.y
+            ) {
+                opponent.takeDamage(PAPELUCHO_PAPER_DAMAGE, this.facingRight);
+                opponent.isStunned = true;
+                opponent.stunTimer = PAPELUCHO_STUN_DURATION;
+                this.activePapers.splice(i, 1);
+            }
+        }
+    }
+
+    updateKisses(opponent) {
+        for (let i = this.activeKisses.length - 1; i >= 0; i--) {
+            const kiss = this.activeKisses[i];
+            kiss.x += kiss.velocityX * (kiss.direction ? 1 : -1);
+            kiss.lifespan--;
+
+            if (kiss.lifespan <= 0 || kiss.x > CANVAS_WIDTH || kiss.x + kiss.width < 0) {
+                this.activeKisses.splice(i, 1);
+                continue;
+            }
+
+            const opponentBox = { x: opponent.x, y: opponent.y, width: opponent.width, height: opponent.height };
+            const kissBox = { x: kiss.x, y: kiss.y, width: kiss.width, height: kiss.height };
+
+            if (
+                !opponent.isSwallowed && !opponent.isStunned &&
+                kissBox.x < opponentBox.x + opponentBox.width &&
+                kissBox.x + kissBox.width > opponentBox.x &&
+                kissBox.y < opponentBox.y + opponentBox.height &&
+                kissBox.y + kissBox.height > opponentBox.y
+            ) {
+                opponent.takeDamage(kiss.damage, kiss.direction);
+                activeHitEffects.push({ text: "♥", x: kiss.x, y: kiss.y, color: "#ff69b4", alpha: 1.0, size: 30, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
+                this.activeKisses.splice(i, 1);
+            }
+        }
+    }
+
+    updateHearts(opponent) {
+        for (let i = this.activeHearts.length - 1; i >= 0; i--) {
+            const heart = this.activeHearts[i];
+            heart.x += heart.velocityX;
+            heart.y += heart.velocityY;
+            heart.lifespan--;
+
+            if (heart.lifespan <= 0 || heart.x > CANVAS_WIDTH || heart.x + heart.width < 0) {
+                this.activeHearts.splice(i, 1);
+                continue;
+            }
+
+            const opponentBox = { x: opponent.x, y: opponent.y, width: opponent.width, height: opponent.height };
+            const heartBox = { x: heart.x, y: heart.y, width: heart.width, height: heart.height };
+
+            if (
+                !opponent.isSwallowed && !opponent.isStunned &&
+                heartBox.x < opponentBox.x + opponentBox.width &&
+                heartBox.x + heartBox.width > opponentBox.x &&
+                heartBox.y < opponentBox.y + opponentBox.height &&
+                heartBox.y + heartBox.height > opponentBox.y
+            ) {
+                opponent.takeDamage(heart.damage, this.facingRight);
+                activeHitEffects.push({ text: "♥", x: heart.x, y: heart.y, color: "#e879f9", alpha: 1.0, size: 25, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
+                this.activeHearts.splice(i, 1);
+            }
+        }
+    }
+    
+    // Método para dibujar el haz de luz de Tía Cote
+    drawTiaCoteBeam() {
+        if (!this.isCastingBeam) return;
+
+        const beamProgress = 1 - (this.beamTimer / TIA_COTE_BEAM_DURATION);
+        const currentAlpha = 0.8 * Math.sin(beamProgress * Math.PI); // Efecto de fade-in y fade-out
+
+        ctx.save();
+        
+        const beamY = this.y + this.height * 0.3;
+        const beamStartX = this.facingRight ? this.x + this.width / 2 : 0;
+        const beamTotalWidth = this.facingRight ? CANVAS_WIDTH - beamStartX : this.x + this.width / 2;
+
+        // Gradiente para el rayo
+        const gradient = ctx.createLinearGradient(beamStartX, beamY, beamStartX, beamY + TIA_COTE_BEAM_WIDTH);
+        gradient.addColorStop(0, `rgba(255, 255, 224, ${currentAlpha * 0.5})`); // Amarillo muy claro, casi blanco
+        gradient.addColorStop(0.5, `rgba(253, 224, 71, ${currentAlpha})`); // Amarillo dorado
+        gradient.addColorStop(1, `rgba(255, 255, 224, ${currentAlpha * 0.5})`);
+        
+        ctx.fillStyle = gradient;
+        ctx.fillRect(beamStartX, beamY, beamTotalWidth, TIA_COTE_BEAM_WIDTH);
+
+        // Partículas de brillo dentro del rayo
+        for (let i = 0; i < 20; i++) {
+            ctx.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.9 * currentAlpha})`;
+            const particleX = beamStartX + Math.random() * beamTotalWidth;
+            const particleY = beamY + Math.random() * TIA_COTE_BEAM_WIDTH;
+            const particleSize = Math.random() * 3 + 1;
+            ctx.fillRect(particleX, particleY, particleSize, particleSize);
+        }
+
+        ctx.restore();
+    }
+
+
+    drawZanjasCrack() {
+        if (!this.isCastingCrack) return;
+
+        const groundY = CANVAS_HEIGHT - 10;
+        const halfLife = ZANJAS_CRACK_LIFESPAN / 2;
+
+        // Progreso triangular simple: 0 -> 1 -> 0
+        let progress = 0;
+        if (this.crackTimer > halfLife) {
+            progress = (ZANJAS_CRACK_LIFESPAN - this.crackTimer) / halfLife;
+        } else {
+            progress = this.crackTimer / halfLife;
+        }
+
+        const currentCrackWidth = ZANJAS_CRACK_WIDTH * progress;
+        const currentCrackDepth = ZANJAS_CRACK_MAX_HEIGHT * progress;
+
+        if (currentCrackWidth <= 2) return;
+
+        ctx.save();
+        // Abismo negro
+        ctx.fillStyle = 'black';
+        ctx.beginPath();
+        ctx.moveTo(this.crackCenterX - currentCrackWidth / 2, groundY);
+        ctx.lineTo(this.crackCenterX + currentCrackWidth / 2, groundY);
+        ctx.lineTo(this.crackCenterX, groundY + currentCrackDepth);
+        ctx.closePath();
+        ctx.fill();
+
+        // Bordes irregulares
+        ctx.strokeStyle = '#4a2a0a';
+        ctx.lineWidth = 3;
+        for (let s = -1; s <= 1; s += 2) {
+            ctx.beginPath();
+            ctx.moveTo(this.crackCenterX + (s * currentCrackWidth / 2), groundY);
+            for (let i = 0; i <= 10; i++) {
+                const p = i / 10;
+                const x = this.crackCenterX + (s * (currentCrackWidth / 2) * (1 - p));
+                const y = groundY + (Math.random() - 0.5) * 8 * progress;
+                ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+        }
+        ctx.restore();
+    }
+
+    draw() {
+        if(this.isInvisible) return; // No dibujar si es invisible
+        ctx.save();
+
+         if (this.isDashing) {
+            this.trail.forEach((pos, index) => {
+                ctx.globalAlpha = (index / this.trail.length) * 0.5;
+                 this.drawPlayerModel(pos.x, pos.y);
+            });
+            ctx.globalAlpha = 1;
+        }
+        this.drawPlayerModel(this.x, this.y);
+
+        this.drawPiranhaProjectiles();
+        this.drawMoneyWads();
+        this.drawCoins();
+        this.drawCalculatorProjectiles();
+        this.drawPapers();
+        this.drawKisses();
+        this.drawHearts();
+        this.drawTiaCoteBeam();
+        
+        if (this.isCastingCrack) {
+            this.drawZanjasCrack();
+        }
+        
+        if (this.isConfused) {
+            ctx.font = `bold 24px 'Comic Sans MS'`;
+            ctx.fillStyle = 'yellow';
+            ctx.textAlign = 'center';
+            ctx.fillText('???', this.x + this.width / 2, this.y - 20);
+        } else if (this.isStunned) {
+            ctx.font = `bold 24px 'Comic Sans MS'`;
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center';
+            ctx.fillText('!!!', this.x + this.width / 2, this.y - 20);
+        }
+
+        if (this.isPerformingSuperAttackAnimation && this.attackVisualActive && this.superEffectTextureImage && this.superEffectTextureImage.complete && this.name !== "Piraña") {
+            const effectWidth = this.width * 1.5;
+            const effectHeight = this.height * 1.5;
+            const effectX = this.x + (this.width - effectWidth) / 2;
+            const effectY = this.y + (this.height - effectHeight) / 2;
+            ctx.globalAlpha = 0.7;
+            ctx.drawImage(this.superEffectTextureImage, effectX, effectY, effectWidth, effectHeight);
+            ctx.globalAlpha = 1.0;
+        }
+        ctx.restore();
+    }
+
+     drawPlayerModel(x, y) {
+        if (this.isSwallowed) {
+            return; // No dibujar si está tragado
+        }
+        const originalX = this.x;
+        const originalY = this.y;
+        this.x = x;
+        this.y = y;
+
+        if (this.showBlurred) {
+            ctx.filter = 'blur(4px)';
+        } else if ((this.isPerformingSuperAttackAnimation || this.isCastingBeam) && this.attackVisualActive) {
+            ctx.filter = 'brightness(1.75) saturate(2.5)';
+        }
+
+        const totalLegSegmentsHeight = this.thighHeight + this.lowerLegHeight;
+        const torsoGlobalY = this.y + (this.height - this.torsoHeight - totalLegSegmentsHeight - this.shoeHeight);
+        const torsoGlobalX = this.x + (this.width - this.torsoWidth) / 2;
+        const headGlobalX = this.x + (this.width - this.headSize) / 2;
+        const headGlobalY = torsoGlobalY - this.headSize;
+        const visuallyBackArmIsRight = !this.facingRight;
+        const visuallyBackLegIsFront = !this.facingRight;
+        this.drawLeg(visuallyBackLegIsFront);
+        this.drawLeg(!visuallyBackLegIsFront);
+        if (this.facingRight) {
+            this.drawArm(false);
+            this.drawPartWithTexture('torso', torsoGlobalX, torsoGlobalY, this.torsoWidth, this.torsoHeight, !this.facingRight);
+            if (this.name === 'Matthei Bolt' && this.isDashing) {
+                this.drawVest(torsoGlobalX, torsoGlobalY);
+            }
+            this.drawPartWithTexture('head', headGlobalX, headGlobalY, this.headSize, this.headSize, !this.facingRight);
+            this.drawArm(true);
+        } else {
+            this.drawArm(true);
+            this.drawPartWithTexture('torso', torsoGlobalX, torsoGlobalY, this.torsoWidth, this.torsoHeight, !this.facingRight);
+            if (this.name === 'Matthei Bolt' && this.isDashing) {
+                this.drawVest(torsoGlobalX, torsoGlobalY);
+            }
+            this.drawPartWithTexture('head', headGlobalX, headGlobalY, this.headSize, this.headSize, !this.facingRight);
+            this.drawArm(false);
+        }
+
+        ctx.filter = 'none';
+        this.x = originalX;
+        this.y = originalY;
+    }
+
+    drawVest(torsoX, torsoY) {
+        ctx.save();
+        if (!this.facingRight) {
+             ctx.translate(this.x + this.width/2, 0);
+             ctx.scale(-1,1);
+             ctx.translate(-(this.x + this.width/2), 0);
+        }
+
+        if (this.yellowVestTextureImage && this.yellowVestTextureImage.complete && this.yellowVestTextureImage.width > 0) {
+                ctx.drawImage(this.yellowVestTextureImage, torsoX, torsoY, this.torsoWidth, this.torsoHeight);
+        } else {
+            // Fallback si la textura no carga
+            ctx.fillStyle = '#eab308'; // Amarillo-600 de Tailwind
+            ctx.fillRect(torsoX, torsoY, this.torsoWidth, this.torsoHeight);
+
+            // Bandas grises reflectantes
+            const stripeHeight = this.torsoHeight / 6;
+            ctx.fillStyle = '#a1a1aa'; // Zinc-400
+            
+            const stripe1Y = torsoY + this.torsoHeight * 0.4 - stripeHeight / 2;
+            ctx.fillRect(torsoX, stripe1Y, this.torsoWidth, stripeHeight);
+            
+            const stripe2Y = torsoY + this.torsoHeight * 0.65 - stripeHeight / 2;
+            ctx.fillRect(torsoX, stripe2Y, this.torsoWidth, stripeHeight);
+        }
+        ctx.restore();
+    }
+
+
+    updateAI() {
+        if (this.isConfused) {
+            this.confusionTimer--;
+            this.confusionBlinkTimer--;
+            if(this.confusionTimer <= 0) {
+                this.isConfused = false;
+                this.showBlurred = false;
+            }
+            if(this.confusionBlinkTimer <= 0) {
+                this.showBlurred = !this.showBlurred;
+                new Audio('audio/pouf-bomb.wav').play().catch(e => console.error("Error playing sound:", e));
+                this.confusionBlinkTimer = 15; // Blink every 15 frames
+            }
+            return; // AI is confused, skip normal logic
+         }
+
+         if (this.isDashing || this.isSwallowed || this.isCastingCrack || this.isStunned || this.isCastingBeam) {
+            return;
+         }
+        if (Date.now() - this.lastAIDecisionTime > AI_ACTION_INTERVAL) {
+            this.lastAIDecisionTime = Date.now();
+            const opponent = players.find(p => p !== this);
+            if (!opponent || opponent.isInvisible) { // No hacer nada si el oponente es invisible
+                this.currentAction = 'stand';
+                return;
+            }
+            const distanceToOpponent = Math.abs((this.x + this.width / 2) - (opponent.x + opponent.width / 2)) - (this.width/2 + opponent.width/2);
+            const opponentIsToTheRight = (opponent.x + opponent.width / 2) > (this.x + this.width / 2);
+            if (distanceToOpponent < Math.max(this.punchRange, this.kickRange) * 1.5) {
+                this.facingRight = opponentIsToTheRight;
+            }
+            const canAttack = !(this.isPunching || this.isKicking) && (Date.now() - this.lastAttackTime > this.attackCooldown);
+            let decidedToAttack = false;
+            let attackType = 'punch';
+            if (this.facingRight === opponentIsToTheRight) {
+                if (distanceToOpponent < this.kickRange && Math.random() < AI_ATTACK_CHANCE_IN_RANGE) {
+                    decidedToAttack = true;
+                    if (Math.random() < AI_KICK_CHANCE) {
+                        attackType = 'kick';
+                    } else if (distanceToOpponent >= this.punchRange) {
+                        attackType = 'kick';
+                    } else {
+                        attackType = 'punch';
+                    }
+                } else if (distanceToOpponent < this.punchRange && Math.random() < AI_ATTACK_CHANCE_IN_RANGE) {
+                    decidedToAttack = true;
+                    attackType = 'punch';
+                }
+            }
+            if (canAttack && decidedToAttack) {
+                if (this.isSuperCharged && Math.random() < 0.8) {
+                    if (attackType === 'kick') this.kick(); else this.punch();
+                } else if (attackType === 'kick') {
+                    this.kick();
+                } else {
+                    this.punch();
+                }
+                this.currentAction = 'attack';
+            } else {
+                if (Math.random() < AI_MOVE_CHANCE) {
+                    const randomMove = Math.random();
+                    if (distanceToOpponent > this.punchRange * 0.5) {
+                        this.currentAction = opponentIsToTheRight ? 'moveRight' : 'moveLeft';
+                        this.facingRight = opponentIsToTheRight;
+                    } else if (randomMove < 0.3) {
+                        this.currentAction = opponentIsToTheRight ? 'moveLeft' : 'moveRight';
+                    } else {
+                        this.currentAction = 'stand';
+                    }
+                    if (Math.random() < AI_JUMP_CHANCE && !this.isJumping) this.jump();
+                } else {
+                    this.currentAction = 'stand';
+                }
+            }
+        }
+        this.velocityX = 0;
+        if (this.currentAction === 'moveLeft') this.velocityX = -this.speed;
+        else if (this.currentAction === 'moveRight') this.velocityX = this.speed;
+    }
+
+    updatePiranhaProjectiles(opponent) {
+        for (let i = this.activePiranhaProjectiles.length - 1; i >= 0; i--) {
+            const p = this.activePiranhaProjectiles[i];
+            p.x += p.velocityX * (p.direction ? 1 : -1);
+            p.lifespan--;
+
+            if (p.lifespan <= 0 || p.x > CANVAS_WIDTH || p.x + p.width < 0) {
+                this.activePiranhaProjectiles.splice(i, 1);
+                continue;
+            }
+
+            const opponentBox = { x: opponent.x, y: opponent.y, width: opponent.width, height: opponent.height };
+            const projectileBox = { x: p.x, y: p.y, width: p.width, height: p.height };
+
+            if (
+                !opponent.isSwallowed && !opponent.isStunned &&
+                projectileBox.x < opponentBox.x + opponentBox.width &&
+                projectileBox.x + projectileBox.width > opponentBox.x &&
+                projectileBox.y < opponentBox.y + opponentBox.height &&
+                projectileBox.y + projectileBox.height > opponentBox.y
+            ) {
+                opponent.takeDamage(p.damage, p.direction);
+                activeHitEffects.push({ text: "¡ÑAM!", x: p.x, y: p.y, color: "#ff6347", alpha: 1.0, size: 20, rotation: 0, lifetime: HIT_EFFECT_LIFETIME / 2 });
+                this.activePiranhaProjectiles.splice(i, 1);
+            }
+        }
+    }
+
+    updateMoneyWads(opponent) {
+        for (let i = this.activeMoneyWads.length - 1; i >= 0; i--) {
+            const wad = this.activeMoneyWads[i];
+            wad.velocityY += GRAVITY * 0.5;
+            wad.y += wad.velocityY;
+            wad.x += wad.velocityX;
+            wad.rotation += wad.rotationSpeed;
+
+            if (wad.y > CANVAS_HEIGHT) {
+                this.activeMoneyWads.splice(i, 1);
+                continue;
+            }
+
+            const opponentBox = { x: opponent.x, y: opponent.y, width: opponent.width, height: opponent.height };
+            const wadBox = { x: wad.x, y: wad.y, width: wad.width, height: wad.height };
+
+            if (
+                !opponent.isSwallowed && !opponent.isStunned &&
+                wadBox.x < opponentBox.x + opponentBox.width &&
+                wadBox.x + wadBox.width > opponentBox.x &&
+                wadBox.y < opponentBox.y + opponentBox.height &&
+                wadBox.y + wadBox.height > opponentBox.y
+            ) {
+                opponent.takeDamage(wad.damage, wad.x > opponent.x + opponent.width / 2);
+                activeHitEffects.push({ text: "$$$", x: wad.x, y: wad.y, color: "#22c55e", alpha: 1.0, size: 30, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
+                this.activeMoneyWads.splice(i, 1);
+            }
+        }
+    }
+    
+    updateCoins(opponent) {
+        for (let i = this.activeCoins.length - 1; i >= 0; i--) {
+            const coin = this.activeCoins[i];
+            coin.velocityY += GRAVITY * 0.6; // Coins are a bit heavier
+            coin.y += coin.velocityY;
+            
+            if (coin.y > CANVAS_HEIGHT) {
+                this.activeCoins.splice(i, 1);
+                continue;
+            }
+
+            const opponentBox = { x: opponent.x, y: opponent.y, width: opponent.width, height: opponent.height };
+            const coinBox = { x: coin.x - coin.radius, y: coin.y - coin.radius, width: coin.radius * 2, height: coin.radius * 2 };
+            
+            if (
+                !opponent.isSwallowed && !opponent.isStunned &&
+                coinBox.x < opponentBox.x + opponentBox.width &&
+                coinBox.x + coinBox.width > opponentBox.x &&
+                coinBox.y < opponentBox.y + opponentBox.height &&
+                coinBox.y + coinBox.height > opponentBox.y
+            ) {
+                opponent.takeDamage(COIN_RAIN_DAMAGE, coin.x > opponent.x + opponent.width / 2);
+                activeHitEffects.push({ text: "$", x: coin.x, y: coin.y, color: "#facc15", alpha: 1.0, size: 20, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
+                this.activeCoins.splice(i, 1);
+            }
+        }
+    }
+
+    updateCalculatorProjectiles(opponent) {
+        for (let i = this.activeCalculators.length - 1; i >= 0; i--) {
+            const calc = this.activeCalculators[i];
+            calc.x += calc.velocityX;
+            calc.y += calc.velocityY;
+            calc.velocityY += GRAVITY * 0.4; // Las calculadoras son pesadas
+            calc.rotation += calc.rotationSpeed;
+            calc.lifespan--;
+
+            if (calc.lifespan <= 0 || calc.y > CANVAS_HEIGHT) {
+                this.activeCalculators.splice(i, 1);
+                continue;
+            }
+
+            const opponentBox = { x: opponent.x, y: opponent.y, width: opponent.width, height: opponent.height };
+            const calcBox = { x: calc.x, y: calc.y, width: calc.width, height: calc.height };
+
+            if (
+                !opponent.isSwallowed && !opponent.isStunned &&
+                calcBox.x < opponentBox.x + opponentBox.width &&
+                calcBox.x + calcBox.width > opponentBox.x &&
+                calcBox.y < opponentBox.y + opponentBox.height &&
+                calcBox.y + calcBox.height > opponentBox.y
+            ) {
+                opponent.takeDamage(CALCULATOR_PROJECTILE_DAMAGE, calc.velocityX > 0);
+                activeHitEffects.push({ text: "ERROR", x: calc.x, y: calc.y, color: "#e53e3e", alpha: 1.0, size: 25, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
+                this.activeCalculators.splice(i, 1);
+            }
+        }
+    }
+
+    updatePapers(opponent) {
+        for (let i = this.activePapers.length - 1; i >= 0; i--) {
+            const paper = this.activePapers[i];
+            paper.velocityY += GRAVITY * 0.3;
+            paper.y += paper.velocityY;
+            paper.x += paper.velocityX;
+            paper.rotation += paper.rotationSpeed;
+
+            if (paper.y > CANVAS_HEIGHT) {
+                this.activePapers.splice(i, 1);
+                continue;
+            }
+
+            const opponentBox = { x: opponent.x, y: opponent.y, width: opponent.width, height: opponent.height };
+            const paperBox = { x: paper.x, y: paper.y, width: paper.width, height: paper.height };
+            
+            if (
+                !opponent.isSwallowed && !opponent.isStunned &&
+                paperBox.x < opponentBox.x + opponentBox.width &&
+                paperBox.x + paperBox.width > opponentBox.x &&
+                paperBox.y < opponentBox.y + opponentBox.height
