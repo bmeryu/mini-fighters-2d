@@ -1,4 +1,3 @@
-
 /* ADD THIS AT THE TOP */
 html, body {
     height: 100%;
@@ -259,11 +258,4 @@ body {
 #start-message-overlay.fade-out{
     opacity:0;
     pointer-events:none;
-}
-
-
-/* Override winner modal position */
-#gameOverModal{
-    top: 20px !important;          /* stick near the top */
-    transform: translateX(-50%) !important; /* center horizontally only */
 }
