@@ -265,3 +265,8 @@ body {
     left: 50% !important;
     transform: translateX(-50%) !important;
 }
+
+/* Force hide character selection display sections */
+#player-selection-summary-wrapper {
+    display: none !important;
+}
