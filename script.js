@@ -165,8 +165,7 @@ const characterBackgrounds = {
     "Matthei Bolt": ["img/pasillomoneda.png"],
     "Burric": ["img/pasillomoneda.png"],
     "Orsini Love": ["img/pasillomoneda.png"],
-    "Carolina Papelucho": ["img/pasillomoneda.png"],
-    "Jarita": ["img/pasillomoneda.png"] // --- NUEVO PERSONAJE: Fondo de escenario ---
+    "Carolina Papelucho": ["img/pasillomoneda.png"]
 };
 
 
@@ -358,7 +357,7 @@ const characterAssets = [
 
 const bodyTypeStats = {
     // Se aumentan las dimensiones base de los personajes para que se vean más grandes
-    // en el nuevo canvas de 900x550, manteniendo la proporción.
+    // en el nuevo canvas de 900x600, manteniendo la proporción.
     normal: { width: 75, height: 150, speedMod: 1.0, damageMod: 1.0, rangeMod: 1.0, healthMod: 1.0 }
 };
 
@@ -1084,8 +1083,6 @@ class Player {
         ctx.restore();
 
         // Banderas
-        // (Implementación simple con rectángulos)
-        // Bandera de Venezuela
         const flagWidth = 200;
         const flagHeight = 120;
         ctx.save();
@@ -1099,7 +1096,6 @@ class Player {
         ctx.fillRect(-flagWidth/2, -flagHeight/2 + 2*flagHeight/3, flagWidth, flagHeight/3);
         ctx.restore();
         
-        // Bandera de Cuba
         ctx.save();
         ctx.globalAlpha = Math.min(0.7, progress * 2);
         ctx.translate(CANVAS_WIDTH * 3 / 4, CANVAS_HEIGHT / 3);
@@ -1118,42 +1114,58 @@ class Player {
         ctx.restore();
 
 
-        // --- MODIFICACIÓN UX: Mejora visual del podio ---
+        // --- MEJORA VISUAL: Podio ---
         const podiumProgress = Math.min(1, progress * (JARITA_DEMOCRASH_DURATION / JARITA_PODIUM_RISE_TIME));
         const podiumHeight = 100 * podiumProgress;
         const podiumWidth = 120;
         const podiumX = this.x + (this.width - podiumWidth) / 2;
         const podiumY = CANVAS_HEIGHT - 10 - podiumHeight;
         
-        // Cuerpo principal del podio
-        ctx.fillStyle = '#8B4513'; // Marrón oscuro
+        // Sombra del podio
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        ctx.fillRect(podiumX + 5, CANVAS_HEIGHT - 10, podiumWidth - 10, 5);
+        
+        // Cuerpo del podio
+        const gradient = ctx.createLinearGradient(podiumX, podiumY, podiumX + podiumWidth, podiumY);
+        gradient.addColorStop(0, "#8B4513"); // Marrón oscuro
+        gradient.addColorStop(0.5, "#A0522D"); // Marrón siena
+        gradient.addColorStop(1, "#8B4513");
+        ctx.fillStyle = gradient;
         ctx.fillRect(podiumX, podiumY, podiumWidth, podiumHeight);
         
-        // Panel frontal más claro para dar profundidad
-        ctx.fillStyle = '#A0522D'; // Marrón siena
-        ctx.fillRect(podiumX + 10, podiumY + 10, podiumWidth - 20, podiumHeight - 10);
-        
-        // Micrófono simple
-        if (podiumProgress > 0.8) { // Aparece cuando el podio está casi levantado
-            const micBaseX = podiumX + podiumWidth / 2;
-            const micBaseY = podiumY;
-            ctx.fillStyle = '#696969'; // Gris oscuro
-            ctx.fillRect(micBaseX - 3, micBaseY - 30, 6, 30); // Soporte
-            ctx.fillStyle = '#363636'; // Casi negro
-            ctx.beginPath();
-            ctx.arc(micBaseX, micBaseY - 30, 10, 0, Math.PI * 2); // Cabeza del micrófono
-            ctx.fill();
-        }
+        // Borde superior
+        ctx.fillStyle = '#D2691E'; // Marrón chocolate
+        ctx.fillRect(podiumX - 5, podiumY, podiumWidth + 10, 10);
 
 
-        // Urnas y micrófonos cayendo
+        // --- MEJORA VISUAL: Urnas ---
         this.activeUrns.forEach(urn => {
             ctx.save();
             ctx.translate(urn.x, urn.y);
-            ctx.fillStyle = 'grey';
-            ctx.fillRect(0, 0, urn.width, urn.height);
+            
+            // Cuerpo de la urna
+            ctx.fillStyle = '#E0E0E0'; // Gris claro
+            ctx.strokeStyle = '#757575'; // Gris oscuro
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.rect(0, 0, urn.width, urn.height);
+            ctx.fill();
+            ctx.stroke();
+
+            // Ranura
             ctx.fillStyle = 'black';
-            ctx.fillRect(urn.width/2 - 5, 0, 10, -15);
+            ctx.fillRect(urn.width/2 - 15, 5, 30, 5);
+
+            // Cadenas
+            ctx.strokeStyle = '#A9A9A9'; // Gris
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(-10, -20);
+            ctx.moveTo(urn.width, 0);
+            ctx.lineTo(urn.width + 10, -20);
+            ctx.stroke();
+
             ctx.restore();
         });
     }
@@ -2819,19 +2831,3 @@ canvas.addEventListener('click', () => {
         players[0].chargePowerOnClick();
     }
 });
-
-
-window.addEventListener('keydown', (event) => {
-    if (event.code === 'Space' && gameActive && players.length > 0 && players[0].isSuperCharged) {
-        event.preventDefault(); // Evita que la página se desplace al presionar espacio
-        players[0].punch(); // Usa punch() para activar la lógica del superpoder
-    }
-});
-
-
-// Inicializa la música pero no la configuración de la pantalla, 
-// eso se hará después del splash.
-backgroundMusic = new Audio('audio/playbackbattle.mp3');
-backgroundMusic.loop = true;
-backgroundMusic.pause();
-backgroundMusic.currentTime = 0;
