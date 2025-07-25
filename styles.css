@@ -1,4 +1,16 @@
-r;
+/* Estilos generales para el cuerpo de la página */
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    /* --- MODIFICACIÓN UX --- */
+    /* Se cambió a un color casi negro para mayor contraste y una estética más premium,
+       solucionando la legibilidad del título y el logo. */
+    background-color: #111827; 
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
     min-height: 100vh;
     padding-top: 1rem;
     overflow: hidden; /* Evita el scroll mientras el splash está activo */
@@ -11,11 +23,11 @@ r;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #111827; /* Un fondo oscuro casi negro */
+    background-color: #111827; /* Mismo fondo oscuro para consistencia */
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 2000; /* Asegura que esté por encima de todo */
+    z-index: 2000;
     text-align: center;
     padding: 2rem;
 }
@@ -76,8 +88,6 @@ r;
 #gameCanvas {
     background-color: transparent;
     border-radius: 0.5rem;
-    /* --- MODIFICACIÓN --- */
-    /* Se oculta por defecto para que no aparezca en la pantalla de selección */
     display: none; 
     width: 100%;
     max-width: 800px;
@@ -96,12 +106,10 @@ r;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
-/* --- MODIFICACIÓN --- */
-/* Se oculta por defecto para que no aparezca en la pantalla de selección */
 #game-ui-top {
     max-width: 800px;
     margin: 0 auto 0.5rem auto;
-    display: none; /* Cambiado de 'visibility: visible' a 'display: none' */
+    display: none;
 }
 
 /* Contenedores para las barras de salud y poder */
