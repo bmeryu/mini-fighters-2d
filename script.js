@@ -1362,11 +1362,11 @@ class Player {
             }
             if (canAttack && decidedToAttack) {
                 if (this.isSuperCharged && Math.random() < 0.8) {
-                    if (attackType === 'kick') this.kick(); else this.punch();
-                } else if (attackType === 'kick') {
-                    this.kick();
+                    // AI decides to use a super move
+                    if (attackType === 'kick') this.kick(true); else this.punch(true);
                 } else {
-                    this.punch();
+                    // AI uses a normal attack
+                    if (attackType === 'kick') this.kick(); else this.punch();
                 }
                 this.currentAction = 'attack';
             } else {
@@ -2131,14 +2131,14 @@ class Player {
     }
 
 
-    _performAttack(isKickMove) {
+    _performAttack(isKickMove, isSuperAttempt = false) {
         if (this.isPunching || this.isKicking || this.isCastingBeam || (Date.now() - this.lastAttackTime < this.attackCooldown)) return;
 
         let currentDamage;
         let currentRange = isKickMove ? this.kickRange : this.punchRange;
         this.isPerformingSuperAttackAnimation = false;
 
-        let isSuperMove = this.isSuperCharged;
+        let isSuperMove = this.isSuperCharged && isSuperAttempt;
 
         if (isSuperMove) {
             
@@ -2319,8 +2319,8 @@ class Player {
         }
     }
 
-    punch() { this._performAttack(false); }
-    kick() { this._performAttack(true); }
+    punch(isSuperAttempt = false) { this._performAttack(false, isSuperAttempt); }
+    kick(isSuperAttempt = false) { this._performAttack(true, isSuperAttempt); }
 
     takeDamage(damage, attackerFacingRight) {
         if(this.isDashing || this.isSwallowed) return; // Invulnerable durante el dash o tragado
@@ -2806,7 +2806,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('keydown', (event) => {
         if (event.code === 'Space' && gameActive && players.length > 0 && players[0].isSuperCharged) {
             event.preventDefault(); 
-            players[0].punch(); 
+            players[0].punch(true); // Llama a punch con la intención de usar un superpoder
         }
     });
 
