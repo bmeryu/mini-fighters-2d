@@ -2299,11 +2299,15 @@ function initGame() {
     updatePowerBars();
     gameActive = true;
     
-    // CORRECCIÓN: Se usa style.display = 'none' para asegurar que el modal esté oculto.
     gameOverModal.style.display = 'none';
     
+    // --- MODIFICACIÓN ---
+    // Ocultar el panel de selección y mostrar los elementos de la batalla.
     controlsPanel.style.display = 'none';
     mainTitle.style.display = 'none';
+    gameUiTop.style.display = 'flex'; // Usamos flex porque el contenedor lo es.
+    canvas.style.display = 'block';
+
 
     // Set canvas background for the fight
     const possibleBgs = [
@@ -2333,19 +2337,19 @@ function initGame() {
     }
     backgroundMusic.play().catch(error => console.warn("Error al reproducir música:", error));
     
-    gameUiTop.style.visibility = 'visible';
     gameLoop();
 }
 
 // Resetea la pantalla de selección a su estado inicial.
 function resetSelectionScreen() {
-    // CORRECCIÓN: Se usa style.display = 'none' en lugar de classList.
-    // Esto es más directo y evita problemas de especificidad de CSS al cargar.
     gameOverModal.style.display = 'none';
     
+    // --- MODIFICACIÓN ---
+    // Mostrar el panel de selección y ocultar los elementos de batalla.
     controlsPanel.style.display = 'block';
     mainTitle.style.display = 'block';
-    gameUiTop.style.visibility = 'visible';
+    gameUiTop.style.display = 'none';
+    canvas.style.display = 'none';
     
     if (pcSelectionInterval) {
         clearInterval(pcSelectionInterval);
@@ -2487,8 +2491,6 @@ function checkGameOver() {
         gameActive = false;
         new Audio('audio/9BH.wav').play().catch(e => console.error("Error playing sound:", e));
         
-        // CORRECCIÓN: Se usa style.display = 'flex' para mostrar el modal.
-        // Esto coincide con la clase 'modal' que usa flexbox para centrar.
         gameOverModal.style.display = 'flex';
         
         document.getElementById('start-message-overlay').classList.add('hidden');
