@@ -330,7 +330,6 @@ const characterAssets = [
 ];
 
 const bodyTypeStats = {
-    // --- MODIFICACIÓN ---
     // Se aumentan las dimensiones base de los personajes para que se vean más grandes
     // en el nuevo canvas de 900x600, manteniendo la proporción.
     normal: { width: 75, height: 150, speedMod: 1.0, damageMod: 1.0, rangeMod: 1.0, healthMod: 1.0 }
@@ -538,14 +537,12 @@ class Player {
             }
             ctx.restore();
         } else {
+            // --- MODIFICACIÓN UX ---
+            // Se elimina el rectángulo fucsia de depuración para evitar el parpadeo.
+            // Ahora, si una textura no está lista, simplemente no se dibuja esa parte,
+            // lo que resulta en una carga visualmente más limpia.
             if (partName !== 'shoe') {
-                ctx.fillStyle = 'magenta';
-                ctx.fillRect(destX, destY, destWidth, destHeight);
-                ctx.fillStyle = 'white';
-                ctx.font = '8px Arial';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(partName.toUpperCase(), destX + destWidth / 2, destY + destHeight / 2);
+                // No se dibuja nada como fallback.
             }
         }
     }
