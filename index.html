@@ -38,7 +38,7 @@
 
         <!-- Contenedor del Juego (UI Superior, Canvas, Panel de Controles) -->
         <div id="game-container" class="w-full max-w-4xl relative">
-            <!-- UI Superior: Barras de Vida y Poder (Ahora visible en la selección) -->
+            <!-- UI Superior: Barras de Vida y Poder -->
             <div id="game-ui-top" class="flex justify-between items-end mb-2 w-full">
                 <!-- Lado Izquierdo: Barras P1 -->
                 <div class="w-2/5">
@@ -75,7 +75,9 @@
             <div id="controls-panel" class="mt-4 p-4 ui-panel rounded-lg shadow-lg text-center">
                 <div id="character-select-screen" class="w-full">
                     <h2 class="text-3xl font-bold text-center text-yellow-400" style="font-family: 'Arial Black', Gadget, sans-serif;">ELIGE TU LUCHADOR</h2>
-                    <div class="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-9 gap-4 mt-6 mb-6" id="character-grid">
+                    <!-- --- MODIFICACIÓN UX --- -->
+                    <!-- Se ajusta la clase de la cuadrícula a 'grid-cols-5' para crear un layout simétrico de 5x2 -->
+                    <div class="grid grid-cols-5 gap-4 mt-6 mb-6" id="character-grid">
                         <!-- Los retratos se generan con JS -->
                     </div>
                     <div class="flex justify-around items-start mb-6">
