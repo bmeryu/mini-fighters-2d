@@ -102,13 +102,10 @@
             </div>
 
             <!-- Modal de Fin de Juego -->
-            <div id="gameOverModal" class="overlay-top hidden">
+            <div id="gameOverModal" class="modal hidden">
                 <div class="ui-panel text-center p-8 rounded-lg">
                     <h2 id="gameOverMessage" class="text-4xl font-bold mb-4">¡Fin del Combate!</h2>
-                    <div id="winnerMessage" class="text-xl mb-6">
-                        <!-- El retrato del ganador se inserta aquí con JS -->
-                        <img src="" onerror="this.src='https://placehold.co/120x120/455a64/e0e0e0?text=WIN'" class="w-40 h-40 mx-auto rounded-full border-4 border-yellow-400 mb-4 object-contain" style="image-rendering: pixelated;"/>
-                    </div>
+                    <div id="winnerMessage" class="text-xl mb-6"></div>
                     <button id="restartButton" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-8 rounded-lg text-xl">
                         JUGAR DE NUEVO
                     </button>
