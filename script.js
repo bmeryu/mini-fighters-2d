@@ -31,7 +31,6 @@ const p2SelectedCharImg = document.getElementById('p2-selected-char-img');
 const p2SelectedCharName = document.getElementById('p2-selected-char-name');
 const selectionPrompt = document.getElementById('selection-prompt');
 
-// --- MODIFICACIÓN ---
 // Ajuste de las dimensiones del canvas a 900x550.
 const CANVAS_WIDTH = 900;
 const CANVAS_HEIGHT = 550;
@@ -1083,6 +1082,8 @@ class Player {
         ctx.restore();
 
         // Banderas
+        // (Implementación simple con rectángulos)
+        // Bandera de Venezuela
         const flagWidth = 200;
         const flagHeight = 120;
         ctx.save();
@@ -1096,6 +1097,7 @@ class Player {
         ctx.fillRect(-flagWidth/2, -flagHeight/2 + 2*flagHeight/3, flagWidth, flagHeight/3);
         ctx.restore();
         
+        // Bandera de Cuba
         ctx.save();
         ctx.globalAlpha = Math.min(0.7, progress * 2);
         ctx.translate(CANVAS_WIDTH * 3 / 4, CANVAS_HEIGHT / 3);
@@ -1114,58 +1116,24 @@ class Player {
         ctx.restore();
 
 
-        // --- MEJORA VISUAL: Podio ---
+        // Podio
         const podiumProgress = Math.min(1, progress * (JARITA_DEMOCRASH_DURATION / JARITA_PODIUM_RISE_TIME));
         const podiumHeight = 100 * podiumProgress;
         const podiumWidth = 120;
         const podiumX = this.x + (this.width - podiumWidth) / 2;
         const podiumY = CANVAS_HEIGHT - 10 - podiumHeight;
-        
-        // Sombra del podio
-        ctx.fillStyle = 'rgba(0,0,0,0.5)';
-        ctx.fillRect(podiumX + 5, CANVAS_HEIGHT - 10, podiumWidth - 10, 5);
-        
-        // Cuerpo del podio
-        const gradient = ctx.createLinearGradient(podiumX, podiumY, podiumX + podiumWidth, podiumY);
-        gradient.addColorStop(0, "#8B4513"); // Marrón oscuro
-        gradient.addColorStop(0.5, "#A0522D"); // Marrón siena
-        gradient.addColorStop(1, "#8B4513");
-        ctx.fillStyle = gradient;
+        ctx.fillStyle = '#8B4513';
         ctx.fillRect(podiumX, podiumY, podiumWidth, podiumHeight);
-        
-        // Borde superior
-        ctx.fillStyle = '#D2691E'; // Marrón chocolate
-        ctx.fillRect(podiumX - 5, podiumY, podiumWidth + 10, 10);
 
 
-        // --- MEJORA VISUAL: Urnas ---
+        // Urnas y micrófonos cayendo
         this.activeUrns.forEach(urn => {
             ctx.save();
             ctx.translate(urn.x, urn.y);
-            
-            // Cuerpo de la urna
-            ctx.fillStyle = '#E0E0E0'; // Gris claro
-            ctx.strokeStyle = '#757575'; // Gris oscuro
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.rect(0, 0, urn.width, urn.height);
-            ctx.fill();
-            ctx.stroke();
-
-            // Ranura
+            ctx.fillStyle = 'grey';
+            ctx.fillRect(0, 0, urn.width, urn.height);
             ctx.fillStyle = 'black';
-            ctx.fillRect(urn.width/2 - 15, 5, 30, 5);
-
-            // Cadenas
-            ctx.strokeStyle = '#A9A9A9'; // Gris
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.moveTo(0, 0);
-            ctx.lineTo(-10, -20);
-            ctx.moveTo(urn.width, 0);
-            ctx.lineTo(urn.width + 10, -20);
-            ctx.stroke();
-
+            ctx.fillRect(urn.width/2 - 5, 0, 10, -15);
             ctx.restore();
         });
     }
@@ -2604,37 +2572,6 @@ function resetSelectionScreen() {
         backgroundMusic.pause();
         backgroundMusic.currentTime = 0;
     }
-    document.addEventListener('DOMContentLoaded', () => {
-    continueButton.addEventListener('click', () => {
-        splashScreen.style.display = 'none';
-        gameWrapper.style.display = 'flex';
-        document.body.style.overflow = 'auto';
-
-        setTimeout(() => {
-            createCharacterSelectionUI();
-            resetSelectionScreen();
-        }, 0);
-    });
-
-    restartButton.addEventListener('click', () => {
-        resetSelectionScreen();
-    });
-
-    startButton.addEventListener('click', initGame);
-
-    canvas.addEventListener('click', () => {
-        if (gameActive && players.length > 0) {
-            players[0].chargePowerOnClick();
-        }
-    });
-
-    window.addEventListener('keydown', (event) => {
-        if (event.code === 'Space' && gameActive && players.length > 0 && players[0].isSuperCharged) {
-            event.preventDefault(); 
-            players[0].punch(); 
-        }
-    });
-});
     
     if (player1HealthBar) player1HealthBar.style.width = '100%';
     if (player2HealthBar) player2HealthBar.style.width = '100%';
@@ -2806,28 +2743,43 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
-// --- Lógica del Splash Screen (CORREGIDA) ---
-continueButton.addEventListener('click', () => {
-    splashScreen.style.display = 'none';
-    gameWrapper.style.display = 'flex';
-    document.body.style.overflow = 'auto';
+// --- MODIFICACIÓN: Event Listeners centralizados ---
+// Se agrupan todos los listeners en un solo bloque que se ejecuta una vez.
+document.addEventListener('DOMContentLoaded', () => {
+    continueButton.addEventListener('click', () => {
+        splashScreen.style.display = 'none';
+        gameWrapper.style.display = 'flex';
+        document.body.style.overflow = 'auto';
 
-    // **LA CORRECCIÓN**: Retrasar la configuración de la pantalla de selección
-    // para asegurar que el DOM se actualice primero.
-    setTimeout(() => {
-        createCharacterSelectionUI();
+        setTimeout(() => {
+            createCharacterSelectionUI();
+            resetSelectionScreen();
+        }, 0);
+    });
+
+    restartButton.addEventListener('click', () => {
         resetSelectionScreen();
-    }, 0);
-});
+    });
 
-restartButton.addEventListener('click', () => {
-    resetSelectionScreen();
-});
+    startButton.addEventListener('click', initGame);
 
-startButton.addEventListener('click', initGame);
+    canvas.addEventListener('click', () => {
+        if (gameActive && players.length > 0) {
+            players[0].chargePowerOnClick();
+        }
+    });
 
-canvas.addEventListener('click', () => {
-    if (gameActive && players.length > 0) {
-        players[0].chargePowerOnClick();
-    }
+    window.addEventListener('keydown', (event) => {
+        if (event.code === 'Space' && gameActive && players.length > 0 && players[0].isSuperCharged) {
+            event.preventDefault(); 
+            players[0].punch(); 
+        }
+    });
+
+    // Inicializa la música pero no la configuración de la pantalla, 
+    // eso se hará después del splash.
+    backgroundMusic = new Audio('audio/playbackbattle.mp3');
+    backgroundMusic.loop = true;
+    backgroundMusic.pause();
+    backgroundMusic.currentTime = 0;
 });
