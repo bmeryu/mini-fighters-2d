@@ -2350,7 +2350,7 @@ class Player {
             lifetime: HIT_EFFECT_LIFETIME
         });
         updateHealthBars();
-        checkGameOver();
+        // --- MODIFICACIÓN: La llamada a checkGameOver se mueve al gameLoop ---
     }
 }
 
@@ -2770,6 +2770,10 @@ function gameLoop() {
     players.forEach(player => { player.update(); player.draw(); });
     drawHitEffects();
     drawSmoke();
+
+    // --- MODIFICACIÓN: Se mueve la llamada a checkGameOver al gameLoop ---
+    // Esto asegura que el final del juego se detecte inmediatamente en cada frame.
+    checkGameOver();
 
     if (offsetX !== 0 || offsetY !== 0) {
         ctx.translate(-offsetX, -offsetY);
