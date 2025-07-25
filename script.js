@@ -136,6 +136,12 @@ const TIA_COTE_HEART_HEIGHT = 22;
 const TIA_COTE_HEART_DAMAGE = 2;
 const TIA_COTE_HEART_COUNT = 25; // Aumentado para efecto "cariñosito"
 
+// --- NUEVO PERSONAJE: Constantes para el superpoder de Jarita ---
+const JARITA_DEMOCRASH_DURATION = 240; // 4 segundos a 60fps
+const JARITA_PODIUM_RISE_TIME = 60;
+const JARITA_URN_FALL_COUNT = 6;
+const JARITA_URN_DAMAGE = 35;
+
 
 // Variables para el efecto de temblor de pantalla
 let screenShakeMagnitude = 0;
@@ -326,6 +332,25 @@ const characterAssets = [
             shoe: "img/personaje9-zapatos.png",
             superEffectTexture: "img/personaje9-super-effect.png"
         }
+    },
+    // --- NUEVO PERSONAJE: Jarita ---
+    {
+        name: "Jarita",
+        baseColor: '#006400', // DarkGreen
+        previewImage: "img/personaje10-cabeza.png",
+        textures: {
+            head: "img/personaje10-cabeza.png",
+            torso: "img/personaje10-torso.png",
+            upperArm: "img/personaje10-brazos.png",
+            foreArm: "img/personaje10-antebrazos.png",
+            thigh: "img/personaje10-muslos.png",
+            lowerLeg: "img/personaje10-piernasbajas.png",
+            glove_r: "img/personaje10-guantes-d.png",
+            glove_l: "img/personaje10-guantes-i.png",
+            glove: null,
+            shoe: "img/personaje10-zapatos.png",
+            superEffectTexture: "img/personaje10-super-effect.png"
+        }
     }
 ];
 
@@ -430,6 +455,11 @@ class Player {
         // Estado para superpoder Tía Cote
         this.isCastingBeam = false;
         this.beamTimer = 0;
+        
+        // --- NUEVO PERSONAJE: Estado para superpoder Jarita ---
+        this.isCastingDemocrash = false;
+        this.democrashTimer = 0;
+        this.activeUrns = [];
 
         // Estado de ser tragado o aturdido
         this.isSwallowed = false;
@@ -537,10 +567,7 @@ class Player {
             }
             ctx.restore();
         } else {
-            // --- MODIFICACIÓN UX ---
             // Se elimina el rectángulo fucsia de depuración para evitar el parpadeo.
-            // Ahora, si una textura no está lista, simplemente no se dibuja esa parte,
-            // lo que resulta en una carga visualmente más limpia.
             if (partName !== 'shoe') {
                 // No se dibuja nada como fallback.
             }
@@ -1040,19 +1067,101 @@ class Player {
         }
         ctx.restore();
     }
+    
+    // --- NUEVO PERSONAJE: Método para dibujar el superpoder de Jarita ---
+    drawDemocrashAttack() {
+        if (!this.isCastingDemocrash) return;
+
+        const progress = 1 - (this.democrashTimer / JARITA_DEMOCRASH_DURATION);
+
+        // Fondo oscuro
+        ctx.save();
+        ctx.globalAlpha = Math.min(0.8, progress * 2);
+        ctx.fillStyle = 'black';
+        ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        ctx.restore();
+
+        // Banderas
+        // (Implementación simple con rectángulos)
+        // Bandera de Venezuela
+        const flagWidth = 200;
+        const flagHeight = 120;
+        ctx.save();
+        ctx.globalAlpha = Math.min(0.7, progress * 2);
+        ctx.translate(CANVAS_WIDTH / 4, CANVAS_HEIGHT / 3);
+        ctx.fillStyle = '#FFCE00'; // Amarillo
+        ctx.fillRect(-flagWidth/2, -flagHeight/2, flagWidth, flagHeight/3);
+        ctx.fillStyle = '#00247D'; // Azul
+        ctx.fillRect(-flagWidth/2, -flagHeight/2 + flagHeight/3, flagWidth, flagHeight/3);
+        ctx.fillStyle = '#CF142B'; // Rojo
+        ctx.fillRect(-flagWidth/2, -flagHeight/2 + 2*flagHeight/3, flagWidth, flagHeight/3);
+        ctx.restore();
+        
+        // Bandera de Cuba
+        ctx.save();
+        ctx.globalAlpha = Math.min(0.7, progress * 2);
+        ctx.translate(CANVAS_WIDTH * 3 / 4, CANVAS_HEIGHT / 3);
+        ctx.fillStyle = '#00247D'; // Azul
+        ctx.fillRect(-flagWidth/2, -flagHeight/2, flagWidth, flagHeight);
+        ctx.fillStyle = 'white';
+        ctx.fillRect(-flagWidth/2, -flagHeight/2 + flagHeight/5, flagWidth, flagHeight/5);
+        ctx.fillRect(-flagWidth/2, -flagHeight/2 + 3*flagHeight/5, flagWidth, flagHeight/5);
+        ctx.fillStyle = '#CF142B'; // Rojo
+        ctx.beginPath();
+        ctx.moveTo(-flagWidth/2, -flagHeight/2);
+        ctx.lineTo(-flagWidth/2 + flagWidth/3, 0);
+        ctx.lineTo(-flagWidth/2, flagHeight/2);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+
+
+        // Podio
+        const podiumProgress = Math.min(1, progress * (JARITA_DEMOCRASH_DURATION / JARITA_PODIUM_RISE_TIME));
+        const podiumHeight = 100 * podiumProgress;
+        const podiumWidth = 120;
+        const podiumX = this.x + (this.width - podiumWidth) / 2;
+        const podiumY = CANVAS_HEIGHT - 10 - podiumHeight;
+        ctx.fillStyle = '#8B4513';
+        ctx.fillRect(podiumX, podiumY, podiumWidth, podiumHeight);
+
+
+        // Urnas y micrófonos cayendo
+        this.activeUrns.forEach(urn => {
+            ctx.save();
+            ctx.translate(urn.x, urn.y);
+            ctx.fillStyle = 'grey';
+            ctx.fillRect(0, 0, urn.width, urn.height);
+            ctx.fillStyle = 'black';
+            ctx.fillRect(urn.width/2 - 5, 0, 10, -15);
+            ctx.restore();
+        });
+    }
+
 
     draw() {
         if(this.isInvisible) return; // No dibujar si es invisible
         ctx.save();
 
-         if (this.isDashing) {
+        // --- OPTIMIZACIÓN DE RENDIMIENTO ---
+        // Se modifica el efecto de estela para que sea más eficiente.
+        if (this.isDashing) {
             this.trail.forEach((pos, index) => {
-                ctx.globalAlpha = (index / this.trail.length) * 0.5;
-                 this.drawPlayerModel(pos.x, pos.y);
+                ctx.globalAlpha = (index / this.trail.length) * 0.4;
+                // En lugar de redibujar el modelo completo, se dibuja una forma simple.
+                ctx.fillStyle = this.baseColor;
+                ctx.beginPath();
+                ctx.ellipse(pos.x + this.width / 2, pos.y + this.height / 2, this.width / 2, this.height / 2, 0, 0, Math.PI * 2);
+                ctx.fill();
             });
             ctx.globalAlpha = 1;
         }
-        this.drawPlayerModel(this.x, this.y);
+        
+        // Solo se dibuja el modelo del jugador si no está en medio de la animación de Democrash
+        if (!this.isCastingDemocrash) {
+            this.drawPlayerModel(this.x, this.y);
+        }
+
 
         this.drawPiranhaProjectiles();
         this.drawMoneyWads();
@@ -1062,6 +1171,7 @@ class Player {
         this.drawKisses();
         this.drawHearts();
         this.drawTiaCoteBeam();
+        this.drawDemocrashAttack();
         
         if (this.isCastingCrack) {
             this.drawZanjasCrack();
@@ -1183,7 +1293,7 @@ class Player {
             return; // AI is confused, skip normal logic
          }
 
-         if (this.isDashing || this.isSwallowed || this.isCastingCrack || this.isStunned || this.isCastingBeam) {
+         if (this.isDashing || this.isSwallowed || this.isCastingCrack || this.isStunned || this.isCastingBeam || this.isCastingDemocrash) {
             return;
          }
         if (Date.now() - this.lastAIDecisionTime > AI_ACTION_INTERVAL) {
@@ -1565,6 +1675,50 @@ class Player {
             }
         }
     }
+    
+    // --- NUEVO PERSONAJE: Método para actualizar el superpoder de Jarita ---
+    updateDemocrashAttack(opponent) {
+        if (!this.isCastingDemocrash) return;
+
+        this.democrashTimer--;
+        if (this.democrashTimer <= 0) {
+            this.isCastingDemocrash = false;
+            this.isPerformingSuperAttackAnimation = false;
+            this.attackVisualActive = false;
+            return;
+        }
+
+        // Actualizar urnas
+        for (let i = this.activeUrns.length - 1; i >= 0; i--) {
+            const urn = this.activeUrns[i];
+            urn.velocityY += GRAVITY * 0.4;
+            urn.y += urn.velocityY;
+
+            if (urn.y > CANVAS_HEIGHT) {
+                this.activeUrns.splice(i, 1);
+                continue;
+            }
+
+            const opponentBox = { x: opponent.x, y: opponent.y, width: opponent.width, height: opponent.height };
+            const urnBox = { x: urn.x, y: urn.y, width: urn.width, height: urn.height };
+
+            if (
+                !urn.hit &&
+                !opponent.isSwallowed && !opponent.isStunned &&
+                urnBox.x < opponentBox.x + opponentBox.width &&
+                urnBox.x + urnBox.width > opponentBox.x &&
+                urnBox.y < opponentBox.y + opponentBox.height &&
+                urnBox.y + urnBox.height > opponentBox.y
+            ) {
+                opponent.takeDamage(JARITA_URN_DAMAGE, this.facingRight);
+                opponent.isStunned = true; // Aturde al oponente
+                opponent.stunTimer = 120; // por 2 segundos
+                urn.hit = true;
+                activeHitEffects.push({ text: "¡VOTADO!", x: urn.x, y: urn.y, color: "#DC143C", alpha: 1.0, size: 30, rotation: 0, lifetime: HIT_EFFECT_LIFETIME });
+            }
+        }
+    }
+
 
     update() {
         if (this.isSwallowed) {
@@ -1590,6 +1744,7 @@ class Player {
         if (opponent) {
             this.updateTiaCoteBeam(opponent);
             this.updateHearts(opponent);
+            this.updateDemocrashAttack(opponent);
         }
 
         // AI logic for both players
@@ -1911,6 +2066,35 @@ class Player {
         this.crackOpponentHit = false;
         this.crackCenterX = opponent.x + opponent.width / 2;
     }
+    
+    // --- NUEVO PERSONAJE: Método para lanzar el superpoder de Jarita ---
+    launchDemocrashAttack() {
+        const opponent = players.find(p => p !== this);
+        if (!opponent) return;
+
+        this.isCastingDemocrash = true;
+        this.democrashTimer = JARITA_DEMOCRASH_DURATION;
+        this.isPerformingSuperAttackAnimation = true;
+        this.attackVisualActive = true;
+        this.activeUrns = []; // Limpiar urnas anteriores
+
+        // Crear urnas que caerán sobre el oponente
+        for (let i = 0; i < JARITA_URN_FALL_COUNT; i++) {
+            this.activeUrns.push({
+                x: opponent.x + (Math.random() - 0.5) * opponent.width * 2,
+                y: -100 - (Math.random() * 200),
+                width: 40,
+                height: 60,
+                velocityY: Math.random() * 3 + 2,
+                hit: false
+            });
+        }
+        
+        // Reproducir sonido característico
+        new Audio('audio/jarita-fatality.mp3').play().catch(e => console.error("Error playing sound:", e));
+        screenShakeMagnitude = 10;
+        screenShakeTimeLeft = JARITA_DEMOCRASH_DURATION;
+    }
 
 
     _performAttack(isKickMove) {
@@ -1956,6 +2140,9 @@ class Player {
             } else if (this.name === "Tía Cote") {
                 this.launchTiaCoteBeamAttack();
                 currentDamage = 0;
+            } else if (this.name === "Jarita") { // --- NUEVO PERSONAJE ---
+                this.launchDemocrashAttack();
+                currentDamage = 0;
             } else {
                 // Sonido genérico para otros superataques
                 new Audio('audio/38H.wav').play().catch(e => console.error("Error playing sound:", e));
@@ -1977,10 +2164,10 @@ class Player {
             if (isKickMove) this.isKicking = false;
             else this.isPunching = false;
             this.attackArm = null;
-            if (isSuperMove && !this.isCastingBeam) this.isPerformingSuperAttackAnimation = false;
+            if (isSuperMove && !this.isCastingBeam && !this.isCastingDemocrash) this.isPerformingSuperAttackAnimation = false;
         }, ATTACK_LOGIC_DURATION);
         setTimeout(() => {
-            if(!this.isCastingBeam) this.attackVisualActive = false;
+            if(!this.isCastingBeam && !this.isCastingDemocrash) this.attackVisualActive = false;
         }, ATTACK_ANIMATION_DURATION);
 
         const opponent = players.find(p => p !== this);
@@ -2020,7 +2207,7 @@ class Player {
         }
         const opponentBox = { x: opponent.x, y: opponent.y, width: opponent.width, height: opponent.height };
 
-        if (!isSuperMove || (isSuperMove && this.name !== "Piraña" && this.name !== "La Ex" && this.name !== "Burric" && this.name !== "Matthei Bolt" && this.name !== "El Zanjas" && this.name !== "Carolina Papelucho" && this.name !== "Orsini Love" && this.name !== "Escape Room Jackson" && this.name !== "Tía Cote")) {
+        if (!isSuperMove || (isSuperMove && this.name !== "Piraña" && this.name !== "La Ex" && this.name !== "Burric" && this.name !== "Matthei Bolt" && this.name !== "El Zanjas" && this.name !== "Carolina Papelucho" && this.name !== "Orsini Love" && this.name !== "Escape Room Jackson" && this.name !== "Tía Cote" && this.name !== "Jarita")) {
              if (
                 attackHitbox.x < opponentBox.x + opponentBox.width &&
                 attackHitbox.x + attackHitbox.width > opponentBox.x &&
@@ -2088,6 +2275,9 @@ class Player {
             } else if (this.name === "Tía Cote") {
                 hitEffectText = "¡Bendiciones!";
                 hitEffectColor = "#e879f9";
+            } else if (this.name === "Jarita") { // --- NUEVO PERSONAJE ---
+                hitEffectText = "¡Democrash!";
+                hitEffectColor = "#CF142B";
             }
             activeHitEffects.push({ text: hitEffectText, x: this.x + this.width/2, y: this.y, color: hitEffectColor, size: 30, lifetime: HIT_EFFECT_LIFETIME * 1.5, rotation: (Math.random() - 0.5) * 0.2, alpha: 1});
             screenShakeMagnitude = 10;
@@ -2291,6 +2481,8 @@ function initGame() {
         p.stunTimer = 0;
         p.isCastingBeam = false;
         p.beamTimer = 0;
+        p.isCastingDemocrash = false;
+        p.democrashTimer = 0;
     });
 
     player1NameDisplay.textContent = players[0].name;
@@ -2452,7 +2644,7 @@ function updatePowerBars() {
 
 function isAnySuperPowerActive() {
     for (const player of players) {
-        if (player.isDashing || player.isCastingCrack || player.isSwallowed || player.isStunned || player.isCastingBeam ||
+        if (player.isDashing || player.isCastingCrack || player.isSwallowed || player.isStunned || player.isCastingBeam || player.isCastingDemocrash ||
             player.activePiranhaProjectiles.length > 0 ||
             player.activeMoneyWads.length > 0 ||
             player.activeCalculators.length > 0 ||
