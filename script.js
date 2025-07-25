@@ -31,9 +31,10 @@ const p2SelectedCharImg = document.getElementById('p2-selected-char-img');
 const p2SelectedCharName = document.getElementById('p2-selected-char-name');
 const selectionPrompt = document.getElementById('selection-prompt');
 
-// Ajuste de las dimensiones del canvas a 900x600.
+// --- MODIFICACIÓN ---
+// Ajuste de las dimensiones del canvas a 900x550.
 const CANVAS_WIDTH = 900;
-const CANVAS_HEIGHT = 600;
+const CANVAS_HEIGHT = 550;
 canvas.width = CANVAS_WIDTH;
 canvas.height = CANVAS_HEIGHT;
 
@@ -164,7 +165,8 @@ const characterBackgrounds = {
     "Matthei Bolt": ["img/pasillomoneda.png"],
     "Burric": ["img/pasillomoneda.png"],
     "Orsini Love": ["img/pasillomoneda.png"],
-    "Carolina Papelucho": ["img/pasillomoneda.png"]
+    "Carolina Papelucho": ["img/pasillomoneda.png"],
+    "Jarita": ["img/pasillomoneda.png"] // --- NUEVO PERSONAJE: Fondo de escenario ---
 };
 
 
@@ -356,7 +358,7 @@ const characterAssets = [
 
 const bodyTypeStats = {
     // Se aumentan las dimensiones base de los personajes para que se vean más grandes
-    // en el nuevo canvas de 900x600, manteniendo la proporción.
+    // en el nuevo canvas de 900x550, manteniendo la proporción.
     normal: { width: 75, height: 150, speedMod: 1.0, damageMod: 1.0, rangeMod: 1.0, healthMod: 1.0 }
 };
 
@@ -1116,14 +1118,32 @@ class Player {
         ctx.restore();
 
 
-        // Podio
+        // --- MODIFICACIÓN UX: Mejora visual del podio ---
         const podiumProgress = Math.min(1, progress * (JARITA_DEMOCRASH_DURATION / JARITA_PODIUM_RISE_TIME));
         const podiumHeight = 100 * podiumProgress;
         const podiumWidth = 120;
         const podiumX = this.x + (this.width - podiumWidth) / 2;
         const podiumY = CANVAS_HEIGHT - 10 - podiumHeight;
-        ctx.fillStyle = '#8B4513';
+        
+        // Cuerpo principal del podio
+        ctx.fillStyle = '#8B4513'; // Marrón oscuro
         ctx.fillRect(podiumX, podiumY, podiumWidth, podiumHeight);
+        
+        // Panel frontal más claro para dar profundidad
+        ctx.fillStyle = '#A0522D'; // Marrón siena
+        ctx.fillRect(podiumX + 10, podiumY + 10, podiumWidth - 20, podiumHeight - 10);
+        
+        // Micrófono simple
+        if (podiumProgress > 0.8) { // Aparece cuando el podio está casi levantado
+            const micBaseX = podiumX + podiumWidth / 2;
+            const micBaseY = podiumY;
+            ctx.fillStyle = '#696969'; // Gris oscuro
+            ctx.fillRect(micBaseX - 3, micBaseY - 30, 6, 30); // Soporte
+            ctx.fillStyle = '#363636'; // Casi negro
+            ctx.beginPath();
+            ctx.arc(micBaseX, micBaseY - 30, 10, 0, Math.PI * 2); // Cabeza del micrófono
+            ctx.fill();
+        }
 
 
         // Urnas y micrófonos cayendo
