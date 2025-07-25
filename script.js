@@ -31,9 +31,10 @@ const p2SelectedCharImg = document.getElementById('p2-selected-char-img');
 const p2SelectedCharName = document.getElementById('p2-selected-char-name');
 const selectionPrompt = document.getElementById('selection-prompt');
 
-// Constantes del juego
-const CANVAS_WIDTH = 800;
-const CANVAS_HEIGHT = 400;
+// --- MODIFICACIÓN ---
+// Ajuste de las dimensiones del canvas a 900x600.
+const CANVAS_WIDTH = 900;
+const CANVAS_HEIGHT = 600;
 canvas.width = CANVAS_WIDTH;
 canvas.height = CANVAS_HEIGHT;
 
@@ -2301,7 +2302,6 @@ function initGame() {
     
     gameOverModal.style.display = 'none';
     
-    // --- MODIFICACIÓN ---
     // Ocultar el panel de selección y mostrar los elementos de la batalla.
     controlsPanel.style.display = 'none';
     mainTitle.style.display = 'none';
@@ -2344,7 +2344,6 @@ function initGame() {
 function resetSelectionScreen() {
     gameOverModal.style.display = 'none';
     
-    // --- MODIFICACIÓN ---
     // Mostrar el panel de selección y ocultar los elementos de batalla.
     controlsPanel.style.display = 'block';
     mainTitle.style.display = 'block';
