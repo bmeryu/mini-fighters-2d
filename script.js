@@ -31,7 +31,6 @@ const p2SelectedCharImg = document.getElementById('p2-selected-char-img');
 const p2SelectedCharName = document.getElementById('p2-selected-char-name');
 const selectionPrompt = document.getElementById('selection-prompt');
 
-// --- MODIFICACIÓN ---
 // Ajuste de las dimensiones del canvas a 900x600.
 const CANVAS_WIDTH = 900;
 const CANVAS_HEIGHT = 600;
@@ -331,7 +330,10 @@ const characterAssets = [
 ];
 
 const bodyTypeStats = {
-    normal: { width: 50, height: 100, speedMod: 1.0, damageMod: 1.0, rangeMod: 1.0, healthMod: 1.0 }
+    // --- MODIFICACIÓN ---
+    // Se aumentan las dimensiones base de los personajes para que se vean más grandes
+    // en el nuevo canvas de 900x600, manteniendo la proporción.
+    normal: { width: 75, height: 150, speedMod: 1.0, damageMod: 1.0, rangeMod: 1.0, healthMod: 1.0 }
 };
 
 const ARM_GUARD_UPPER_ANGLE = Math.PI / 4.2;
