@@ -1068,7 +1068,7 @@ class Player {
         ctx.restore();
     }
     
-    // --- NUEVO PERSONAJE: Método para dibujar el superpoder de Jarita ---
+    // --- MEJORA UX: Dibujo del podio de Jarita ---
     drawDemocrashAttack() {
         if (!this.isCastingDemocrash) return;
 
@@ -1082,8 +1082,6 @@ class Player {
         ctx.restore();
 
         // Banderas
-        // (Implementación simple con rectángulos)
-        // Bandera de Venezuela
         const flagWidth = 200;
         const flagHeight = 120;
         ctx.save();
@@ -1097,7 +1095,6 @@ class Player {
         ctx.fillRect(-flagWidth/2, -flagHeight/2 + 2*flagHeight/3, flagWidth, flagHeight/3);
         ctx.restore();
         
-        // Bandera de Cuba
         ctx.save();
         ctx.globalAlpha = Math.min(0.7, progress * 2);
         ctx.translate(CANVAS_WIDTH * 3 / 4, CANVAS_HEIGHT / 3);
@@ -1115,16 +1112,53 @@ class Player {
         ctx.fill();
         ctx.restore();
 
-
-        // Podio
+        // Podio mejorado
         const podiumProgress = Math.min(1, progress * (JARITA_DEMOCRASH_DURATION / JARITA_PODIUM_RISE_TIME));
-        const podiumHeight = 100 * podiumProgress;
+        const podiumBaseHeight = 100;
+        const podiumCurrentHeight = podiumBaseHeight * podiumProgress;
         const podiumWidth = 120;
         const podiumX = this.x + (this.width - podiumWidth) / 2;
-        const podiumY = CANVAS_HEIGHT - 10 - podiumHeight;
-        ctx.fillStyle = '#8B4513';
-        ctx.fillRect(podiumX, podiumY, podiumWidth, podiumHeight);
+        const podiumY = CANVAS_HEIGHT - 10 - podiumCurrentHeight;
 
+        if (podiumCurrentHeight > 1) {
+            const topSurfaceHeight = 10;
+            const mainBodyY = podiumY + topSurfaceHeight;
+            const mainBodyHeight = podiumCurrentHeight - topSurfaceHeight;
+
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.fillRect(podiumX - 5, CANVAS_HEIGHT - 10, podiumWidth + 10, 5);
+
+            ctx.fillStyle = '#8B4513'; // SaddleBrown
+            ctx.fillRect(podiumX, mainBodyY, podiumWidth, mainBodyHeight);
+
+            ctx.fillStyle = '#654321'; // Darker brown
+            ctx.beginPath();
+            ctx.moveTo(podiumX + podiumWidth, mainBodyY);
+            ctx.lineTo(podiumX + podiumWidth + 8, mainBodyY - 8);
+            ctx.lineTo(podiumX + podiumWidth + 8, mainBodyY + mainBodyHeight - 8);
+            ctx.lineTo(podiumX + podiumWidth, mainBodyY + mainBodyHeight);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillStyle = '#A0522D'; // Sienna
+            ctx.beginPath();
+            ctx.moveTo(podiumX, podiumY + topSurfaceHeight);
+            ctx.lineTo(podiumX + 8, podiumY + topSurfaceHeight - 8);
+            ctx.lineTo(podiumX + podiumWidth + 8, podiumY + topSurfaceHeight - 8);
+            ctx.lineTo(podiumX + podiumWidth, podiumY + topSurfaceHeight);
+            ctx.closePath();
+            ctx.fill();
+
+            const micBaseX = podiumX + podiumWidth / 2;
+            const micBaseY = podiumY + topSurfaceHeight - 5;
+            if (podiumProgress > 0.9) {
+                ctx.fillStyle = '#333';
+                ctx.fillRect(micBaseX - 2, micBaseY - 20, 4, 20);
+                ctx.beginPath();
+                ctx.arc(micBaseX, micBaseY - 25, 8, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
 
         // Urnas y micrófonos cayendo
         this.activeUrns.forEach(urn => {
